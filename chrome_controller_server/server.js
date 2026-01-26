@@ -16,6 +16,10 @@ app.post('/open', (req, res) => {
     res.send({ status: 'ok' });
 });
 
+io.on('connection', (socket) => {
+    console.log(socket.id);
+})
+
 server.listen(3000, '0.0.0.0', () => {
     console.log('Serveur actif sur localhost:3000');
 });

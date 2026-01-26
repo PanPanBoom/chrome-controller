@@ -1,0 +1,24 @@
+{
+  "name": "Hello Extensions",
+  "description": "Base Level Extension",
+  "version": "1.0",
+  "manifest_version": 3,
+  "action": {
+    "default_popup": "hello.html",
+    "default_icon": "hello_extensions.png"
+  },
+  "permissions": [
+    "tabs",
+    "scripting",
+    "activeTab"
+  ],
+  "host_permissions": [
+    "http://localhost:3000/*",
+    "https://www.netflix.com/*",
+    "https://www.youtube.com/tv",
+    "https://www.primevideo.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  }
+}
