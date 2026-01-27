@@ -4,6 +4,7 @@ const { Server } = require('socket.io');
 
 const app = express();
 const server = http.createServer(app);
+const { exec } = require('child_process');
 const io = new Server(server, { cors: { origin: "*" } });
 
 app.use(express.json());
@@ -16,8 +17,32 @@ app.post('/open', (req, res) => {
     res.send({ status: 'ok' });
 });
 
-io.on('connection', (socket) => {
-    console.log(socket.id);
+app.post('/keypress', (req, res) => {
+    const { key } = req.body;
+    console.log(`Entrée : ${key}`);
+
+    // let linuxCommand = "";
+
+    // switch (key) {
+    //     case 'ArrowRight': linuxCommand = 'xdotool key Right'; break;
+    //     case 'ArrowLeft':  linuxCommand = 'xdotool key Left'; break;
+    //     case 'ArrowUp':    linuxCommand = 'xdotool key Up'; break;
+    //     case 'ArrowDown':  linuxCommand = 'xdotool key Down'; break;
+    //     case 'Enter':      linuxCommand = 'xdotool key Return'; break; // Attention c'est 'Return' sur Linux
+    //     case ' ':          linuxCommand = 'xdotool key space'; break;
+    //     case 'f':          linuxCommand = 'xdotool key f'; break;
+    // }
+
+    // if (linuxCommand) {
+    //     exec(linuxCommand, (error) => {
+    //         if (error) console.error("Erreur xdotool:", error);
+    //     });
+    // }
+
+    // res.send({ status: 'ok' });
+
+    io.emit('command', { action: 'KEY_PRESS', key});
+    res.send({ status: 'ok' });
 })
 
 server.listen(3000, '0.0.0.0', () => {
