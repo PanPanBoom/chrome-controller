@@ -1,7 +1,7 @@
 import { Pressable } from "react-native";
 
 type ButtonProps = {
-    children: React.ReactNode;
+    children?: React.ReactNode;
     className?: string;
     onPressOut?: () => void;
 }
