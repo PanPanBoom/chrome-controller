@@ -41,7 +41,13 @@ app.post('/keypress', (req, res) => {
 
     // res.send({ status: 'ok' });
 
-    io.emit('command', { action: 'KEY_PRESS', key});
+    let action = "NAVIGATE";
+    if(key === " ")
+        action = "VALIDATION";
+    else if(key === "Back")
+        action = "GO_BACK";
+
+    io.emit('command', { action: action, key});
     res.send({ status: 'ok' });
 })
 
