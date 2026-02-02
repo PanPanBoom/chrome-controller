@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "express": "^5.2.1",
+    "loudness": "^0.4.2",
     "socket.io": "^4.8.3"
   }
 }

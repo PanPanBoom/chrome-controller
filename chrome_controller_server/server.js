@@ -1,13 +1,22 @@
 const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
+const loudness = require('loudness');
 
 const app = express();
 const server = http.createServer(app);
 const { exec } = require('child_process');
 const io = new Server(server, { cors: { origin: "*" } });
 
+const path = require('path');
+const COMMANDS = require(path.join(__dirname, '..', 'chrome_controller_extension', 'constants.js'));
+
 app.use(express.json());
+
+app.get('/config/commands', (req, res) => {
+    console.log(`Constantes chargées : ${JSON.stringify(COMMANDS)}`);
+    res.json(COMMANDS);
+})
 
 app.post('/open', (req, res) => {
     const { url } = req.body;
@@ -21,33 +30,17 @@ app.post('/keypress', (req, res) => {
     const { key } = req.body;
     console.log(`Entrée : ${key}`);
 
-    // let linuxCommand = "";
+    io.emit('command', { action: "HANDLE", key});
+    res.send({ status: 'ok' });
+})
 
-    // switch (key) {
-    //     case 'ArrowRight': linuxCommand = 'xdotool key Right'; break;
-    //     case 'ArrowLeft':  linuxCommand = 'xdotool key Left'; break;
-    //     case 'ArrowUp':    linuxCommand = 'xdotool key Up'; break;
-    //     case 'ArrowDown':  linuxCommand = 'xdotool key Down'; break;
-    //     case 'Enter':      linuxCommand = 'xdotool key Return'; break; // Attention c'est 'Return' sur Linux
-    //     case ' ':          linuxCommand = 'xdotool key space'; break;
-    //     case 'f':          linuxCommand = 'xdotool key f'; break;
-    // }
+app.post('/volume', async (req, res) => {
+    const { volumeValue } = req.body;
+    console.log(`Volume : ${volumeValue > 0 ? "+" : ""}${volumeValue}`);
 
-    // if (linuxCommand) {
-    //     exec(linuxCommand, (error) => {
-    //         if (error) console.error("Erreur xdotool:", error);
-    //     });
-    // }
+    const vol = await loudness.getVolume();
+    await loudness.setVolume(vol + volumeValue);
 
-    // res.send({ status: 'ok' });
-
-    let action = "NAVIGATE";
-    if(key === " ")
-        action = "VALIDATION";
-    else if(key === "Back")
-        action = "GO_BACK";
-
-    io.emit('command', { action: action, key});
     res.send({ status: 'ok' });
 })
 
