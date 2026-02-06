@@ -9,6 +9,23 @@ class App
 
         this.rowsSelector = rowsSelector;
         this.itemsSelector = itemsSelector;
+
+        Object.defineProperties(this, {
+            baseRowsSelector: {
+                value: this.rowsSelector,
+                writable: false
+            },
+            baseItemsSelector: {
+                value: this.itemsSelector,
+                writable: false
+            }
+        });
+    }
+
+    reset()
+    {
+        this.rowsSelector = this.baseRowsSelector;
+        this.itemsSelector = this.baseItemsSelector;
     }
 
     handle(key, tabId)
@@ -16,26 +33,20 @@ class App
         throw new Error("Must be implemented.");
     }
 
-    async validate(key, tabId)
+    validate(tabId)
     {
-        const results = await chrome.scripting.executeScript({
+        chrome.scripting.executeScript({
             target: { tabId: tabId },
-            func: () => {
-                document.activeElement.click();
-
-                let stateUpdate = 0;
-                if(document.activeElement.title === "close")
-                    stateUpdate = -1;
-                else if(document.activeElement.className.includes("slider-refocus"))
-                    stateUpdate = 1;
-
-                return stateUpdate;
-            }
+            func: () => document.activeElement.click()
         })
+    }
 
-        console.log(results);
-
-        return results[0].result;
+    back(tabId)
+    {
+        chrome.tabs.goBack(tabId, () => {
+            if(chrome.runtime.lastError)
+                console.log("Impossible de go back");
+        })
     }
 
     navigate(key, tabId)
@@ -61,8 +72,6 @@ class App
                         y = index;
                     }
                 });
-
-                console.log(x + " " + y);
 
                 if(x < 0 || y < 0)
                     rowsWithItems[0][0].focus();
@@ -99,18 +108,64 @@ class Netflix extends App
         this.state = 0;
     }
 
+    reset()
+    {
+        super.reset();
+        this.state = 0;
+    }
+
+    back(tabId)
+    {
+        super.back(tabId);
+        this.state--;
+        console.log(this.state);
+    }
+
     handle(key, tabId)
     {
         if(key === remoteConstants.DPad.validate)
-            this.validate(key, tabId);
+            this.validate(tabId);
+
+        else if(key === remoteConstants.back)
+            this.back(tabId);
 
         else
             this.navigate(key, tabId);
     }
 
-    async validate(key, tabId)
+    navigate(key, tabId)
     {
-        this.state += await super.validate(key, tabId);
+        if(this.state == 2)
+        {
+            chrome.scripting.executeScript({
+                target: { tabId: tabId },
+                func: () => {
+                    window.dispatchEvent(new KeyboardEvent('keydown', { key: ' ' }));
+                }
+            });
+        }
+
+        super.navigate(key, tabId)
+    }
+
+    async validate(tabId)
+    {
+        const results = await chrome.scripting.executeScript({
+            target: { tabId: tabId },
+            func: () => {
+                document.activeElement.click();
+
+                let stateUpdate = 1;
+                if(document.activeElement.title === "close")
+                    stateUpdate = -1;
+                else if(document.activeElement.className.includes("navigation-tab"))
+                    stateUpdate = 0;
+
+                return stateUpdate;
+            }
+        })
+
+        this.state += results[0].result;
         console.log(this.state);
         this.updateSelectors();
     }
@@ -120,14 +175,18 @@ class Netflix extends App
         switch(this.state)
         {
             case 0:
-                this.rowsSelector = ".tabbed-primary-navigation, .billboard-links, .sliderContent";
-                this.itemsSelector = "a.slider-refocus, .navigation-tab > a, a.playLink";
+                this.rowsSelector = this.baseRowsSelector;
+                this.itemsSelector = this.baseItemsSelector;
                 break;
 
             case 1:
                 this.rowsSelector = ".previewModal-close > span, .previewModal--player-titleTreatment a, .episodeSelector-dropdown button, .episodeSelector-dropdown li, .episode-item"; 
                 this.itemsSelector = ""
                 break;
+
+            case 2:
+                this.rowsSelector = ".watch-video";
+                this.itemsSelector = "button";
         }
     }
 }

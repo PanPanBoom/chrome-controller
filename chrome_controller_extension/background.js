@@ -16,7 +16,12 @@ socket.on('command', (data) => {
         const activeTab = tabs[0];
 
         if(data.action == 'OPEN_TAB')
+        {
+            const newPlatform = data.url.split(".")[1];
+
             chrome.tabs.update(activeTab.id, { url: data.url });
+            apps[newPlatform].reset();
+        }
 
         else if(data.action == 'HANDLE')
         {
