@@ -31,7 +31,7 @@ export const DPad = (props: DPadProps) => {
     const margin = 2;
 
     return (
-        <View className="flex justify-center items-center w-full mt-10">
+        <View className="flex justify-center items-center w-full">
             <DPadArrow keySimulated={props.commands.DPad.up} className={buttonStyle} arrows={arrowsMapping}/>
             <View className={`flex flex-row my-${margin}`}>
                 <DPadArrow keySimulated={props.commands.DPad.left} className={buttonStyle} arrows={arrowsMapping} />

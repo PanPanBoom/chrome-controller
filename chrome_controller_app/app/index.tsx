@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/Button";
 import { Undo2, Volume1, Volume2 } from "lucide-react-native";
 import { useEffect, useState } from "react";
 import { remoteConstantsDTO } from "@/dtos/remoteConstants";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Index() {
   const [commands, setCommands] = useState<remoteConstantsDTO>({} as remoteConstantsDTO);
@@ -45,12 +46,12 @@ export default function Index() {
   }
 
   return (
-    <ScrollView className="w-full h-full" contentContainerClassName="flex justify-center items-center w-full h-full">
+    <SafeAreaView className="flex-1 flex gap-4 items-center">
       {
         loading == false &&
         <DPad commands={commands}/>
       }
-      <View className="my-4 flex flex-row gap-4 justify-center items-center">
+      <View className="flex-row gap-4 justify-center items-center">
         <Button onPressOut={goBack}>
           <Undo2 />
         </Button>
@@ -68,6 +69,6 @@ export default function Index() {
             <AppButton app={apps[name]} key={index}/>
         )}
       </View>
-    </ScrollView>
+    </SafeAreaView>
   );
 }
