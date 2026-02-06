@@ -58,7 +58,6 @@ class App
                 const rows = Array.from(document.querySelectorAll(selectors.rowsSelector));
                 const rowsWithItems = selectors.itemsSelector === "" ? rows.map((row) => [row]) : rows.map((row) => Array.from(row.querySelectorAll(selectors.itemsSelector)));
                 const allItems = selectors.itemsSelector === "" ? rows : Array.from(document.querySelectorAll(selectors.itemsSelector));
-                console.log(rowsWithItems);
 
                 // rowsWithItems[4][3].focus();
                 let x = -1, y = -1;
@@ -86,8 +85,6 @@ class App
                     } else if(key === remoteConstants.DPad.left) x--;
                     else if(key === remoteConstants.DPad.right) x++;
 
-                    console.log(x + " " + y);
-
                     rowsWithItems[y][x].focus();
                 }
 
@@ -105,13 +102,15 @@ class Netflix extends App
     constructor()
     {
         super(".tabbed-primary-navigation, .billboard-links, .sliderContent", "a.slider-refocus, .navigation-tab > a, a.playLink");
-        this.state = 0;
+        this.state = 2;
+        this.updateSelectors();
     }
 
     reset()
     {
         super.reset();
         this.state = 0;
+        this.updateSelectors();
     }
 
     back(tabId)
@@ -136,20 +135,83 @@ class Netflix extends App
     navigate(key, tabId)
     {
         if(this.state == 2)
-        {
-            chrome.scripting.executeScript({
-                target: { tabId: tabId },
-                func: () => {
-                    window.dispatchEvent(new KeyboardEvent('keydown', { key: ' ' }));
-                }
-            });
-        }
+            this.navigateInPlayer(key, tabId);
+        else
+            super.navigate(key, tabId)
+    }
 
-        super.navigate(key, tabId)
+    navigateInPlayer(key, tabId)
+    {
+        chrome.scripting.executeScript({
+            target: { tabId: tabId },
+            args: [ key.toLowerCase(), this, remoteConstants ],
+            func: (key, selectors, remoteConstants) => {
+                const rows = Array.from(document.querySelectorAll(selectors.rowsSelector));
+                const rowsWithItems = selectors.itemsSelector === "" ? rows.map((row) => [row]) : rows.map((row) => Array.from(row.querySelectorAll(selectors.itemsSelector)));
+                const allItems = selectors.itemsSelector === "" ? rows : Array.from(document.querySelectorAll(selectors.itemsSelector));
+
+                // rowsWithItems[4][3].focus();
+                let x = -1, y = -1;
+
+                rowsWithItems.forEach((row, index) => {
+                    const activeElementIndex = row.indexOf(document.activeElement);
+
+                    if(activeElementIndex >= 0)
+                    {
+                        x = activeElementIndex;
+                        y = index;
+                    }
+                });
+
+                console.log(`(${[x, y].join(", ")})`);
+
+                if(x >= 3)
+                    debugger;
+
+                console.log(rowsWithItems);
+
+                // Awake player if inactive
+                const inactiveElement = document.querySelectorAll('.inactive, .passive');
+                if(inactiveElement.length > 0)
+                    inactiveElement[0].click();
+
+                if(x < 0 || y < 0)
+                    rowsWithItems[0][0].focus();
+                else
+                {
+                    if(key === remoteConstants.DPad.up) {
+                        y--;
+                        x = 0;
+                    } else if(key === remoteConstants.DPad.down){ 
+                        y++;
+                        x = 0;
+                    } else if(key === remoteConstants.DPad.left) x--;
+                    else if(key === remoteConstants.DPad.right) x++;
+
+                    rowsWithItems[y][x].focus();
+                }
+
+                document.activeElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                allItems.forEach(items => items.style.outline = '');
+                document.activeElement.style.outline = "3px solid white";
+                document.activeElement.style.borderRadius = "4px";
+            }
+        })
     }
 
     async validate(tabId)
     {
+        // if(this.state == 2)
+        // {
+        //     chrome.scripting.executeScript({
+        //         target: { tabId: tabId },
+        //         func: () => {
+        //             window.dispatchEvent(new KeyboardEvent('keydown', { key: ' ' }));
+        //         }
+        //     });
+        //     return;
+        // }
+
         const results = await chrome.scripting.executeScript({
             target: { tabId: tabId },
             func: () => {

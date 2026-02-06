@@ -17,7 +17,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if(message.type === 'COMMAND_RECEIVED')
     {
         chrome.tabs.query({ active: true, currentWindow: true}, (tabs) => {
-            console.log(message);
             if(tabs.length == 0)
                 chrome.tabs.create({ url: "https://www.youtube.com/tv" });
         
@@ -25,7 +24,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         
             if(message.action == 'OPEN_TAB')
             {
-                console.log("change l'url")
                 const newPlatform = message.url.split(".")[1];
         
                 chrome.tabs.update(activeTab.id, { url: message.url });

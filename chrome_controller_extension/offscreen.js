@@ -7,7 +7,6 @@ socket.on('connect', () => {
 });
 
 socket.on('command', (data) => {
-    console.log('offscreen: command received ' + data.action)
     chrome.runtime.sendMessage({
         type: 'COMMAND_RECEIVED',
         action: data.action,
