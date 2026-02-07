@@ -72,6 +72,9 @@ class App
                     }
                 });
 
+                console.log(`(${[x, y].join(", ")})`);
+                console.log(rowsWithItems);
+
                 if(x < 0 || y < 0)
                     rowsWithItems[0][0].focus();
                 else
@@ -95,13 +98,35 @@ class App
             }
         })
     }
+
+    setInput(input, tabId)
+    {
+        chrome.scripting.executeScript({
+            target: { tabId: tabId },
+            args: [ input ],
+            func: (input) => {
+                console.log(document.activeElement.children)
+                if(document.activeElement.tagName.toLowerCase() === "input")
+                    document.activeElement.value = input;
+            }
+        })
+    }
+
+    submit(input, tabId)
+    {
+        throw new Error("Must be implemented.");
+    }
 }
 
 class Netflix extends App
 {
     constructor()
     {
-        super(".tabbed-primary-navigation, .billboard-links, .sliderContent", "a.slider-refocus, .navigation-tab > a, a.playLink");
+        super(
+            ".main-header, .billboard-links, .sliderContent",
+            "a.slider-refocus, .navigation-tab > a, a.playLink, button"
+        );
+
         this.state = 0;
     }
 
@@ -127,6 +152,19 @@ class Netflix extends App
             super.navigate(key, tabId)
     }
 
+    validate(tabId)
+    {
+        super.validate(tabId);
+
+        chrome.scripting.executeScript({
+            target: { tabId: tabId },
+            func: () => document.activeElement.tagName.toLowerCase() === "input"
+        }).then(results => {
+            if(results[0].result)
+                fetch("http://localhost:3000/keyboard");
+        });
+    }
+
     navigateInPlayer(key, tabId)
     {
         chrome.scripting.executeScript({
@@ -150,7 +188,7 @@ class Netflix extends App
                     }
                 });
 
-                console.log(`(${[x, y].join(", ")})`);
+                console.log(rowsWithItems);
 
                 // if(x >= 3)
                 //     debugger;
@@ -173,7 +211,7 @@ class Netflix extends App
                     } else if(key === remoteConstants.DPad.left) x--;
                     else if(key === remoteConstants.DPad.right) x++;
 
-                    // console.log(rowsWithItems[y][x]);
+                    console.log(rowsWithItems[y][x]);
 
                     rowsWithItems[y][x].focus();
                 }
@@ -183,7 +221,7 @@ class Netflix extends App
                 document.activeElement.style.outline = "3px solid white";
                 document.activeElement.style.borderRadius = "4px";
             }
-        })
+        });
     }
 
     async updateSelectors(tabId)
@@ -195,12 +233,16 @@ class Netflix extends App
                     return 1;
                 else if(document.querySelectorAll('.watch-video').length > 0)
                     return 2;
+                else if(document.querySelectorAll('.default-ltr-iqcdef-cache-1seef1c').length > 0)
+                    return 3;
 
                 return 0;
             }
         })
 
         this.state = results[0].result;
+
+        console.log(this.state);
         
         switch(this.state)
         {
@@ -215,9 +257,20 @@ class Netflix extends App
                 break;
 
             case 2: // Video player
-                this.rowsSelector = "ul, .watch-video";
-                this.itemsSelector = "li, button";
+                this.rowsSelector = ".default-ltr-iqcdef-cache-fwwk01, .default-ltr-iqcdef-cache-19uofy3, .default-ltr-iqcdef-cache-1e7fe8i, .watch-video";
+                this.itemsSelector = "li, .default-ltr-iqcdef-cache-rnz48h, .default-ltr-iqcdef-cache-1enhvti, .watch-video--skip-content-button";
+                break;
+
+            case 3: // Search results
+                this.rowsSelector = ".default-ltr-iqcdef-cache-1cglebk";
+                this.itemsSelector = ".default-ltr-iqcdef-cache-1cglebk a";    
+                break;
         }
+    }
+
+    submit(input, tabId)
+    {
+        chrome.tabs.update(tabId, { url: "https://www.netflix.com/search?q=" + input})
     }
 }
 

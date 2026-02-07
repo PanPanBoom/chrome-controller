@@ -21,6 +21,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                 chrome.tabs.create({ url: "https://www.youtube.com/tv" });
         
             const activeTab = tabs[0];
+            const currentPlatform = activeTab.url.split(".")[1];
         
             if(message.action == 'OPEN_TAB')
             {
@@ -29,13 +30,15 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                 chrome.tabs.update(activeTab.id, { url: message.url });
                 apps[newPlatform].reset();
             }
-        
+
+            else if(message.action == 'INPUT')
+                apps[currentPlatform].setInput(message.input, activeTab.id);
+
+            else if(message.action == 'SUBMIT')
+                apps[currentPlatform].submit(message.input, activeTab.id);
+
             else if(message.action == 'HANDLE')
-            {
-                const currentPlatform = activeTab.url.split(".")[1];
-                
                 apps[currentPlatform].handle(message.key, activeTab.id);
-            }
         });
     }
 });
