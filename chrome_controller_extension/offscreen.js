@@ -11,6 +11,7 @@ socket.on('command', (data) => {
         type: 'COMMAND_RECEIVED',
         action: data.action,
         key: data.key,
-        url: data.url
+        url: data.url,
+        input: data.input
     });
 });
