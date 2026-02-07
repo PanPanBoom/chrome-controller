@@ -102,22 +102,7 @@ class Netflix extends App
     constructor()
     {
         super(".tabbed-primary-navigation, .billboard-links, .sliderContent", "a.slider-refocus, .navigation-tab > a, a.playLink");
-        this.state = 2;
-        this.updateSelectors();
-    }
-
-    reset()
-    {
-        super.reset();
         this.state = 0;
-        this.updateSelectors();
-    }
-
-    back(tabId)
-    {
-        super.back(tabId);
-        this.state--;
-        console.log(this.state);
     }
 
     handle(key, tabId)
@@ -134,6 +119,8 @@ class Netflix extends App
 
     navigate(key, tabId)
     {
+        this.updateSelectors(tabId);
+
         if(this.state == 2)
             this.navigateInPlayer(key, tabId);
         else
@@ -165,10 +152,8 @@ class Netflix extends App
 
                 console.log(`(${[x, y].join(", ")})`);
 
-                if(x >= 3)
-                    debugger;
-
-                console.log(rowsWithItems);
+                // if(x >= 3)
+                //     debugger;
 
                 // Awake player if inactive
                 const inactiveElement = document.querySelectorAll('.inactive, .passive');
@@ -188,6 +173,8 @@ class Netflix extends App
                     } else if(key === remoteConstants.DPad.left) x--;
                     else if(key === remoteConstants.DPad.right) x++;
 
+                    // console.log(rowsWithItems[y][x]);
+
                     rowsWithItems[y][x].focus();
                 }
 
@@ -199,56 +186,37 @@ class Netflix extends App
         })
     }
 
-    async validate(tabId)
+    async updateSelectors(tabId)
     {
-        // if(this.state == 2)
-        // {
-        //     chrome.scripting.executeScript({
-        //         target: { tabId: tabId },
-        //         func: () => {
-        //             window.dispatchEvent(new KeyboardEvent('keydown', { key: ' ' }));
-        //         }
-        //     });
-        //     return;
-        // }
-
         const results = await chrome.scripting.executeScript({
             target: { tabId: tabId },
             func: () => {
-                document.activeElement.click();
+                if(document.querySelectorAll('.previewModal--container').length > 0)
+                    return 1;
+                else if(document.querySelectorAll('.watch-video').length > 0)
+                    return 2;
 
-                let stateUpdate = 1;
-                if(document.activeElement.title === "close")
-                    stateUpdate = -1;
-                else if(document.activeElement.className.includes("navigation-tab"))
-                    stateUpdate = 0;
-
-                return stateUpdate;
+                return 0;
             }
         })
 
-        this.state += results[0].result;
-        console.log(this.state);
-        this.updateSelectors();
-    }
-
-    updateSelectors()
-    {
+        this.state = results[0].result;
+        
         switch(this.state)
         {
-            case 0:
+            case 0: // Selection screen
                 this.rowsSelector = this.baseRowsSelector;
                 this.itemsSelector = this.baseItemsSelector;
                 break;
 
-            case 1:
+            case 1: // Modal info
                 this.rowsSelector = ".previewModal-close > span, .previewModal--player-titleTreatment a, .episodeSelector-dropdown button, .episodeSelector-dropdown li, .episode-item"; 
                 this.itemsSelector = ""
                 break;
 
-            case 2:
-                this.rowsSelector = ".watch-video";
-                this.itemsSelector = "button";
+            case 2: // Video player
+                this.rowsSelector = "ul, .watch-video";
+                this.itemsSelector = "li, button";
         }
     }
 }
