@@ -28,14 +28,14 @@ export const DPad = (props: DPadProps) => {
         [props.commands.DPad.down]: (<ChevronDown />)
     }
 
-    const margin = 2;
+    const gap = 2;
 
     return (
-        <View className="flex justify-center items-center w-full">
+        <View className={`flex justify-center items-center w-full gap-${gap}`}>
             <DPadArrow keySimulated={props.commands.DPad.up} className={buttonStyle} arrows={arrowsMapping}/>
-            <View className={`flex flex-row my-${margin}`}>
+            <View className={`flex flex-row gap-${gap}`}>
                 <DPadArrow keySimulated={props.commands.DPad.left} className={buttonStyle} arrows={arrowsMapping} />
-                <Button className={`mx-${margin} ${buttonStyle}`} onPressOut={handleValidation}/>
+                <Button className={buttonStyle} onPressOut={handleValidation}/>
                 <DPadArrow keySimulated={props.commands.DPad.right} className={buttonStyle} arrows={arrowsMapping} />
             </View>
             <DPadArrow keySimulated={props.commands.DPad.down} className={buttonStyle} arrows={arrowsMapping}/>

@@ -1,6 +1,7 @@
 importScripts("apps.js")
 
 const setupOffscreen = async () => {
+    console.log('Heartbeat');
     if(await chrome.offscreen.hasDocument())
         return;
 
@@ -12,6 +13,13 @@ const setupOffscreen = async () => {
 }
 
 setupOffscreen();
+
+chrome.alarms.create('keepAlive', { periodInMinutes: 1 });
+
+chrome.alarms.onAlarm.addListener((alarm) => {
+    if(alarm.name === 'keepAlive')
+        setupOffscreen();
+})
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if(message.type === 'COMMAND_RECEIVED')
@@ -29,6 +37,12 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         
                 chrome.tabs.update(activeTab.id, { url: message.url });
                 apps[newPlatform].reset();
+            }
+
+            else if(message.action == 'FULLSCREEN')
+            {
+                console.log('fullscreen');
+                chrome.windows.update(chrome.windows.WINDOW_ID_CURRENT, { state: "fullscreen"});
             }
 
             else if(message.action == 'INPUT')

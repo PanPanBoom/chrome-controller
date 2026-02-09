@@ -9,6 +9,8 @@ class App
 
         this.rowsSelector = rowsSelector;
         this.itemsSelector = itemsSelector;
+        this.x = -1;
+        this.y = -1;
 
         Object.defineProperties(this, {
             baseRowsSelector: {
@@ -37,7 +39,13 @@ class App
     {
         chrome.scripting.executeScript({
             target: { tabId: tabId },
-            func: () => document.activeElement.click()
+            args: [ this ],
+            func: (platform) => {
+                const rows = Array.from(document.querySelectorAll(platform.rowsSelector));
+                const rowsWithItems = platform.itemsSelector === "" ? rows.map((row) => [row]) : rows.map((row) => Array.from(row.querySelectorAll(platform.itemsSelector)));
+                
+                rowsWithItems[platform.y][platform.x].click();
+            }
         })
     }
 
@@ -49,54 +57,57 @@ class App
         })
     }
 
-    navigate(key, tabId)
+    async navigate(key, tabId)
     {
-        chrome.scripting.executeScript({
+        let newX = this.x;
+        let newY = this.y;
+        
+        if(newX < 0 || newY < 0)
+        {
+            newX = 0;
+            newY = 0;
+        }
+
+        else
+        {
+            if(key === remoteConstants.DPad.up) {
+                newY--;
+                newX = 0;
+            } else if(key === remoteConstants.DPad.down){ 
+                newY++;
+                newX = 0;
+            } else if(key === remoteConstants.DPad.left) newX--;
+            else if(key === remoteConstants.DPad.right) newX++;
+        }
+
+        const results = await chrome.scripting.executeScript({
             target: { tabId: tabId },
-            args: [ key.toLowerCase(), this, remoteConstants ],
-            func: (key, selectors, remoteConstants) => {
-                const rows = Array.from(document.querySelectorAll(selectors.rowsSelector));
-                const rowsWithItems = selectors.itemsSelector === "" ? rows.map((row) => [row]) : rows.map((row) => Array.from(row.querySelectorAll(selectors.itemsSelector)));
-                const allItems = selectors.itemsSelector === "" ? rows : Array.from(document.querySelectorAll(selectors.itemsSelector));
+            args: [ this, newX, newY ],
+            func: (platform, x, y) => {
+                const rows = Array.from(document.querySelectorAll(platform.rowsSelector));
+                const rowsWithItems = platform.itemsSelector === "" ? rows.map((row) => [row]) : rows.map((row) => Array.from(row.querySelectorAll(platform.itemsSelector)));
+                const allItems = platform.itemsSelector === "" ? rows : Array.from(document.querySelectorAll(platform.itemsSelector));
 
-                // rowsWithItems[4][3].focus();
-                let x = -1, y = -1;
+                if(y >= rowsWithItems.length || y < 0 || x >= rowsWithItems[y].length || x < 0)
+                    return false;
 
-                rowsWithItems.forEach((row, index) => {
-                    const activeElementIndex = row.indexOf(document.activeElement);
+                const activeElement = rowsWithItems[y][x];
 
-                    if(activeElementIndex >= 0)
-                    {
-                        x = activeElementIndex;
-                        y = index;
-                    }
-                });
-
-                console.log(`(${[x, y].join(", ")})`);
-                console.log(rowsWithItems);
-
-                if(x < 0 || y < 0)
-                    rowsWithItems[0][0].focus();
-                else
-                {
-                    if(key === remoteConstants.DPad.up) {
-                        y--;
-                        x = 0;
-                    } else if(key === remoteConstants.DPad.down){ 
-                        y++;
-                        x = 0;
-                    } else if(key === remoteConstants.DPad.left) x--;
-                    else if(key === remoteConstants.DPad.right) x++;
-
-                    rowsWithItems[y][x].focus();
-                }
-
-                document.activeElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                activeElement.focus();
+                activeElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 allItems.forEach(items => items.style.outline = '');
-                document.activeElement.style.outline = "3px solid white";
-                document.activeElement.style.borderRadius = "4px";
+                activeElement.style.outline = "3px solid white";
+                activeElement.style.borderRadius = "4px";
+
+                return true;
             }
-        })
+        });
+
+        if(results[0].result)
+        {
+            this.x = newX;
+            this.y = newY;
+        }
     }
 
     setInput(input, tabId)
@@ -165,63 +176,61 @@ class Netflix extends App
         });
     }
 
-    navigateInPlayer(key, tabId)
+    async navigateInPlayer(key, tabId)
     {
-        chrome.scripting.executeScript({
+        let newX = this.x;
+        let newY = this.y;
+        
+        if(newX < 0 || newY < 0)
+        {
+            newX = 0;
+            newY = 0;
+        }
+
+        else
+        {
+            if(key === remoteConstants.DPad.up) {
+                newY--;
+                newX = 0;
+            } else if(key === remoteConstants.DPad.down){ 
+                newY++;
+                newX = 0;
+            } else if(key === remoteConstants.DPad.left) newX--;
+            else if(key === remoteConstants.DPad.right) newX++;
+        }
+
+        const results = await chrome.scripting.executeScript({
             target: { tabId: tabId },
-            args: [ key.toLowerCase(), this, remoteConstants ],
-            func: (key, selectors, remoteConstants) => {
-                const rows = Array.from(document.querySelectorAll(selectors.rowsSelector));
-                const rowsWithItems = selectors.itemsSelector === "" ? rows.map((row) => [row]) : rows.map((row) => Array.from(row.querySelectorAll(selectors.itemsSelector)));
-                const allItems = selectors.itemsSelector === "" ? rows : Array.from(document.querySelectorAll(selectors.itemsSelector));
+            args: [ this, newX, newY ],
+            func: (platform, x, y) => {
+                const rows = Array.from(document.querySelectorAll(platform.rowsSelector));
+                const rowsWithItems = platform.itemsSelector === "" ? rows.map((row) => [row]) : rows.map((row) => Array.from(row.querySelectorAll(platform.itemsSelector)));
+                const allItems = platform.itemsSelector === "" ? rows : Array.from(document.querySelectorAll(platform.itemsSelector));
 
-                // rowsWithItems[4][3].focus();
-                let x = -1, y = -1;
-
-                rowsWithItems.forEach((row, index) => {
-                    const activeElementIndex = row.indexOf(document.activeElement);
-
-                    if(activeElementIndex >= 0)
-                    {
-                        x = activeElementIndex;
-                        y = index;
-                    }
-                });
-
-                console.log(rowsWithItems);
-
-                // if(x >= 3)
-                //     debugger;
-
-                // Awake player if inactive
                 const inactiveElement = document.querySelectorAll('.inactive, .passive');
                 if(inactiveElement.length > 0)
                     inactiveElement[0].click();
 
-                if(x < 0 || y < 0)
-                    rowsWithItems[0][0].focus();
-                else
-                {
-                    if(key === remoteConstants.DPad.up) {
-                        y--;
-                        x = 0;
-                    } else if(key === remoteConstants.DPad.down){ 
-                        y++;
-                        x = 0;
-                    } else if(key === remoteConstants.DPad.left) x--;
-                    else if(key === remoteConstants.DPad.right) x++;
+                if(y >= rowsWithItems.length || y < 0 || x >= rowsWithItems[y].length || x < 0)
+                    return false;
 
-                    console.log(rowsWithItems[y][x]);
+                const activeElement = rowsWithItems[y][x];
 
-                    rowsWithItems[y][x].focus();
-                }
-
-                document.activeElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                activeElement.focus();
+                activeElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 allItems.forEach(items => items.style.outline = '');
-                document.activeElement.style.outline = "3px solid white";
-                document.activeElement.style.borderRadius = "4px";
+                activeElement.style.outline = "3px solid white";
+                activeElement.style.borderRadius = "4px";
+
+                return true;
             }
         });
+
+        if(results[0].result)
+        {
+            this.x = newX;
+            this.y = newY;
+        }
     }
 
     async updateSelectors(tabId)
@@ -240,32 +249,37 @@ class Netflix extends App
             }
         })
 
-        this.state = results[0].result;
-
-        console.log(this.state);
-        
-        switch(this.state)
+        if(this.state !== results[0].result)
         {
-            case 0: // Selection screen
-                this.rowsSelector = this.baseRowsSelector;
-                this.itemsSelector = this.baseItemsSelector;
-                break;
-
-            case 1: // Modal info
-                this.rowsSelector = ".previewModal-close > span, .previewModal--player-titleTreatment a, .episodeSelector-dropdown button, .episodeSelector-dropdown li, .episode-item"; 
-                this.itemsSelector = ""
-                break;
-
-            case 2: // Video player
-                this.rowsSelector = ".default-ltr-iqcdef-cache-fwwk01, .default-ltr-iqcdef-cache-19uofy3, .default-ltr-iqcdef-cache-1e7fe8i, .watch-video";
-                this.itemsSelector = "li, .default-ltr-iqcdef-cache-rnz48h, .default-ltr-iqcdef-cache-1enhvti, .watch-video--skip-content-button";
-                break;
-
-            case 3: // Search results
-                this.rowsSelector = ".default-ltr-iqcdef-cache-1cglebk";
-                this.itemsSelector = ".default-ltr-iqcdef-cache-1cglebk a";    
-                break;
+            this.x = -1;
+            this.y = -1;
+            
+            this.state = results[0].result;
+            
+            switch(this.state)
+            {
+                case 0: // Selection screen
+                    this.rowsSelector = this.baseRowsSelector;
+                    this.itemsSelector = this.baseItemsSelector;
+                    break;
+    
+                case 1: // Modal info
+                    this.rowsSelector = ".previewModal-close > span, .previewModal--player-titleTreatment a, .episodeSelector-dropdown button, .episodeSelector-dropdown li, .episode-item"; 
+                    this.itemsSelector = ""
+                    break;
+    
+                case 2: // Video player
+                    this.rowsSelector = ".default-ltr-iqcdef-cache-fwwk01, .default-ltr-iqcdef-cache-19uofy3, .default-ltr-iqcdef-cache-1e7fe8i, .watch-video";
+                    this.itemsSelector = "li, .default-ltr-iqcdef-cache-rnz48h, .default-ltr-iqcdef-cache-1enhvti, .watch-video--skip-content-button";
+                    break;
+    
+                case 3: // Search results
+                    this.rowsSelector = ".default-ltr-iqcdef-cache-1cglebk";
+                    this.itemsSelector = ".default-ltr-iqcdef-cache-1cglebk a";    
+                    break;
+            }
         }
+
     }
 
     submit(input, tabId)

@@ -4,7 +4,7 @@ import { AppButton } from "@/components/AppButton";
 import { apps } from "@/constants/apps";
 import { DPad } from "@/components/DPad";
 import { Button } from "@/components/ui/Button";
-import { Undo2, Volume1, Volume2 } from "lucide-react-native";
+import { Maximize, Undo2, Volume1, Volume2 } from "lucide-react-native";
 import { useEffect, useRef, useState } from "react";
 import { remoteConstantsDTO } from "@/dtos/remoteConstants";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -76,6 +76,9 @@ export default function Index() {
       <View className="flex-row gap-4 justify-center items-center">
         <Button onPressOut={goBack}>
           <Undo2 />
+        </Button>
+        <Button onPressOut={() => fetch(`${PC_ÏP}/fullscreen`)}>
+          <Maximize />
         </Button>
         <View className="flex gap-2">
           <Button onPressOut={() => handleVolume(1)}>
