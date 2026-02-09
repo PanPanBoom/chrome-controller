@@ -15,13 +15,19 @@ app.use(express.json());
 app.get('/config/commands', (req, res) => {
     console.log(`Constantes chargées : ${JSON.stringify(COMMANDS)}`);
     res.json(COMMANDS);
+});
+
+app.get('/fullscreen', (req, res) => {
+    console.log('Fullscreen');
+    io.emit('command', { action: 'FULLSCREEN' });
+    res.send({ status: 'ok' });
 })
 
 app.get('/keyboard', (req, res) => {
     console.log("Trigger le clavier sur l'application");
     io.emit('keyboard');
     res.send({ status : 'ok' });
-})
+});
 
 app.post('/input', (req, res) => {
     const { input } = req.body;
