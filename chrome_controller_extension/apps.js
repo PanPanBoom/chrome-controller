@@ -59,6 +59,7 @@ class App
 
     async navigate(key, tabId)
     {
+        console.log("Debut navigate : " + [this.x, this.y].join(", "));
         let newX = this.x;
         let newY = this.y;
         
@@ -108,6 +109,9 @@ class App
             this.x = newX;
             this.y = newY;
         }
+
+        console.log("Fin navigate : " + [this.x, this.y].join(", "));
+
     }
 
     setInput(input, tabId)
@@ -153,14 +157,14 @@ class Netflix extends App
             this.navigate(key, tabId);
     }
 
-    navigate(key, tabId)
+    async navigate(key, tabId)
     {
-        this.updateSelectors(tabId);
+        await this.updateSelectors(tabId);
 
         if(this.state == 2)
             this.navigateInPlayer(key, tabId);
         else
-            super.navigate(key, tabId)
+            super.navigate(key, tabId);
     }
 
     validate(tabId)
@@ -217,7 +221,6 @@ class Netflix extends App
                 const activeElement = rowsWithItems[y][x];
 
                 activeElement.focus();
-                activeElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 allItems.forEach(items => items.style.outline = '');
                 activeElement.style.outline = "3px solid white";
                 activeElement.style.borderRadius = "4px";
@@ -235,6 +238,7 @@ class Netflix extends App
 
     async updateSelectors(tabId)
     {
+        console.log("Debut updateSelectors : " + [this.x, this.y].join(", "));
         const results = await chrome.scripting.executeScript({
             target: { tabId: tabId },
             func: () => {
@@ -279,6 +283,8 @@ class Netflix extends App
                     break;
             }
         }
+
+        console.log("Fin updateSelectors : " + [this.x, this.y].join(", "));
 
     }
 
