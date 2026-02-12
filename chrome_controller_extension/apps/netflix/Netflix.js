@@ -1,19 +1,23 @@
 import { App } from "../App.js";
 import { remoteConstants } from "../../constants.js";
+import { Page } from "../Page.js";
+import { VideoPage } from "./VideoPage.js";
 
 export class Netflix extends App
 {
     constructor()
     {
-        super(
-            ".main-header, .billboard-links, .sliderContent",
-            "a.slider-refocus, .navigation-tab > a, a.playLink, button"
-        );
+        super();
 
-        this.state = 0;
+        this.pages = [
+            new Page(".previewModal-close > span, .previewModal--player-titleTreatment a, .episodeSelector-dropdown button, .episodeSelector-dropdown li, .episode-item", "", '.previewModal--container'),
+            new VideoPage(),
+            new Page(".default-ltr-iqcdef-cache-1cglebk", ".default-ltr-iqcdef-cache-1cglebk a", '.default-ltr-iqcdef-cache-1seef1c'),
+            new Page(".main-header, .billboard-links, .sliderContent", "a.slider-refocus, .navigation-tab > a, a.playLink, button", ".main-header")
+        ];
     }
 
-    handle(key, tabId)
+    async handle(key, tabId)
     {
         if(key === remoteConstants.DPad.validate)
             this.validate(tabId);
@@ -22,17 +26,10 @@ export class Netflix extends App
             this.back(tabId);
 
         else
-            this.navigate(key, tabId);
-    }
-
-    async navigate(key, tabId)
-    {
-        await this.updateSelectors(tabId);
-
-        if(this.state == 2)
-            this.navigateInPlayer(key, tabId);
-        else
-            super.navigate(key, tabId);
+        {
+            const currentPage = await this.getCurrentPage(tabId);
+            currentPage.navigate(key, tabId);
+        }
     }
 
     validate(tabId)
@@ -46,62 +43,6 @@ export class Netflix extends App
             if(results[0].result)
                 fetch("http://localhost:3000/keyboard");
         });
-    }
-
-    async navigateInPlayer(key, tabId)
-    {
-        let newX = this.x;
-        let newY = this.y;
-        
-        if(newX < 0 || newY < 0)
-        {
-            newX = 0;
-            newY = 0;
-        }
-
-        else
-        {
-            if(key === remoteConstants.DPad.up) {
-                newY--;
-                newX = 0;
-            } else if(key === remoteConstants.DPad.down){ 
-                newY++;
-                newX = 0;
-            } else if(key === remoteConstants.DPad.left) newX--;
-            else if(key === remoteConstants.DPad.right) newX++;
-        }
-
-        const results = await chrome.scripting.executeScript({
-            target: { tabId: tabId },
-            args: [ this, newX, newY ],
-            func: (platform, x, y) => {
-                const rows = Array.from(document.querySelectorAll(platform.rowsSelector));
-                const rowsWithItems = platform.itemsSelector === "" ? rows.map((row) => [row]) : rows.map((row) => Array.from(row.querySelectorAll(platform.itemsSelector)));
-                const allItems = platform.itemsSelector === "" ? rows : Array.from(document.querySelectorAll(platform.itemsSelector));
-
-                const inactiveElement = document.querySelectorAll('.inactive, .passive');
-                if(inactiveElement.length > 0)
-                    inactiveElement[0].click();
-
-                if(y >= rowsWithItems.length || y < 0 || x >= rowsWithItems[y].length || x < 0)
-                    return false;
-
-                const activeElement = rowsWithItems[y][x];
-
-                activeElement.focus();
-                allItems.forEach(items => items.style.outline = '');
-                activeElement.style.outline = "3px solid white";
-                activeElement.style.borderRadius = "4px";
-
-                return true;
-            }
-        });
-
-        if(results[0].result)
-        {
-            this.x = newX;
-            this.y = newY;
-        }
     }
 
     async updateSelectors(tabId)
