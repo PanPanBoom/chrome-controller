@@ -1,4 +1,4 @@
-const remoteConstants = {
+export const remoteConstants = {
     DPad: {
         left: "left",
         right: "right",
