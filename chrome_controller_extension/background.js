@@ -1,4 +1,4 @@
-importScripts("apps.js")
+import { apps } from "./apps/apps.js";
 
 const setupOffscreen = async () => {
     console.log('Heartbeat');
