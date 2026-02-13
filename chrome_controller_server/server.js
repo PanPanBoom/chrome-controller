@@ -6,9 +6,27 @@ const loudness = require('loudness');
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: "*" } });
+const { exec } = require('child_process');
 
 const path = require('path');
 const COMMANDS = require(path.join(__dirname, '..', 'chrome_controller_extension', 'constants.js'));
+
+let isExtensionConnected = false;
+
+io.on("connection", (socket) => {
+    socket.on('identify', (role) => {
+        if(role === "extension")
+        {
+            isExtensionConnected = true;
+            console.log("Navigateur détecté");
+        }
+    });
+
+    socket.on('disconnect', () => {
+        isExtensionConnected = false;
+        console.log("Deconnexion de l'extension");
+    });
+})
 
 app.use(express.json());
 
@@ -48,6 +66,14 @@ app.post('/input/submit', (req, res) => {
 app.post('/open', (req, res) => {
     const { url } = req.body;
     console.log(`Demande d'ouverture : ${url}`);
+
+    if(isExtensionConnected == false)
+    {
+        console.log("Lancement du navigateur");
+        exec(`start opera "${url}"`, (err) => {
+            console.log(err);
+        });
+    }
 
     io.emit('command', { action: 'OPEN_TAB', url });
     res.send({ status: 'ok' });
