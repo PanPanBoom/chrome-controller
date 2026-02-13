@@ -1,6 +1,6 @@
 {
-  "name": "Hello Extensions",
-  "description": "Base Level Extension",
+  "name": "Chrome Controller",
+  "description": "Extension for Chrome Controller",
   "version": "1.0",
   "manifest_version": 3,
   "action": {
@@ -12,7 +12,8 @@
     "scripting",
     "activeTab",
     "offscreen",
-    "alarms"
+    "alarms",
+    "system.display"
   ],
   "host_permissions": [
     "http://localhost:3000/*",

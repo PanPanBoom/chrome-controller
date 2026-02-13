@@ -1,5 +1,19 @@
 import { apps } from "./apps/apps.js";
 
+chrome.system.display.getInfo((displays) => {
+    if (displays.length > 1) {
+        const secondary = displays[1];
+        
+        chrome.windows.getCurrent((window) => {
+            chrome.windows.update(window.id, {
+                left: secondary.bounds.left,
+                top: secondary.bounds.top,
+                state: 'maximized'
+            });
+        });
+    }
+});
+
 const setupOffscreen = async () => {
     console.log('Heartbeat');
     if(await chrome.offscreen.hasDocument())
@@ -19,7 +33,7 @@ chrome.alarms.create('keepAlive', { periodInMinutes: 1 });
 chrome.alarms.onAlarm.addListener((alarm) => {
     if(alarm.name === 'keepAlive')
         setupOffscreen();
-})
+});
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if(message.type === 'COMMAND_RECEIVED')
@@ -40,10 +54,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             }
 
             else if(message.action == 'FULLSCREEN')
-            {
-                console.log('fullscreen');
                 chrome.windows.update(chrome.windows.WINDOW_ID_CURRENT, { state: "fullscreen"});
-            }
 
             else if(message.action == 'INPUT')
                 apps[currentPlatform].setInput(message.input, activeTab.id);

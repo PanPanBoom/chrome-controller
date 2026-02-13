@@ -2,25 +2,49 @@ import { remoteConstants } from "../constants.js";
 
 export class App
 {
-    constructor(rowsSelector, itemsSelector)
+    constructor()
     {
         if(this.constructor == App)
             throw new Error("Abstract classes can't be instantiated.");
 
         this.pages = [];
+        this.currentPageIndex = 0;
     }
 
     reset()
     {
-        
+        this.pages.forEach(page => page.reset());
     }
 
     handle(key, tabId)
     {
-        throw new Error("Must be implemented.");
+        if(key === remoteConstants.DPad.validate)
+            this.validate(tabId);
+
+        else if(key === remoteConstants.back)
+            this.back(tabId);
+
+        else
+            this.navigate(key, tabId);
     }
 
-    async getCurrentPage(tabId)
+    async navigate(key, tabId)
+    {
+        const currentPageIndex = await this.getCurrentPageIndex(tabId);
+        this.updatePageIndex(currentPageIndex);
+        this.pages[currentPageIndex].navigate(key, tabId);
+    }
+
+    updatePageIndex(newId)
+    {
+        if(newId != this.currentPageIndex)
+        {
+            this.currentPageIndex = newId;
+            this.pages[newId].reset();
+        }
+    }
+
+    async getCurrentPageIndex(tabId)
     {
         for(let i = 0; i < this.pages.length; i++)
         {
@@ -31,7 +55,7 @@ export class App
             });
 
             if(results[0].result)
-                return this.pages[i];
+                return i;
         }
     }
 
@@ -39,7 +63,7 @@ export class App
     {
         chrome.scripting.executeScript({
             target: { tabId: tabId },
-            args: [ await this.getCurrentPage(tabId) ],
+            args: [ await this.pages[this.currentPageIndex] ],
             func: (platform) => {
                 const rows = Array.from(document.querySelectorAll(platform.rowsSelector));
                 const rowsWithItems = platform.itemsSelector === "" ? rows.map((row) => [row]) : rows.map((row) => Array.from(row.querySelectorAll(platform.itemsSelector)));

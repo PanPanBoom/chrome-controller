@@ -11,9 +11,14 @@ export class Page
         this.identifier = identifier;
     }
 
+    reset()
+    {
+        this.x = -1;
+        this.y = -1;
+    }
+
     async navigate(key, tabId)
     {
-        console.log("Debut navigate : " + [this.x, this.y].join(", "));
         let newX = this.x;
         let newY = this.y;
         
@@ -35,10 +40,19 @@ export class Page
             else if(key === remoteConstants.DPad.right) newX++;
         }
 
+        if(await this.applyNavigation(tabId, newX, newY, newY != this.y))
+        {
+            this.x = newX;
+            this.y = newY;
+        }
+    }
+
+    async applyNavigation(tabId, newX, newY, scroll)
+    {
         const results = await chrome.scripting.executeScript({
             target: { tabId: tabId },
-            args: [ this, newX, newY ],
-            func: (platform, x, y) => {
+            args: [ this, newX, newY, scroll ],
+            func: (platform, x, y, scroll) => {
                 const rows = Array.from(document.querySelectorAll(platform.rowsSelector));
                 const rowsWithItems = platform.itemsSelector === "" ? rows.map((row) => [row]) : rows.map((row) => Array.from(row.querySelectorAll(platform.itemsSelector)));
                 const allItems = platform.itemsSelector === "" ? rows : Array.from(document.querySelectorAll(platform.itemsSelector));
@@ -48,8 +62,9 @@ export class Page
 
                 const activeElement = rowsWithItems[y][x];
 
-                activeElement.focus();
-                activeElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                if(scroll)
+                    activeElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
                 allItems.forEach(items => items.style.outline = '');
                 activeElement.style.outline = "3px solid white";
                 activeElement.style.borderRadius = "4px";
@@ -58,13 +73,6 @@ export class Page
             }
         });
 
-        if(results[0].result)
-        {
-            this.x = newX;
-            this.y = newY;
-        }
-
-        console.log("Fin navigate : " + [this.x, this.y].join(", "));
-
+        return results[0].result;
     }
 }

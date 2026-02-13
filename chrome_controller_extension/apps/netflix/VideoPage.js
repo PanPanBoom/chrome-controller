@@ -6,35 +6,14 @@ export class VideoPage extends Page
     constructor()
     {
         super(
-            ".default-ltr-iqcdef-cache-fwwk01, .default-ltr-iqcdef-cache-19uofy3, .default-ltr-iqcdef-cache-1e7fe8i, .watch-video",
-            "li, .default-ltr-iqcdef-cache-rnz48h, .default-ltr-iqcdef-cache-1enhvti, .watch-video--skip-content-button",
+            ".default-ltr-iqcdef-cache-fwwk01, .default-ltr-iqcdef-cache-19uofy3, .default-ltr-iqcdef-cache-1e7fe8i, .watch-video, .default-ltr-iqcdef-cache-zjik7",
+            "li, .default-ltr-iqcdef-cache-rnz48h, .default-ltr-iqcdef-cache-1enhvti, .watch-video--skip-content-button, .default-ltr-iqcdef-cache-1csye0r",
             '.watch-video'
         );
     }
 
-    async navigate(key, tabId)
+    async applyNavigation(tabId, newX, newY)
     {
-        let newX = this.x;
-        let newY = this.y;
-        
-        if(newX < 0 || newY < 0)
-        {
-            newX = 0;
-            newY = 0;
-        }
-
-        else
-        {
-            if(key === remoteConstants.DPad.up) {
-                newY--;
-                newX = 0;
-            } else if(key === remoteConstants.DPad.down){ 
-                newY++;
-                newX = 0;
-            } else if(key === remoteConstants.DPad.left) newX--;
-            else if(key === remoteConstants.DPad.right) newX++;
-        }
-
         const results = await chrome.scripting.executeScript({
             target: { tabId: tabId },
             args: [ this, newX, newY ],
@@ -61,10 +40,6 @@ export class VideoPage extends Page
             }
         });
 
-        if(results[0].result)
-        {
-            this.x = newX;
-            this.y = newY;
-        }
+        return results[0].result;
     }
 }

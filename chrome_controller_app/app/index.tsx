@@ -22,9 +22,9 @@ export default function Index() {
     fetch(`${PC_ÏP}/config/commands`)
       .then(res => res.json())
       .then(data => {
-        setCommands(data);
+        setCommands(data.remoteConstants);
         setLoading(false);
-        console.log(data);
+        // console.log(data);
       });
 
       socket.on('keyboard', () => {
