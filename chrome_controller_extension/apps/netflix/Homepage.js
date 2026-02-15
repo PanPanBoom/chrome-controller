@@ -5,8 +5,8 @@ export class Homepage extends Page
     constructor()
     {
         super(
-            ".main-header, .billboard-links, .slider",
-            "a.slider-refocus, .navigation-tab > a, a.playLink, button, .handlePrev, .handleNext",
+            ".main-header, .billboard-links, .slider, .subgenres, .sub-menu",
+            "a.slider-refocus, .navigation-tab > a, a.playLink, button, .handlePrev, .handleNext, [aria-labelledby='profileLanguageDropDown-header'], .sub-menu a",
             ".main-header"
         );
     }
