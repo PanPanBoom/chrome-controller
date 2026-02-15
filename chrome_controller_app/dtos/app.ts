@@ -1,4 +1,5 @@
 export type App = {
     img: any,
-    url: string
+    url: string,
+    redirect?: () => void;
 }
