@@ -40,39 +40,48 @@ export class Page
             else if(key === remoteConstants.DPad.right) newX++;
         }
 
-        if(await this.applyNavigation(tabId, newX, newY, newY != this.y))
-        {
-            this.x = newX;
-            this.y = newY;
-        }
+        const finalCoordinates = await chrome.scripting.executeScript({
+            target: { tabId: tabId },
+            args: [ this, this.x, this.y, newX, newY ],
+            func: this.applyNavigation
+        });
+        console.log(finalCoordinates);
+
+        this.x = finalCoordinates[0].result.x;
+        this.y = finalCoordinates[0].result.y;
     }
 
-    async applyNavigation(tabId, newX, newY, scroll)
+    applyNavigation = (selectors, oldX, oldY, newX, newY) =>
     {
-        const results = await chrome.scripting.executeScript({
-            target: { tabId: tabId },
-            args: [ this, newX, newY, scroll ],
-            func: (platform, x, y, scroll) => {
-                const rows = Array.from(document.querySelectorAll(platform.rowsSelector));
-                const rowsWithItems = platform.itemsSelector === "" ? rows.map((row) => [row]) : rows.map((row) => Array.from(row.querySelectorAll(platform.itemsSelector)));
-                const allItems = platform.itemsSelector === "" ? rows : Array.from(document.querySelectorAll(platform.itemsSelector));
+        const rows = Array.from(document.querySelectorAll(selectors.rowsSelector));
+        const rowsWithItems = selectors.itemsSelector === "" ? rows.map((row) => [row]) : rows.map((row) => Array.from(row.querySelectorAll(selectors.itemsSelector)));
+        const allItems = selectors.itemsSelector === "" ? rows : Array.from(document.querySelectorAll(selectors.itemsSelector));
 
-                if(y >= rowsWithItems.length || y < 0 || x >= rowsWithItems[y].length || x < 0)
-                    return false;
+        let finalX = newX;
+        let finalY = newY;
 
-                const activeElement = rowsWithItems[y][x];
+        if(finalY >= rowsWithItems.length)
+            finalY = 0;
+        else if(finalY < 0)
+            finalY = rowsWithItems.length - 1;
 
-                if(scroll)
-                    activeElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        if(finalX >= rowsWithItems[finalY].length)
+            finalX = rowsWithItems[finalY].length - 1;
+        else if(finalX < 0)
+            finalX = 0;
 
-                allItems.forEach(items => items.style.outline = '');
-                activeElement.style.outline = "3px solid white";
-                activeElement.style.borderRadius = "4px";
+        const activeElement = rowsWithItems[finalY][finalX];
 
-                return true;
-            }
-        });
+        if(oldY !== finalY)
+            activeElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
-        return results[0].result;
+        allItems.forEach(items => items.style.outline = '');
+        activeElement.style.outline = "3px solid white";
+        activeElement.style.borderRadius = "4px";
+
+        return {
+            x: finalX,
+            y: finalY
+        };
     }
 }
