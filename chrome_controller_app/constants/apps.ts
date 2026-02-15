@@ -15,4 +15,8 @@ export const apps: Record<string, App> = {
         img: require("../assets/images/prime.png"),
         url: "https://www.primevideo.com/"
     },
+    "twitch": {
+        img: require("../assets/images/twitch.png"),
+        url: "https://www.twitch.tv/"
+    }
 }
