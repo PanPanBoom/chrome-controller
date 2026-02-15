@@ -32,19 +32,6 @@ export class Netflix extends App
         }
     }
 
-    validate(tabId)
-    {
-        super.validate(tabId);
-
-        chrome.scripting.executeScript({
-            target: { tabId: tabId },
-            func: () => document.activeElement.tagName.toLowerCase() === "input"
-        }).then(results => {
-            if(results[0].result)
-                fetch("http://localhost:3000/keyboard");
-        });
-    }
-
     submit(input, tabId)
     {
         chrome.tabs.update(tabId, { url: "https://www.netflix.com/search?q=" + input})
