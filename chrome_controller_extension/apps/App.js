@@ -68,9 +68,21 @@ export class App
                 const rows = Array.from(document.querySelectorAll(platform.rowsSelector));
                 const rowsWithItems = platform.itemsSelector === "" ? rows.map((row) => [row]) : rows.map((row) => Array.from(row.querySelectorAll(platform.itemsSelector)));
                 
-                rowsWithItems[platform.y][platform.x].click();
+                const activeElement = rowsWithItems[platform.y][platform.x];
+
+                activeElement.focus();
+                activeElement.click();
             }
-        })
+        });
+
+        chrome.scripting.executeScript({
+            target: { tabId: tabId },
+            func: () => document.activeElement.tagName.toLowerCase() === "input"
+        }).then(results => {
+            console.log(results);
+            if(results[0].result)
+                fetch("http://localhost:3000/keyboard");
+        });
     }
 
     back(tabId)
