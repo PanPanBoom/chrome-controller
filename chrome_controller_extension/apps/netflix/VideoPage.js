@@ -1,5 +1,4 @@
 import { Page } from "../Page.js";
-import { remoteConstants } from "../../constants.js";
 
 export class VideoPage extends Page
 {
@@ -12,34 +11,41 @@ export class VideoPage extends Page
         );
     }
 
-    async applyNavigation(tabId, newX, newY)
+    applyNavigation = (selectors, oldX, oldY, newX, newY) =>
     {
-        const results = await chrome.scripting.executeScript({
-            target: { tabId: tabId },
-            args: [ this, newX, newY ],
-            func: (platform, x, y) => {
-                const rows = Array.from(document.querySelectorAll(platform.rowsSelector));
-                const rowsWithItems = platform.itemsSelector === "" ? rows.map((row) => [row]) : rows.map((row) => Array.from(row.querySelectorAll(platform.itemsSelector)));
-                const allItems = platform.itemsSelector === "" ? rows : Array.from(document.querySelectorAll(platform.itemsSelector));
+        const rows = Array.from(document.querySelectorAll(selectors.rowsSelector));
+        const rowsWithItems = selectors.itemsSelector === "" ? rows.map((row) => [row]) : rows.map((row) => Array.from(row.querySelectorAll(selectors.itemsSelector)));
+        const allItems = selectors.itemsSelector === "" ? rows : Array.from(document.querySelectorAll(selectors.itemsSelector));
 
-                const inactiveElement = document.querySelectorAll('.inactive, .passive');
-                if(inactiveElement.length > 0)
-                    inactiveElement[0].click();
+        const inactiveElement = document.querySelectorAll('.inactive, .passive');
+        if(inactiveElement.length > 0)
+            inactiveElement[0].click();
+        
+        let finalX = newX;
+        let finalY = newY;
 
-                if(y >= rowsWithItems.length || y < 0 || x >= rowsWithItems[y].length || x < 0)
-                    return false;
+        if(finalY >= rowsWithItems.length)
+            finalY = 0;
+        else if(finalY < 0)
+            finalY = rowsWithItems.length - 1;
 
-                const activeElement = rowsWithItems[y][x];
+        if(finalX >= rowsWithItems[finalY].length)
+            finalX = rowsWithItems[finalY].length - 1;
+        else if(finalX < 0)
+            finalX = 0;
 
-                activeElement.focus();
-                allItems.forEach(items => items.style.outline = '');
-                activeElement.style.outline = "3px solid white";
-                activeElement.style.borderRadius = "4px";
+        const activeElement = rowsWithItems[finalY][finalX];
 
-                return true;
-            }
-        });
+        if(oldY !== finalY)
+            activeElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
-        return results[0].result;
+        allItems.forEach(items => items.style.outline = '');
+        activeElement.style.outline = "3px solid white";
+        activeElement.style.borderRadius = "4px";
+
+        return {
+            x: finalX,
+            y: finalY
+        };
     }
 }
