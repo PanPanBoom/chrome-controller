@@ -1,51 +1,73 @@
 import { Page } from "../Page.js";
+import { Container } from "../Container.js";
 
 export class VideoPage extends Page
 {
     constructor()
     {
         super(
-            ".default-ltr-iqcdef-cache-fwwk01, .default-ltr-iqcdef-cache-19uofy3, .default-ltr-iqcdef-cache-1e7fe8i, .watch-video, .default-ltr-iqcdef-cache-zjik7",
-            "li, .default-ltr-iqcdef-cache-rnz48h, .default-ltr-iqcdef-cache-1enhvti, .watch-video--skip-content-button, .default-ltr-iqcdef-cache-1csye0r",
+            [
+                new Container(".watch-video", "[data-uia='control-flag'], [data-uia='control-nav-back']", "row"),
+                new Container(".watch-video", ".watch-video--skip-content-button", "row"),
+                new Container("[data-uia='selector-episode']", ".default-ltr-iqcdef-cache-rnz48h", "column"),
+                new Container(".default-ltr-iqcdef-cache-fwwk01", "li", "column"),
+                new Container(".default-ltr-iqcdef-cache-1npqywr", "[data-uia^='control-play-pause-'], [data-uia$='10'], [data-uia^='control-volume-'], [data-uia='control-next'], [data-uia='control-episodes'], [data-uia='control-audio-subtitle'], [data-uia='control-speed'], [data-uia^='control-fullscreen']", "row"),
+                new Container(".default-ltr-iqcdef-cache-zjik7", ".default-ltr-iqcdef-cache-1csye0r", "row")
+            ],
             '.watch-video'
         );
     }
 
-    applyNavigation = (selectors, oldX, oldY, newX, newY) =>
+    applyNavigation = (containers, oldItemIndex, oldContainerIndex, newItemIndex, newContainerIndex) =>
     {
-        const rows = Array.from(document.querySelectorAll(selectors.rowsSelector));
-        const rowsWithItems = selectors.itemsSelector === "" ? rows.map((row) => [row]) : rows.map((row) => Array.from(row.querySelectorAll(selectors.itemsSelector)));
-        const allItems = selectors.itemsSelector === "" ? rows : Array.from(document.querySelectorAll(selectors.itemsSelector));
+        let containersWithItems = [];
+        
+        containers.forEach((container, containerIndex) => {
+            const containerElements = Array.from(document.querySelectorAll(container.selectors));
+
+            const containerWithItems = containerElements.map((el) => {
+                const items = container.itemsSelectors === "" ? [el] : Array.from(el.querySelectorAll(container.itemsSelectors));
+                
+                items.forEach(item => item.style.outline = '');
+
+                return {
+                    items: items,
+                    containerIndex: containerIndex
+                };
+            }).filter(container => container.items.length > 0);
+
+            containersWithItems = containersWithItems.concat(containerWithItems);
+        });
 
         const inactiveElement = document.querySelectorAll('.inactive, .passive');
         if(inactiveElement.length > 0)
             inactiveElement[0].click();
-        
-        let finalX = newX;
-        let finalY = newY;
 
-        if(finalY >= rowsWithItems.length)
-            finalY = 0;
-        else if(finalY < 0)
-            finalY = rowsWithItems.length - 1;
+        let finalItemIndex = newItemIndex;
+        let finalContainerIndex = newContainerIndex;
 
-        if(finalX >= rowsWithItems[finalY].length)
-            finalX = rowsWithItems[finalY].length - 1;
-        else if(finalX < 0)
-            finalX = 0;
+        if(finalContainerIndex >= containersWithItems.length)
+            finalContainerIndex = 0;
+        else if(finalContainerIndex < 0)
+            finalContainerIndex = containersWithItems.length - 1;
 
-        const activeElement = rowsWithItems[finalY][finalX];
+        if(finalItemIndex >= containersWithItems[finalContainerIndex].items.length)
+            finalItemIndex = containersWithItems[finalContainerIndex].items.length - 1;
+        else if(finalItemIndex < 0)
+            finalItemIndex = 0;
 
-        if(oldY !== finalY)
+        const activeElement = containersWithItems[finalContainerIndex].items[finalItemIndex];
+
+        if(oldItemIndex !== finalItemIndex && containers[containersWithItems[finalContainerIndex].containerIndex].direction === "column")
             activeElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
-        allItems.forEach(items => items.style.outline = '');
         activeElement.style.outline = "3px solid white";
         activeElement.style.borderRadius = "4px";
-
+        
         return {
-            x: finalX,
-            y: finalY
+            itemIndex: finalItemIndex,
+            containerIndex: finalContainerIndex,
+            currentContainerIndex: containersWithItems[finalContainerIndex].containerIndex
         };
     }
 }
