@@ -11,9 +11,9 @@ export class Netflix extends App
         super();
 
         this.pages = [
-            new Page(".previewModal-close > span, .previewModal--player-titleTreatment a, .episodeSelector-dropdown button, .episodeSelector-dropdown li, .episode-item", "", '.previewModal--container'),
+            new Page([], '.previewModal--container'),
             new VideoPage(),
-            new Page(".default-ltr-iqcdef-cache-1cglebk", ".default-ltr-iqcdef-cache-1cglebk a", '.default-ltr-iqcdef-cache-1seef1c'),
+            new Page([], '.default-ltr-iqcdef-cache-1seef1c'),
             new Homepage()
         ];
     }
@@ -24,11 +24,7 @@ export class Netflix extends App
         {
             this.currentPageIndex = newId;
             if(!(this.pages[newId] instanceof Homepage))
-            {
-                console.log(typeof this.pages[newId]);
-                console.log("reset");
                 this.pages[newId].reset();
-            }
         }
     }
 

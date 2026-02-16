@@ -2,86 +2,158 @@ import { remoteConstants } from "../constants.js";
 
 export class Page
 {
-    constructor(rowsSelector, itemsSelector, identifier)
+    constructor(containers, identifier)
     {
-        this.x = -1;
-        this.y = -1;
-        this.rowsSelector = rowsSelector;
-        this.itemsSelector = itemsSelector;
+        this.itemInPageIndex = -1;
+        this.containerInPageIndex = -1;
+        this.currentContainerIndex = -1;
         this.identifier = identifier;
+        this.containers = containers;
     }
 
     reset()
     {
-        this.x = -1;
-        this.y = -1;
+        this.itemInPageIndex = -1;
+        this.containerInPageIndex = -1;
+    }
+
+    async validate(tabId)
+    {
+        chrome.scripting.executeScript({
+            target: { tabId: tabId },
+            args: [ this.containers, this.containerInPageIndex, this.itemInPageIndex ],
+            func: (containers, containerIndex, itemIndex) => {
+                let containersWithItems = [];
+        
+                containers.forEach((container, containerIndex) => {
+                    const containerElements = Array.from(document.querySelectorAll(container.selectors));
+                    const containerWithItems = containerElements.map((el) => {
+                        const items = container.itemsSelectors === "" ? [el] : Array.from(el.querySelectorAll(container.itemsSelectors));
+                        
+                        items.forEach(item => item.style.outline = '');
+
+                        return {
+                            items: items,
+                            containerIndex: containerIndex
+                        };
+                    });
+
+                    containersWithItems = containersWithItems.concat(containerWithItems);
+                });
+
+                const activeElement = containersWithItems[containerIndex].items[itemIndex];
+
+                activeElement.focus();
+                activeElement.click();
+            }
+        });
+
+        chrome.scripting.executeScript({
+            target: { tabId: tabId },
+            func: () => document.activeElement.tagName.toLowerCase() === "input"
+        }).then(results => {
+            if(results[0].result)
+                fetch("http://localhost:3000/keyboard");
+        });
     }
 
     async navigate(key, tabId)
     {
-        let newX = this.x;
-        let newY = this.y;
+        let newItemIndex = this.itemInPageIndex;
+        let newContainerIndex = this.containerInPageIndex;
         
-        if(newX < 0 || newY < 0)
+        if(newItemIndex < 0 || newContainerIndex < 0 || this.currentContainerIndex < 0)
         {
-            newX = 0;
-            newY = 0;
+            newItemIndex = 0;
+            newContainerIndex = 0;
+            this.currentContainerIndex = 0;
         }
 
         else
         {
-            if(key === remoteConstants.DPad.up) {
-                newY--;
-                newX = 0;
-            } else if(key === remoteConstants.DPad.down){ 
-                newY++;
-                newX = 0;
-            } else if(key === remoteConstants.DPad.left) newX--;
-            else if(key === remoteConstants.DPad.right) newX++;
+            if(this.containers[this.currentContainerIndex].direction === "row")
+            {
+                if(key === remoteConstants.DPad.up) {
+                    newContainerIndex--;
+                    newItemIndex = 0;
+                } else if(key === remoteConstants.DPad.down){ 
+                    newContainerIndex++;
+                    newItemIndex = 0;
+                } else if(key === remoteConstants.DPad.left) newItemIndex--;
+                else if(key === remoteConstants.DPad.right) newItemIndex++;
+            }
+
+            else if(this.containers[this.currentContainerIndex].direction === "column")
+            {
+                if(key === remoteConstants.DPad.up) newItemIndex--;
+                else if(key === remoteConstants.DPad.down) newItemIndex++;
+                else if(key === remoteConstants.DPad.left) {
+                    newContainerIndex--;
+                    newItemIndex = 0;
+                }
+                else if(key === remoteConstants.DPad.right){
+                    newContainerIndex++;
+                    newItemIndex = 0;
+                }
+            }
         }
 
         const finalCoordinates = await chrome.scripting.executeScript({
             target: { tabId: tabId },
-            args: [ this, this.x, this.y, newX, newY ],
+            args: [ this.containers, this.itemInPageIndex, this.containerInPageIndex, newItemIndex, newContainerIndex ],
             func: this.applyNavigation
         });
-        console.log(finalCoordinates);
 
-        this.x = finalCoordinates[0].result.x;
-        this.y = finalCoordinates[0].result.y;
+        this.itemInPageIndex = finalCoordinates[0].result.itemIndex;
+        this.containerInPageIndex = finalCoordinates[0].result.containerIndex;
+        this.currentContainerIndex = finalCoordinates[0].result.currentContainerIndex;
     }
 
-    applyNavigation = (selectors, oldX, oldY, newX, newY) =>
+    applyNavigation = (containers, oldItemIndex, oldContainerIndex, newItemIndex, newContainerIndex) =>
     {
-        const rows = Array.from(document.querySelectorAll(selectors.rowsSelector));
-        const rowsWithItems = selectors.itemsSelector === "" ? rows.map((row) => [row]) : rows.map((row) => Array.from(row.querySelectorAll(selectors.itemsSelector)));
-        const allItems = selectors.itemsSelector === "" ? rows : Array.from(document.querySelectorAll(selectors.itemsSelector));
+        let containersWithItems = [];
+        
+        containers.forEach((container, containerIndex) => {
+            const containerElements = Array.from(document.querySelectorAll(container.selectors));
+            const containerWithItems = containerElements.map((el) => {
+                const items = container.itemsSelectors === "" ? [el] : Array.from(el.querySelectorAll(container.itemsSelectors));
+                
+                items.forEach(item => item.style.outline = '');
 
-        let finalX = newX;
-        let finalY = newY;
+                return {
+                    items: items,
+                    containerIndex: containerIndex
+                };
+            });
 
-        if(finalY >= rowsWithItems.length)
-            finalY = 0;
-        else if(finalY < 0)
-            finalY = rowsWithItems.length - 1;
+            containersWithItems = containersWithItems.concat(containerWithItems);
+        });
 
-        if(finalX >= rowsWithItems[finalY].length)
-            finalX = rowsWithItems[finalY].length - 1;
-        else if(finalX < 0)
-            finalX = 0;
+        let finalItemIndex = newItemIndex;
+        let finalContainerIndex = newContainerIndex;
 
-        const activeElement = rowsWithItems[finalY][finalX];
+        if(finalContainerIndex >= containersWithItems.length)
+            finalContainerIndex = 0;
+        else if(finalContainerIndex < 0)
+            finalContainerIndex = containersWithItems.length - 1;
 
-        if(oldY !== finalY)
+        if(finalItemIndex >= containersWithItems[finalContainerIndex].items.length)
+            finalItemIndex = containersWithItems[finalContainerIndex].items.length - 1;
+        else if(finalItemIndex < 0)
+            finalItemIndex = 0;
+
+        const activeElement = containersWithItems[finalContainerIndex].items[finalItemIndex];
+
+        if(oldContainerIndex !== finalContainerIndex)
             activeElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
-        allItems.forEach(items => items.style.outline = '');
         activeElement.style.outline = "3px solid white";
         activeElement.style.borderRadius = "4px";
 
         return {
-            x: finalX,
-            y: finalY
+            itemIndex: finalItemIndex,
+            containerIndex: finalContainerIndex,
+            currentContainerIndex: containersWithItems[finalContainerIndex].containerIndex
         };
     }
 }
