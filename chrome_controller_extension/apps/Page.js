@@ -36,7 +36,7 @@ export class Page
                             items: items,
                             containerIndex: containerIndex
                         };
-                    });
+                    }).filter(container => container.items.length > 0);
 
                     containersWithItems = containersWithItems.concat(containerWithItems);
                 });
@@ -124,7 +124,7 @@ export class Page
                     items: items,
                     containerIndex: containerIndex
                 };
-            });
+            }).filter(container => container.items.length > 0);
 
             containersWithItems = containersWithItems.concat(containerWithItems);
         });
