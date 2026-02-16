@@ -62,40 +62,31 @@ export class Page
         let newItemIndex = this.itemInPageIndex;
         let newContainerIndex = this.containerInPageIndex;
         
-        if(newItemIndex < 0 || newContainerIndex < 0 || this.currentContainerIndex < 0)
+        if(newItemIndex < 0 || newContainerIndex < 0)
         {
             newItemIndex = 0;
             newContainerIndex = 0;
-            this.currentContainerIndex = 0;
         }
 
         else
         {
-            if(this.containers[this.currentContainerIndex].direction === "row")
-            {
-                if(key === remoteConstants.DPad.up) {
-                    newContainerIndex--;
-                    newItemIndex = 0;
-                } else if(key === remoteConstants.DPad.down){ 
-                    newContainerIndex++;
-                    newItemIndex = 0;
-                } else if(key === remoteConstants.DPad.left) newItemIndex--;
-                else if(key === remoteConstants.DPad.right) newItemIndex++;
+            const { up, down, left, right } = remoteConstants.DPad;
+            const isRow = this.containers[this.currentContainerIndex].direction === "row";
+
+            if(key === (isRow ? up : left)) {
+                newContainerIndex--;
+                newItemIndex = 0;
             }
 
-            else if(this.containers[this.currentContainerIndex].direction === "column")
-            {
-                if(key === remoteConstants.DPad.up) newItemIndex--;
-                else if(key === remoteConstants.DPad.down) newItemIndex++;
-                else if(key === remoteConstants.DPad.left) {
-                    newContainerIndex--;
-                    newItemIndex = 0;
-                }
-                else if(key === remoteConstants.DPad.right){
-                    newContainerIndex++;
-                    newItemIndex = 0;
-                }
+            else if(key === (isRow ? down : right)) {
+                newContainerIndex++;
+                newItemIndex = 0;
             }
+
+            else if(key === (isRow ? left : up))
+                newItemIndex--;
+            else if(key === (isRow ? right : down))
+                newItemIndex++;
         }
 
         const finalCoordinates = await chrome.scripting.executeScript({
