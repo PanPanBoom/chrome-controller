@@ -61,28 +61,7 @@ export class App
 
     async validate(tabId)
     {
-        chrome.scripting.executeScript({
-            target: { tabId: tabId },
-            args: [ await this.pages[this.currentPageIndex] ],
-            func: (platform) => {
-                const rows = Array.from(document.querySelectorAll(platform.rowsSelector));
-                const rowsWithItems = platform.itemsSelector === "" ? rows.map((row) => [row]) : rows.map((row) => Array.from(row.querySelectorAll(platform.itemsSelector)));
-                
-                const activeElement = rowsWithItems[platform.y][platform.x];
-
-                activeElement.focus();
-                activeElement.click();
-            }
-        });
-
-        chrome.scripting.executeScript({
-            target: { tabId: tabId },
-            func: () => document.activeElement.tagName.toLowerCase() === "input"
-        }).then(results => {
-            console.log(results);
-            if(results[0].result)
-                fetch("http://localhost:3000/keyboard");
-        });
+        await this.pages[this.currentPageIndex].validate(tabId);
     }
 
     back(tabId)
