@@ -1,3 +1,4 @@
+import { Container } from "../Container.js";
 import { Page } from "../Page.js";
 
 export class Homepage extends Page
@@ -5,67 +6,85 @@ export class Homepage extends Page
     constructor()
     {
         super(
-            ".main-header, .billboard-links, .slider, .subgenres, .sub-menu",
-            "a.slider-refocus, .navigation-tab > a, a.playLink, button, .handlePrev, .handleNext, [aria-labelledby='profileLanguageDropDown-header'], .sub-menu a",
+            [
+                new Container(".main-header", ".navigation-tab > a", "row"),
+                new Container(".subgenres", "[aria-labelledby='profileLanguageDropDown-header']", "row"),
+                new Container(".sub-menu-list", ".sub-menu a", "column"),
+                new Container(".billboard-links", ".billboard-links button", "row"),
+                new Container(".slider", "a.slider-refocus, .handlePrev, .handleNext", "row"),
+            ],
             ".main-header"
         );
     }
 
-    applyNavigation = (selectors, oldX, oldY, newX, newY) =>
+    applyNavigation = (containers, oldItemIndex, oldContainerIndex, newItemIndex, newContainerIndex) =>
     {
-        const rows = Array.from(document.querySelectorAll(selectors.rowsSelector));
-        const rowsWithItems = selectors.itemsSelector === "" ? rows.map((row) => [row]) : rows.map((row) => Array.from(row.querySelectorAll(selectors.itemsSelector)));
-        const allItems = selectors.itemsSelector === "" ? rows : Array.from(document.querySelectorAll(selectors.itemsSelector));
+        let containersWithItems = [];
+        
+        containers.forEach((container, containerIndex) => {
+            const containerElements = Array.from(document.querySelectorAll(container.selectors));
+            const containerWithItems = containerElements.map((el) => {
+                const items = container.itemsSelectors === "" ? [el] : Array.from(el.querySelectorAll(container.itemsSelectors));
+                
+                items.forEach(item => item.style.outline = '');
 
-        let finalX = newX;
-        let finalY = newY;
+                return {
+                    items: items,
+                    containerIndex: containerIndex
+                };
+            });
 
-        if(finalY >= rowsWithItems.length)
-            finalY = 0;
-        else if(finalY < 0)
-            finalY = rowsWithItems.length - 1;
+            containersWithItems = containersWithItems.concat(containerWithItems);
+        });
 
-        if(finalX >= rowsWithItems[finalY].length)
-            finalX = rowsWithItems[finalY].length - 1;
-        else if(finalX < 0)
-            finalX = 0;
+        let finalItemIndex = newItemIndex;
+        let finalContainerIndex = newContainerIndex;
 
+        if(finalContainerIndex >= containersWithItems.length)
+            finalContainerIndex = 0;
+        else if(finalContainerIndex < 0)
+            finalContainerIndex = containersWithItems.length - 1;
 
-        const activeElementRect = rowsWithItems[finalY][finalX].getBoundingClientRect();
+        if(finalItemIndex >= containersWithItems[finalContainerIndex].items.length)
+            finalItemIndex = containersWithItems[finalContainerIndex].items.length - 1;
+        else if(finalItemIndex < 0)
+            finalItemIndex = 0;
+
+        const activeElementRect = containersWithItems[finalContainerIndex].items[finalItemIndex].getBoundingClientRect();
 
         if(activeElementRect.x + activeElementRect.width > window.innerWidth)
         {
-            if(oldX < finalX)
-                finalX = rowsWithItems[finalY].length - 1;
+            if(oldItemIndex < finalItemIndex)
+                finalItemIndex = containersWithItems[finalContainerIndex].items.length - 1;
             else
             {
-                while(finalX > 0 && rowsWithItems[finalY][finalX].getBoundingClientRect().x + rowsWithItems[finalY][finalX].getBoundingClientRect().width > window.innerWidth)
-                    finalX--;
+                while(finalItemIndex > 0 && containersWithItems[finalContainerIndex].items[finalItemIndex].getBoundingClientRect().x + containersWithItems[finalContainerIndex].items[finalItemIndex].getBoundingClientRect().width > window.innerWidth)
+                    finalItemIndex--;
             }
         }
         else if(activeElementRect.x < 0)
         {
-            if(oldX > finalX)
-                finalX = 0;
+            if(oldItemIndex > finalItemIndex)
+                finalItemIndex = 0;
             else
             {
-                while(finalX < rowsWithItems[finalY].length - 1 && rowsWithItems[finalY][finalX].getBoundingClientRect().x < 0)
-                    finalX++;
+                while(finalItemIndex < containersWithItems[finalContainerIndex].items.length - 1 && containersWithItems[finalContainerIndex].items[finalItemIndex].getBoundingClientRect().x < 0)
+                    finalItemIndex++;
             }
         }
 
-        const activeElement = rowsWithItems[finalY][finalX];
+        const activeElement = containersWithItems[finalContainerIndex].items[finalItemIndex];
 
-        if(oldY !== finalY)
+        if(oldContainerIndex !== finalContainerIndex)
             activeElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
-        allItems.forEach(items => items.style.outline = '');
         activeElement.style.outline = "3px solid white";
         activeElement.style.borderRadius = "4px";
 
         return {
-            x: finalX,
-            y: finalY
+            itemIndex: finalItemIndex,
+            containerIndex: finalContainerIndex,
+            currentContainerIndex: containersWithItems[finalContainerIndex].containerIndex
         };
     }
 }
