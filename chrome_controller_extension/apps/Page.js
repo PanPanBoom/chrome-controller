@@ -135,8 +135,7 @@ export class Page
 
         const activeElement = containersWithItems[finalContainerIndex].items[finalItemIndex];
 
-        if(oldContainerIndex !== finalContainerIndex)
-            activeElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        activeElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
         activeElement.style.outline = "3px solid white";
         activeElement.style.borderRadius = "4px";
