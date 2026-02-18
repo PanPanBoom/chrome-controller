@@ -67,13 +67,13 @@ app.post('/open', (req, res) => {
     const { url } = req.body;
     console.log(`Demande d'ouverture : ${url}`);
 
-    if(isExtensionConnected == false)
-    {
-        console.log("Lancement du navigateur");
-        exec(`start opera "${url}"`, (err) => {
-            console.log(err);
-        });
-    }
+    // if(isExtensionConnected == false)
+    // {
+    //     console.log("Lancement du navigateur");
+    //     exec(`start opera "${url}"`, (err) => {
+    //         console.log(err);
+    //     });
+    // }
 
     io.emit('command', { action: 'OPEN_TAB', url });
     res.send({ status: 'ok' });
