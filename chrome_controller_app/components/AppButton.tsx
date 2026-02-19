@@ -1,14 +1,15 @@
-import { Image, Text } from "react-native";
+import { Image } from "react-native";
 import { Button } from "./ui/Button"
 import { App } from "@/dtos/app";
 
 type AppButtonProps = {
     app: App;
+    ip: string;
 }
 
 export const AppButton = (props: AppButtonProps) => {
     const onPressOut = () => {
-        fetch("http://192.168.1.46:3000/open", {
+        fetch(`${props.ip}/open`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
