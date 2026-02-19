@@ -30,8 +30,8 @@ jobs:
       - name: Build IPA (unsigned)
         run: |
           cd ios
-          xcodebuild -workspace *.xcworkspace \
-            -scheme * \
+          xcodebuild -workspace chromecontrollerapp.xcworkspace \
+            -scheme chromecontrollerapp \
             -configuration Release \
             -archivePath $PWD/build/app.xcarchive \
             CODE_SIGN_IDENTITY="" \
