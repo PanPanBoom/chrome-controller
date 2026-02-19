@@ -50,10 +50,10 @@ jobs:
       - name: Export IPA
         run: |
           cd ios
-          xcodebuild -exportArchive \
-            -archivePath $PWD/build/app.xcarchive \
-            -exportPath $PWD/build/output \
-            -exportOptionsPlist ../exportOptions.plist
+          mkdir -p build/output/Payload
+          cp -r build/app.xcarchive/Products/Applications/*.app build/output/Payload/
+          cd build/output
+          zip -r app.ipa Payload
 
       - name: Upload IPA
         uses: actions/upload-artifact@v4
