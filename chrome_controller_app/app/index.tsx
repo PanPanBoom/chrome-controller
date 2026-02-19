@@ -1,112 +1,69 @@
-import { Text, View, Image, ScrollView, TextInput } from "react-native";
-import "../global.css";
-import { AppButton } from "@/components/AppButton";
-import { apps } from "@/constants/apps";
-import { DPad } from "@/components/DPad";
+import { View, Text, ActivityIndicator } from "react-native";
+import * as Network from 'expo-network';
+import { useEffect, useState } from "react";
+import { Loader } from "lucide-react-native";
+import { useRouter } from "expo-router";
 import { Button } from "@/components/ui/Button";
-import { Maximize, Undo2, Volume1, Volume2 } from "lucide-react-native";
-import { useEffect, useRef, useState } from "react";
-import { remoteConstantsDTO } from "@/dtos/remoteConstants";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { socket } from '../server/socket';
-
-const PC_ÏP = "http://192.168.1.46:3000";
+import { TextButton } from "@/components/ui/TextButton";
 
 export default function Index() {
-  const [commands, setCommands] = useState<remoteConstantsDTO>({} as remoteConstantsDTO);
   const [loading, setLoading] = useState(true);
-  const [input, setInput] = useState("");
-  const inputRef = useRef(null);
+  const router = useRouter();
+
+  const scanNetwork = async () => {
+    setLoading(true);
+
+    const ipAddress = await Network.getIpAddressAsync();
+    const baseIp = ipAddress.substring(0, ipAddress.lastIndexOf('.'));
+    
+    console.log(`Scanning network ${baseIp}.x ...`);
+
+    const promises = [];
+    for(let i = 1; i <= 254; i++)
+    {
+      const targetIp = `${baseIp}.${i}`;
+
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 200);
+
+      promises.push(
+        fetch(`http://${targetIp}:3000/ping`, { signal: controller.signal })
+          .then(res => res.text())
+          .then(text => {
+            if(text === 'pong') return targetIp;
+            return null;
+          })
+          .catch(() => null)
+      );
+    }
+
+    const results = await Promise.all(promises);
+    const foundServers = results.filter(ip => ip !== null).map(ip => `http://${ip}:3000`);
+
+    console.log('Serveurs trouvés :', foundServers);
+
+    setLoading(false);
+    if(foundServers.length > 0) 
+      router.push({ pathname: '/remote', params: { PC_IP: foundServers[0] } });
+  }
 
   useEffect(() => {
-    fetch(`${PC_ÏP}/config/commands`)
-      .then(res => res.json())
-      .then(data => {
-        setCommands(data.remoteConstants);
-        setLoading(false);
-        // console.log(data);
-      });
-
-      socket.on('keyboard', () => {
-        console.log('Keyboard show event');
-        if(inputRef.current)
-          inputRef.current.focus();
-      })
-  }, [])
-
-  const goBack = () => {
-    fetch(`${PC_ÏP}/keypress`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ key: commands.back })
-        });
-  }
-
-  const volumeStep = 5;
-
-  const handleVolume = (value: number) => {
-    fetch(`${PC_ÏP}/volume`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ volumeValue: value * volumeStep})
-    });
-  }
-
-  const handleInput = (newInput) => {
-    setInput(newInput);
-    fetch(`${PC_ÏP}/input`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ input: newInput})
-    });
-  }
+    scanNetwork();
+  }, []);
 
   return (
-    <SafeAreaView className="flex-1 flex gap-4 items-center">
+    <View className="flex flex-1 justify-center items-center">
       {
-        loading == false &&
-        <DPad commands={commands}/>
-      }
-      <View className="flex-row gap-4 justify-center items-center">
-        <Button onPressOut={goBack}>
-          <Undo2 />
-        </Button>
-        <Button onPressOut={() => fetch(`${PC_ÏP}/fullscreen`)}>
-          <Maximize />
-        </Button>
-        <View className="flex gap-2">
-          <Button onPressOut={() => handleVolume(1)}>
-            <Volume2 />
-          </Button>
-          <Button onPressOut={() => handleVolume(-1)}>
-            <Volume1 />
-          </Button>
+        loading ?
+        <View>
+          <ActivityIndicator />
+          <Text>Recherche de serveurs...</Text>
+        </View> :
+        <View className="flex justify-center items-center gap-4">
+          <Text>Aucun serveur trouvé</Text>
+          <TextButton onPressOut={scanNetwork} className="w-[75%]">Rechercher</TextButton>
         </View>
-      </View>
-      <View className="flex justify-around items-center flex-row flex-wrap w-full">
-        { Object.keys(apps).map((name, index) => 
-            <AppButton app={apps[name]} key={index}/>
-        )}
-      </View>
-      <TextInput 
-        className="w-0 h-0 opacity-0" 
-        ref={inputRef} 
-        value={input} 
-        onChangeText={handleInput} 
-        returnKeyType="search" 
-        onSubmitEditing={() => fetch(`${PC_ÏP}/input/submit`, {
-          method: 'POST',
-          headers: {
-              'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ input: input})
-        })}/>
-    </SafeAreaView>
+      }
+    </View>
   );
 }
