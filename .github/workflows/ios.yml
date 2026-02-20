@@ -39,7 +39,7 @@ jobs:
         run: |
           cd ios
           xcodebuild -workspace chromeremote.xcworkspace \
-            -scheme chromecontrollerapp \
+            -scheme chromeremote \
             -configuration Release \
             -archivePath $PWD/build/app.xcarchive \
             CODE_SIGN_IDENTITY="" \
