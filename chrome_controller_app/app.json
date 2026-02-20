@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "chrome_controller_app",
+    "name": "Chrome Remote",
     "slug": "chrome-controller-remote",
     "version": "1.0.0",
     "orientation": "portrait",
