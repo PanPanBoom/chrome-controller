@@ -38,10 +38,8 @@ jobs:
       - name: Build IPA (unsigned)
         run: |
           cd ios
-          WORKSPACE=$(ls -d *.xcworkspace | head -1)
-          SCHEME=$(xcodebuild -workspace "$WORKSPACE" -list | grep -m1 "^\s" | tr -d ' ')
-          xcodebuild -workspace "$WORKSPACE" \
-            -scheme "$SCHEME" \
+          xcodebuild -workspace ChromeRemote.xcworkspace \
+            -scheme ChromeRemote \
             -configuration Release \
             -archivePath $PWD/build/app.xcarchive \
             CODE_SIGN_IDENTITY="" \
@@ -55,7 +53,7 @@ jobs:
           mkdir -p build/output/Payload
           cp -r build/app.xcarchive/Products/Applications/*.app build/output/Payload/
           cd build/output
-          zip -r chromeremote.ipa Payload
+          zip -r app.ipa Payload
 
       - name: Upload IPA
         uses: actions/upload-artifact@v4
