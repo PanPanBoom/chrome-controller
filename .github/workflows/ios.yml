@@ -38,7 +38,7 @@ jobs:
       - name: Build IPA (unsigned)
         run: |
           cd ios
-          xcodebuild -workspace chromecontrollerapp.xcworkspace \
+          xcodebuild -workspace chromeremote.xcworkspace \
             -scheme chromecontrollerapp \
             -configuration Release \
             -archivePath $PWD/build/app.xcarchive \
