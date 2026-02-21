@@ -2,6 +2,16 @@ name: Build IPA
 on:
   push:
     branches: [main]
+  workflow_dispatch:
+    inputs:
+      configuration:
+        description: 'Build configuration (Debug or Release)'
+        required: true
+        default: 'Release'
+        type: choice
+        options:
+          - Debug
+          - Release
 
 jobs:
   build:
@@ -38,9 +48,10 @@ jobs:
       - name: Build IPA (unsigned)
         run: |
           cd ios
+          CONFIGURATION=${{ github.event.inputs.configuration || 'Release' }}
           xcodebuild -workspace ChromeRemote.xcworkspace \
             -scheme ChromeRemote \
-            -configuration Release \
+            -configuration $CONFIGURATION \
             -archivePath $PWD/build/app.xcarchive \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
@@ -53,10 +64,10 @@ jobs:
           mkdir -p build/output/Payload
           cp -r build/app.xcarchive/Products/Applications/*.app build/output/Payload/
           cd build/output
-          zip -r app.ipa Payload
+          zip -r chromeremote.ipa Payload
 
       - name: Upload IPA
         uses: actions/upload-artifact@v4
         with:
-          name: app-unsigned
+          name: app-${{ github.event.inputs.configuration || 'Release' }}.ipa
           path: chrome_controller_app/ios/build/output/*.ipa
