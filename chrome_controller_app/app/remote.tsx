@@ -1,5 +1,4 @@
 import { Text, View, Image, ScrollView, TextInput } from "react-native";
-import "../global.css";
 import { AppButton } from "@/components/AppButton";
 import { apps } from "@/constants/apps";
 import { DPad } from "@/components/DPad";
