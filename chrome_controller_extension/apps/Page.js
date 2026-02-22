@@ -30,10 +30,8 @@ export class Page
                     const containerWithItems = containerElements.map((el) => {
                         const items = Array.from(el.querySelectorAll(container.itemsSelectors)).filter(item => {
                             const itemRect = item.getBoundingClientRect();
-                            return itemRect.x > 0 && itemRect.x + itemRect.width < window.innerWidth;
+                            return itemRect.x >= -2 && itemRect.x + itemRect.width < window.innerWidth;
                         });
-
-                        items.forEach(item => item.style.outline = '');
 
                         return {
                             items: items,
