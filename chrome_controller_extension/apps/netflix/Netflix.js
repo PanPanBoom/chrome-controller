@@ -2,7 +2,6 @@ import { App } from "../App.js";
 import { remoteConstants } from "../../constants.js";
 import { Page } from "../Page.js";
 import { VideoPage } from "./VideoPage.js";
-import { Homepage } from "./Homepage.js";
 import { Container } from "../Container.js";
 
 export class Netflix extends App
@@ -19,17 +18,23 @@ export class Netflix extends App
             new Page([
                 new Container(".default-ltr-iqcdef-cache-1cglebk", ".default-ltr-iqcdef-cache-1cglebk a", "row")
             ], '.default-ltr-iqcdef-cache-1seef1c'),
-            new Homepage()
+            new Page([
+                new Container(".main-header", ".navigation-tab > a, [data-uia='search-box-launcher']", "row"),
+                new Container(".subgenres", "[aria-labelledby='profileLanguageDropDown-header']", "row"),
+                new Container(".sub-menu-list", ".sub-menu a", "column"),
+                new Container(".billboard-links", ".billboard-links button", "row"),
+                new Container(".slider", "a.slider-refocus, .handlePrev, .handleNext", "row"),
+            ], ".main-header")
         ];
     }
 
-    updatePageIndex(newId)
+    updatePageIndex(newIndex)
     {
-        if(newId != this.currentPageIndex)
+        if(newIndex != this.currentPageIndex)
         {
-            this.currentPageIndex = newId;
-            if(!(this.pages[newId] instanceof Homepage))
-                this.pages[newId].reset();
+            this.currentPageIndex = newIndex;
+            if(newIndex < this.pages.length - 1)
+                this.pages[newIndex].reset();
         }
     }
 
