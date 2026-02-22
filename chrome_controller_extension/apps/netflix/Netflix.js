@@ -28,13 +28,13 @@ export class Netflix extends App
         ];
     }
 
-    updatePageIndex(newId)
+    updatePageIndex(newIndex)
     {
-        if(newId != this.currentPageIndex)
+        if(newIndex != this.currentPageIndex)
         {
-            this.currentPageIndex = newId;
-            if(!(this.pages[newId] instanceof Homepage))
-                this.pages[newId].reset();
+            this.currentPageIndex = newIndex;
+            if(newIndex < this.pages.length - 1)
+                this.pages[newIndex].reset();
         }
     }
 
