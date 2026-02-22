@@ -28,8 +28,11 @@ export class Page
                 containers.forEach((container, containerIndex) => {
                     const containerElements = Array.from(document.querySelectorAll(container.selectors));
                     const containerWithItems = containerElements.map((el) => {
-                        const items = container.itemsSelectors === "" ? [el] : Array.from(el.querySelectorAll(container.itemsSelectors));
-                        
+                        const items = Array.from(el.querySelectorAll(container.itemsSelectors)).filter(item => {
+                            const itemRect = item.getBoundingClientRect();
+                            return itemRect.x > 0 && itemRect.x + itemRect.width < window.innerWidth;
+                        });
+
                         items.forEach(item => item.style.outline = '');
 
                         return {
@@ -107,7 +110,10 @@ export class Page
         containers.forEach((container, containerIndex) => {
             const containerElements = Array.from(document.querySelectorAll(container.selectors));
             const containerWithItems = containerElements.map((el) => {
-                const items = container.itemsSelectors === "" ? [el] : Array.from(el.querySelectorAll(container.itemsSelectors));
+                const items = Array.from(el.querySelectorAll(container.itemsSelectors)).filter(item => {
+                    const itemRect = item.getBoundingClientRect();
+                    return itemRect.x >= -2 && itemRect.x + itemRect.width < window.innerWidth;
+                });
                 
                 items.forEach(item => item.style.outline = '');
 
