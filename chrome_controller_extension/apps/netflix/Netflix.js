@@ -19,7 +19,7 @@ export class Netflix extends App
                 new Container(".default-ltr-iqcdef-cache-1cglebk", ".default-ltr-iqcdef-cache-1cglebk a", "row")
             ], '.default-ltr-iqcdef-cache-1seef1c'),
             new Page([
-                new Container(".main-header", ".navigation-tab > a", "row"),
+                new Container(".main-header", ".navigation-tab > a, [data-uia='search-box-launcher']", "row"),
                 new Container(".subgenres", "[aria-labelledby='profileLanguageDropDown-header']", "row"),
                 new Container(".sub-menu-list", ".sub-menu a", "column"),
                 new Container(".billboard-links", ".billboard-links button", "row"),
