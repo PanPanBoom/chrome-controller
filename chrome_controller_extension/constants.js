@@ -13,6 +13,8 @@ export const remoteConstants = {
     }
 }
 
-if (typeof module !== 'undefined') {
-    module.exports = remoteConstants;
-}
+export default remoteConstants;
+
+// if (typeof module !== 'undefined') {
+//     module.exports = remoteConstants;
+// }
