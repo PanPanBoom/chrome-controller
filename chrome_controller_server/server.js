@@ -1,15 +1,13 @@
-const express = require('express');
-const http = require('http');
-const { Server } = require('socket.io');
-const loudness = require('loudness');
-const { exec } = require('child_process');
+import express from 'express';
+import http from 'http';
+import { Server } from 'socket.io';
+import loudness from 'loudness';
+import remoteRoutes from './src/remote.js';
+import extensionRoutes from './src/extension.js';
 
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: "*" } });
-
-const path = require('path');
-const COMMANDS = require(path.join(__dirname, '..', 'chrome_controller_extension', 'constants.js'));
 
 let isExtensionConnected = false;
 
@@ -29,67 +27,9 @@ io.on("connection", (socket) => {
 })
 
 app.use(express.json());
-
-app.get('/ping', (req, res) => {
-    res.send('pong');
-})
-
-app.get('/config/commands', (req, res) => {
-    console.log(`Constantes chargées : ${JSON.stringify(COMMANDS)}`);
-    res.json(COMMANDS);
-});
-
-app.get('/fullscreen', (req, res) => {
-    console.log('Fullscreen');
-    io.emit('command', { action: 'FULLSCREEN' });
-    res.send({ status: 'ok' });
-})
-
-app.get('/keyboard', (req, res) => {
-    console.log("Trigger le clavier sur l'application");
-    io.emit('keyboard');
-    res.send({ status : 'ok' });
-});
-
-app.post('/input', (req, res) => {
-    const { input } = req.body;
-    console.log('Input : ' + input);
-
-    io.emit('command', { action: 'INPUT', input });
-    res.send({status: 'ok'});
-})
-
-app.post('/input/submit', (req, res) => {
-    const { input } = req.body;
-    console.log('Submit input: ' + input);
-
-    io.emit('command', { action: 'SUBMIT', input });
-    res.send({status: 'ok'});
-})
-
-app.post('/open', (req, res) => {
-    const { url } = req.body;
-    console.log(`Demande d'ouverture : ${url}`);
-
-    // if(isExtensionConnected == false)
-    // {
-    //     console.log("Lancement du navigateur");
-    //     exec(`start opera "${url}"`, (err) => {
-    //         console.log(err);
-    //     });
-    // }
-
-    io.emit('command', { action: 'OPEN_TAB', url });
-    res.send({ status: 'ok' });
-});
-
-app.post('/keypress', (req, res) => {
-    const { key } = req.body;
-    console.log(`Entrée : ${key}`);
-
-    io.emit('command', { action: "HANDLE", key});
-    res.send({ status: 'ok' });
-})
+app.use('/assets', express.static('assets'));
+app.use('/extension', extensionRoutes(io));
+app.use('/remote', remoteRoutes(io));
 
 app.post('/volume', async (req, res) => {
     const { volumeValue } = req.body;
