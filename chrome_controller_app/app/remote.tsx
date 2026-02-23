@@ -1,6 +1,5 @@
 import { Text, View, Image, ScrollView, TextInput } from "react-native";
 import { AppButton } from "@/components/AppButton";
-import { apps } from "@/constants/apps";
 import { DPad } from "@/components/DPad";
 import { Button } from "@/components/ui/Button";
 import { Maximize, Undo2, Volume1, Volume2 } from "lucide-react-native";
@@ -8,8 +7,8 @@ import { useEffect, useRef, useState } from "react";
 import { remoteConstantsDTO } from "@/dtos/remoteConstants";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { socket } from '../server/socket';
-import * as Network from 'expo-network';
 import { useLocalSearchParams } from "expo-router";
+import { AppsSection } from "@/components/AppsSection";
 
 export default function Remote() {
     const { PC_IP } = useLocalSearchParams();
@@ -59,7 +58,7 @@ export default function Remote() {
         });
     }
 
-    const handleInput = (newInput) => {
+    const handleInput = (newInput: string) => {
         setInput(newInput);
         fetch(`${PC_IP}/extension/input`, {
             method: 'POST',
@@ -92,11 +91,7 @@ export default function Remote() {
                     </Button>
                     </View>
                 </View>
-                <View className="flex justify-around items-center flex-row flex-wrap w-full">
-                    { Object.keys(apps).map((name, index) => 
-                        <AppButton app={apps[name]} key={index} ip={PC_IP}/>
-                    )}
-                </View>
+                <AppsSection ip={PC_IP}/>
                 <TextInput 
                     className="w-0 h-0 opacity-0" 
                     ref={inputRef} 

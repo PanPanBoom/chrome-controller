@@ -2,16 +2,17 @@ export const apps = [
     {
         name: "YouTube",
         url: "https://www.youtube.com/tv",
-        img: "youtube.png"
+        img: "/assets/youtube.png",
+        redirect: "https://www.youtube.com"
     },
     {
         name: "Netflix",
         url: "https://www.netflix.com/",
-        img: "netflix.png"
+        img: "/assets/netflix.png"
     },
     {
         name: "Prime Video",
         url: "https://www.primevideo.com/",
-        img: "prime.png"
+        img: "/assets/prime.png"
     }
 ]
