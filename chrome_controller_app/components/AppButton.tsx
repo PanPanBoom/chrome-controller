@@ -2,15 +2,17 @@ import { Image } from "react-native";
 import { Button } from "./ui/Button"
 import { App } from "@/dtos/app";
 import { Linking } from "react-native"
+import { AppContext } from "@/contexts/appContext";
+import { useContext } from "react";
 
 type AppButtonProps = {
     app: App;
-    ip: string;
 }
 
 export const AppButton = (props: AppButtonProps) => {
+    const { serverIp } = useContext(AppContext);
     const onPressOut = () => {
-        fetch(`${props.ip}/extension/open`, {
+        fetch(`${serverIp}/extension/open`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -24,7 +26,7 @@ export const AppButton = (props: AppButtonProps) => {
 
     return (
         <Button className="w-[48%] h-1/3 mt-2" onPressOut={onPressOut}>
-            <Image source={{ uri: `${props.ip}${props.app.img}` }} className="w-full h-full"/>
+            <Image source={{ uri: `${serverIp}${props.app.img}` }} className="w-full h-full"/>
         </Button>
     )
 }

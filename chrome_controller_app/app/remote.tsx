@@ -3,21 +3,22 @@ import { AppButton } from "@/components/AppButton";
 import { DPad } from "@/components/DPad";
 import { Button } from "@/components/ui/Button";
 import { Maximize, Undo2, Volume1, Volume2 } from "lucide-react-native";
-import { useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { remoteConstantsDTO } from "@/dtos/remoteConstants";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { socket } from '../server/socket';
 import { useLocalSearchParams } from "expo-router";
 import { AppsSection } from "@/components/AppsSection";
+import { AppContext } from "@/contexts/appContext";
 
 export default function Remote() {
-    const { PC_IP } = useLocalSearchParams();
+    const { serverIp } = useContext(AppContext);
     const [commands, setCommands] = useState<remoteConstantsDTO | null>(null);
     const [input, setInput] = useState("");
     const inputRef = useRef(null);
 
     useEffect(() => {
-        fetch(`${PC_IP}/remote/config/commands`)
+        fetch(`${serverIp}/remote/config/commands`)
         .then(res => res.json())
         .then(data => {
             console.log('Commands received from server:', data);
@@ -37,7 +38,7 @@ export default function Remote() {
     }, [commands]);
 
     const goBack = () => {
-        fetch(`${PC_IP}/extension/keypress`, {
+        fetch(`${serverIp}/extension/keypress`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -49,7 +50,7 @@ export default function Remote() {
     const volumeStep = 5;
 
     const handleVolume = (value: number) => {
-        fetch(`${PC_IP}/volume`, {
+        fetch(`${serverIp}/volume`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -60,7 +61,7 @@ export default function Remote() {
 
     const handleInput = (newInput: string) => {
         setInput(newInput);
-        fetch(`${PC_IP}/extension/input`, {
+        fetch(`${serverIp}/extension/input`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -74,12 +75,12 @@ export default function Remote() {
         {
             commands != undefined &&
             <View className="flex-1 flex gap-4 items-center">
-                <DPad commands={commands} ip={PC_IP}/>
+                <DPad commands={commands}/>
                 <View className="flex-row gap-4 justify-center items-center">
                     <Button onPressOut={goBack}>
                     <Undo2 />
                     </Button>
-                    <Button onPressOut={() => fetch(`${PC_IP}/extension/fullscreen`)}>
+                    <Button onPressOut={() => fetch(`${serverIp}/extension/fullscreen`)}>
                     <Maximize />
                     </Button>
                     <View className="flex gap-2">
@@ -91,14 +92,14 @@ export default function Remote() {
                     </Button>
                     </View>
                 </View>
-                <AppsSection ip={PC_IP}/>
+                <AppsSection/>
                 <TextInput 
                     className="w-0 h-0 opacity-0" 
                     ref={inputRef} 
                     value={input} 
                     onChangeText={handleInput} 
                     returnKeyType="search" 
-                    onSubmitEditing={() => fetch(`${PC_IP}/extension/input/submit`, {
+                    onSubmitEditing={() => fetch(`${serverIp}/extension/input/submit`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
