@@ -1,0 +1,46 @@
+import express from 'express';
+import http from 'http';
+import { Server } from 'socket.io';
+import loudness from 'loudness';
+import remoteRoutes from './remote.js';
+import extensionRoutes from './extension.js';
+
+const app = express();
+const server = http.createServer(app);
+const io = new Server(server, { cors: { origin: "*" } });
+
+let isExtensionConnected = false;
+
+io.on("connection", (socket) => {
+    socket.on('identify', (role) => {
+        if(role === "extension")
+        {
+            isExtensionConnected = true;
+            console.log("Navigateur détecté");
+        }
+    });
+
+    socket.on('disconnect', () => {
+        isExtensionConnected = false;
+        console.log("Deconnexion de l'extension");
+    });
+})
+
+app.use(express.json());
+
+app.use('/extension', extensionRoutes(io));
+app.use('/remote', remoteRoutes(io));
+
+app.post('/volume', async (req, res) => {
+    const { volumeValue } = req.body;
+    console.log(`Volume : ${volumeValue > 0 ? "+" : ""}${volumeValue}`);
+
+    const vol = await loudness.getVolume();
+    await loudness.setVolume(vol + volumeValue);
+
+    res.send({ status: 'ok' });
+})
+
+server.listen(3000, '0.0.0.0', () => {
+    console.log('Serveur actif sur localhost:3000');
+});

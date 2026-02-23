@@ -27,7 +27,7 @@ export default function Index() {
       const timeoutId = setTimeout(() => controller.abort(), 200);
 
       promises.push(
-        fetch(`http://${targetIp}:3000/ping`, { signal: controller.signal })
+        fetch(`http://${targetIp}:3000/remote/ping`, { signal: controller.signal })
           .then(res => res.text())
           .then(text => {
             if(text === 'pong') return targetIp;

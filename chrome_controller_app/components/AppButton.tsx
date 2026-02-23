@@ -9,7 +9,7 @@ type AppButtonProps = {
 
 export const AppButton = (props: AppButtonProps) => {
     const onPressOut = () => {
-        fetch(`${props.ip}/open`, {
+        fetch(`${props.ip}/extension/open`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

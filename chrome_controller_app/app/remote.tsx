@@ -13,17 +13,16 @@ import { useLocalSearchParams } from "expo-router";
 
 export default function Remote() {
     const { PC_IP } = useLocalSearchParams();
-    const [commands, setCommands] = useState<remoteConstantsDTO>({} as remoteConstantsDTO);
-    const [loading, setLoading] = useState(true);
+    const [commands, setCommands] = useState<remoteConstantsDTO | null>(null);
     const [input, setInput] = useState("");
     const inputRef = useRef(null);
 
     useEffect(() => {
-        fetch(`${PC_IP}/config/commands`)
+        fetch(`${PC_IP}/remote/config/commands`)
         .then(res => res.json())
         .then(data => {
-            setCommands(data.remoteConstants);
-            setLoading(false);
+            console.log('Commands received from server:', data);
+            setCommands(data);
             // console.log(data);
         });
 
@@ -34,13 +33,17 @@ export default function Remote() {
         })
     }, []);
 
+    useEffect(() => {
+        console.log('Current commands state:', commands);
+    }, [commands]);
+
     const goBack = () => {
-        fetch(`${PC_IP}/keypress`, {
+        fetch(`${PC_IP}/extension/keypress`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ key: commands.back })
+                body: JSON.stringify({ key: commands?.back })
             });
     }
 
@@ -58,7 +61,7 @@ export default function Remote() {
 
     const handleInput = (newInput) => {
         setInput(newInput);
-        fetch(`${PC_IP}/input`, {
+        fetch(`${PC_IP}/extension/input`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -68,45 +71,47 @@ export default function Remote() {
     }
 
     return (
-        <SafeAreaView className="flex-1 flex gap-4 items-center">
+        <SafeAreaView className="flex-1">
         {
-            loading == false &&
-            <DPad commands={commands} ip={PC_IP}/>
-        }
-        <View className="flex-row gap-4 justify-center items-center">
-            <Button onPressOut={goBack}>
-            <Undo2 />
-            </Button>
-            <Button onPressOut={() => fetch(`${PC_IP}/fullscreen`)}>
-            <Maximize />
-            </Button>
-            <View className="flex gap-2">
-            <Button onPressOut={() => handleVolume(1)}>
-                <Volume2 />
-            </Button>
-            <Button onPressOut={() => handleVolume(-1)}>
-                <Volume1 />
-            </Button>
+            commands != undefined &&
+            <View className="flex-1 flex gap-4 items-center">
+                <DPad commands={commands} ip={PC_IP}/>
+                <View className="flex-row gap-4 justify-center items-center">
+                    <Button onPressOut={goBack}>
+                    <Undo2 />
+                    </Button>
+                    <Button onPressOut={() => fetch(`${PC_IP}/extension/fullscreen`)}>
+                    <Maximize />
+                    </Button>
+                    <View className="flex gap-2">
+                    <Button onPressOut={() => handleVolume(1)}>
+                        <Volume2 />
+                    </Button>
+                    <Button onPressOut={() => handleVolume(-1)}>
+                        <Volume1 />
+                    </Button>
+                    </View>
+                </View>
+                <View className="flex justify-around items-center flex-row flex-wrap w-full">
+                    { Object.keys(apps).map((name, index) => 
+                        <AppButton app={apps[name]} key={index} ip={PC_IP}/>
+                    )}
+                </View>
+                <TextInput 
+                    className="w-0 h-0 opacity-0" 
+                    ref={inputRef} 
+                    value={input} 
+                    onChangeText={handleInput} 
+                    returnKeyType="search" 
+                    onSubmitEditing={() => fetch(`${PC_IP}/extension/input/submit`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ input: input})
+                    })}/>
             </View>
-        </View>
-        <View className="flex justify-around items-center flex-row flex-wrap w-full">
-            { Object.keys(apps).map((name, index) => 
-                <AppButton app={apps[name]} key={index} ip={PC_IP}/>
-            )}
-        </View>
-        <TextInput 
-            className="w-0 h-0 opacity-0" 
-            ref={inputRef} 
-            value={input} 
-            onChangeText={handleInput} 
-            returnKeyType="search" 
-            onSubmitEditing={() => fetch(`${PC_IP}/input/submit`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ input: input})
-            })}/>
+        }
         </SafeAreaView>
     );
 }
