@@ -2,8 +2,8 @@ import express from 'express';
 import http from 'http';
 import { Server } from 'socket.io';
 import loudness from 'loudness';
-import remoteRoutes from './remote.js';
-import extensionRoutes from './extension.js';
+import remoteRoutes from './src/remote.js';
+import extensionRoutes from './src/extension.js';
 
 const app = express();
 const server = http.createServer(app);
@@ -27,7 +27,7 @@ io.on("connection", (socket) => {
 })
 
 app.use(express.json());
-
+app.use('/assets', express.static('assets'));
 app.use('/extension', extensionRoutes(io));
 app.use('/remote', remoteRoutes(io));
 
