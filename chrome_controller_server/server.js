@@ -2,11 +2,11 @@ const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
 const loudness = require('loudness');
+const { exec } = require('child_process');
 
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: "*" } });
-const { exec } = require('child_process');
 
 const path = require('path');
 const COMMANDS = require(path.join(__dirname, '..', 'chrome_controller_extension', 'constants.js'));
@@ -29,6 +29,10 @@ io.on("connection", (socket) => {
 })
 
 app.use(express.json());
+
+app.get('/ping', (req, res) => {
+    res.send('pong');
+})
 
 app.get('/config/commands', (req, res) => {
     console.log(`Constantes chargées : ${JSON.stringify(COMMANDS)}`);

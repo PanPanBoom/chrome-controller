@@ -9,7 +9,7 @@ type ButtonProps = {
 
 export const Button = (props: ButtonProps) => {
     return (
-        <Pressable className={`p-3 bg-neutral-200 rounded-xl active:bg-neutral-300 ${props.className != undefined ? props.className : ""}`} onPressOut={props.onPressOut} onLongPress={props.onLongPress}>
+        <Pressable className={`p-3 flex justify-center items-center bg-neutral-200 rounded-xl active:bg-neutral-300 ${props.className != undefined ? props.className : ""}`} onPressOut={props.onPressOut} onLongPress={props.onLongPress}>
             {props.children}
         </Pressable>
     )

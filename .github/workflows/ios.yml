@@ -1,0 +1,79 @@
+name: Build IPA
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'chrome_controller_app/**'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'chrome_controller_app/**'
+  workflow_dispatch:
+    inputs:
+      configuration:
+        description: 'Build configuration (Debug or Release)'
+        required: true
+        default: 'Release'
+        type: choice
+        options:
+          - Debug
+          - Release
+
+jobs:
+  build:
+    runs-on: macos-latest
+    defaults:
+      run:
+        working-directory: chrome_controller_app
+
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Prebuild
+        run: npx expo prebuild --platform ios --clean
+
+      - name: Cache Pods
+        uses: actions/cache@v4
+        with:
+          path: chrome_controller_app/ios/Pods
+          key: ${{ runner.os }}-pods-${{ hashFiles('chrome_controller_app/ios/Podfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pods-
+
+      - name: Install Pods
+        run: cd ios && pod install
+
+      - name: Build IPA (unsigned)
+        run: |
+          cd ios
+          CONFIGURATION=${{ github.event.inputs.configuration || 'Release' }}
+          xcodebuild -workspace ChromeRemote.xcworkspace \
+            -scheme ChromeRemote \
+            -configuration $CONFIGURATION \
+            -archivePath $PWD/build/app.xcarchive \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            archive
+
+      - name: Export IPA
+        run: |
+          cd ios
+          mkdir -p build/output/Payload
+          cp -r build/app.xcarchive/Products/Applications/*.app build/output/Payload/
+          cd build/output
+          zip -r chromeremote.ipa Payload
+
+      - name: Upload IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-${{ github.event.inputs.configuration || 'Release' }}.ipa
+          path: chrome_controller_app/ios/build/output/*.ipa
