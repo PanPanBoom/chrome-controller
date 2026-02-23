@@ -13,7 +13,7 @@ export const DPad = (props: DPadProps) => {
     const buttonStyle = "w-[30%] h-20 flex justify-center items-center";
 
     const handleValidation = () => {
-        fetch(`${props.ip}/keypress`, {
+        fetch(`${props.ip}/extension/keypress`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -53,7 +53,7 @@ type DPadArrowProps = {
 
 const DPadArrow = (props: DPadArrowProps) => {
     const handleClick = () => {
-        fetch(`${props.ip}/keypress`, {
+        fetch(`${props.ip}/extension/keypress`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
