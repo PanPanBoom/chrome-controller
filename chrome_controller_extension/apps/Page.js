@@ -54,7 +54,7 @@ export class Page
             func: () => document.activeElement.tagName.toLowerCase() === "input"
         }).then(results => {
             if(results[0].result)
-                fetch("http://localhost:3000/keyboard");
+                fetch("http://localhost:3000/remote/keyboard");
         });
     }
 
