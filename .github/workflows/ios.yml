@@ -4,10 +4,6 @@ on:
     branches: [main]
     paths:
       - 'chrome_controller_app/**'
-  pull_request:
-    branches: [main]
-    paths:
-      - 'chrome_controller_app/**'
   workflow_dispatch:
     inputs:
       configuration:

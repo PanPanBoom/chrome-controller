@@ -1,14 +1,16 @@
 import { View, Text, ActivityIndicator } from "react-native";
 import * as Network from 'expo-network';
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Loader } from "lucide-react-native";
 import { useRouter } from "expo-router";
 import { Button } from "@/components/ui/Button";
 import { TextButton } from "@/components/ui/TextButton";
+import { AppContext } from "@/contexts/appContext";
 
 export default function Index() {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const { serverIp, setServerIp } = useContext(AppContext);
 
   const scanNetwork = async () => {
     setLoading(true);
@@ -27,7 +29,7 @@ export default function Index() {
       const timeoutId = setTimeout(() => controller.abort(), 200);
 
       promises.push(
-        fetch(`http://${targetIp}:3000/ping`, { signal: controller.signal })
+        fetch(`http://${targetIp}:3000/remote/ping`, { signal: controller.signal })
           .then(res => res.text())
           .then(text => {
             if(text === 'pong') return targetIp;
@@ -43,8 +45,11 @@ export default function Index() {
     console.log('Serveurs trouvés :', foundServers);
 
     setLoading(false);
-    if(foundServers.length > 0) 
-      router.push({ pathname: '/remote', params: { PC_IP: foundServers[0] } });
+    if(foundServers.length > 0)
+    {
+      setServerIp(foundServers[0]);
+      router.push({ pathname: '/remote' });
+    }
   }
 
   useEffect(() => {
