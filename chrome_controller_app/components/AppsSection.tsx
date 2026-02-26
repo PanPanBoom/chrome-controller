@@ -3,13 +3,14 @@ import { AppButton } from "./AppButton"
 import { useContext, useEffect, useState } from "react";
 import { App } from "@/dtos/app";
 import { AppContext } from "@/contexts/appContext";
+import { getApps } from "@/server/socket";
 
 export const AppsSection = () => {
     const [apps, setApps] = useState<App[] | null>(null);
     const { serverIp } = useContext(AppContext);
 
     useEffect(() => {
-        fetch(`${serverIp}/remote/apps`)
+        getApps(serverIp)
         .then(res => res.json())
         .then(data => {
             console.log('Apps received from server:', data);

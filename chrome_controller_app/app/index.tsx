@@ -6,6 +6,7 @@ import { useRouter } from "expo-router";
 import { Button } from "@/components/ui/Button";
 import { TextButton } from "@/components/ui/TextButton";
 import { AppContext } from "@/contexts/appContext";
+import { sendPing } from "@/server/socket";
 
 export default function Index() {
   const [loading, setLoading] = useState(true);
@@ -29,7 +30,7 @@ export default function Index() {
       const timeoutId = setTimeout(() => controller.abort(), 200);
 
       promises.push(
-        fetch(`http://${targetIp}:3000/remote/ping`, { signal: controller.signal })
+        sendPing(targetIp, controller.signal)
           .then(res => res.text())
           .then(text => {
             if(text === 'pong') return targetIp;
@@ -40,7 +41,7 @@ export default function Index() {
     }
 
     const results = await Promise.all(promises);
-    const foundServers = results.filter(ip => ip !== null).map(ip => `http://${ip}:3000`);
+    const foundServers = results.filter(ip => ip !== null);
 
     console.log('Serveurs trouvés :', foundServers);
 

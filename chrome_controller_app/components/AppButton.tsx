@@ -4,6 +4,7 @@ import { App } from "@/dtos/app";
 import { Linking } from "react-native"
 import { AppContext } from "@/contexts/appContext";
 import { useContext } from "react";
+import { sendAppLaunch } from "@/server/socket";
 
 type AppButtonProps = {
     app: App;
@@ -12,13 +13,7 @@ type AppButtonProps = {
 export const AppButton = (props: AppButtonProps) => {
     const { serverIp } = useContext(AppContext);
     const onPressOut = () => {
-        fetch(`${serverIp}/extension/open`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ url: props.app.url })
-        });
+        sendAppLaunch(serverIp, props.app.url);
 
         if(props.app.redirect)
             Linking.openURL(props.app.redirect);
@@ -26,7 +21,7 @@ export const AppButton = (props: AppButtonProps) => {
 
     return (
         <Button className="w-[48%] h-1/3 mt-2" onPressOut={onPressOut}>
-            <Image source={{ uri: `${serverIp}${props.app.img}` }} className="w-full h-full"/>
+            <Image source={{ uri: `http://${serverIp}:3000${props.app.img}` }} className="w-full h-full"/>
         </Button>
     )
 }

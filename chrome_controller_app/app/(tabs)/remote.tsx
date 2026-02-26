@@ -4,9 +4,7 @@ import { Button } from "@/components/ui/Button";
 import { Maximize, Undo2, Volume1, Volume2 } from "lucide-react-native";
 import { useContext, useEffect, useRef, useState } from "react";
 import { remoteConstantsDTO } from "@/dtos/remoteConstants";
-import { socket } from '../../server/socket';
-import { useLocalSearchParams } from "expo-router";
-import { AppsSection } from "@/components/AppsSection";
+import { getCommands, sendFullscreenToggle, sendInput, sendKeyPress, sendVolume, socket, submitInput } from '../../server/socket';
 import { AppContext } from "@/contexts/appContext";
 
 export default function Remote() {
@@ -16,7 +14,7 @@ export default function Remote() {
     const inputRef = useRef(null);
 
     useEffect(() => {
-        fetch(`${serverIp}/remote/config/commands`)
+        getCommands(serverIp)
         .then(res => res.json())
         .then(data => {
             console.log('Commands received from server:', data);
@@ -35,37 +33,15 @@ export default function Remote() {
         console.log('Current commands state:', commands);
     }, [commands]);
 
-    const goBack = () => {
-        fetch(`${serverIp}/extension/keypress`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ key: commands?.back })
-            });
-    }
-
     const volumeStep = 5;
 
     const handleVolume = (value: number) => {
-        fetch(`${serverIp}/volume`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ volumeValue: value * volumeStep})
-        });
+        sendVolume(serverIp, value * volumeStep);
     }
 
     const handleInput = (newInput: string) => {
         setInput(newInput);
-        fetch(`${serverIp}/extension/input`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ input: newInput})
-        });
+        sendInput(serverIp, newInput);
     }
 
     return (
@@ -75,10 +51,10 @@ export default function Remote() {
             <View className="flex-1 flex gap-4 items-center">
                 <DPad commands={commands}/>
                 <View className="flex-row gap-4 justify-center items-center">
-                    <Button onPressOut={goBack}>
+                    <Button onPressOut={() => sendKeyPress(serverIp, commands?.back || '')}>
                     <Undo2 />
                     </Button>
-                    <Button onPressOut={() => fetch(`${serverIp}/extension/fullscreen`)}>
+                    <Button onPressOut={() => sendFullscreenToggle(serverIp)}>
                     <Maximize />
                     </Button>
                     <View className="flex gap-2">
@@ -96,13 +72,7 @@ export default function Remote() {
                     value={input} 
                     onChangeText={handleInput} 
                     returnKeyType="search" 
-                    onSubmitEditing={() => fetch(`${serverIp}/extension/input/submit`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ input: input})
-                    })}/>
+                    onSubmitEditing={() => submitInput(serverIp, input)}/>
             </View>
         }
         </View>
