@@ -19,10 +19,17 @@
     "http://localhost:3000/*",
     "https://www.netflix.com/*",
     "https://www.youtube.com/tv",
-    "https://www.primevideo.com/*"
+    "https://www.primevideo.com/*",
+    "https://www.twitch.tv/*"
   ],
   "background": {
     "service_worker": "background.js",
     "type": "module"
-  }
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["utils.js"]
+    }
+  ]
 }

@@ -23,24 +23,7 @@ export class Page
             target: { tabId: tabId },
             args: [ this.containers, this.containerInPageIndex, this.itemInPageIndex ],
             func: (containers, containerIndex, itemIndex) => {
-                let containersWithItems = [];
-        
-                containers.forEach((container, containerIndex) => {
-                    const containerElements = Array.from(document.querySelectorAll(container.selectors));
-                    const containerWithItems = containerElements.map((el) => {
-                        const items = Array.from(el.querySelectorAll(container.itemsSelectors)).filter(item => {
-                            const itemRect = item.getBoundingClientRect();
-                            return itemRect.x >= -2 && itemRect.x + itemRect.width < window.innerWidth;
-                        });
-
-                        return {
-                            items: items,
-                            containerIndex: containerIndex
-                        };
-                    }).filter(container => container.items.length > 0);
-
-                    containersWithItems = containersWithItems.concat(containerWithItems);
-                });
+                let containersWithItems = getContainersWithItems(containers);
 
                 const activeElement = containersWithItems[containerIndex].items[itemIndex];
 
@@ -103,26 +86,7 @@ export class Page
 
     applyNavigation = (containers, oldItemIndex, oldContainerIndex, newItemIndex, newContainerIndex) =>
     {
-        let containersWithItems = [];
-        
-        containers.forEach((container, containerIndex) => {
-            const containerElements = Array.from(document.querySelectorAll(container.selectors));
-            const containerWithItems = containerElements.map((el) => {
-                const items = Array.from(el.querySelectorAll(container.itemsSelectors)).filter(item => {
-                    const itemRect = item.getBoundingClientRect();
-                    return itemRect.x >= -2 && itemRect.x + itemRect.width < window.innerWidth;
-                });
-                
-                items.forEach(item => item.style.outline = '');
-
-                return {
-                    items: items,
-                    containerIndex: containerIndex
-                };
-            }).filter(container => container.items.length > 0);
-
-            containersWithItems = containersWithItems.concat(containerWithItems);
-        });
+        let containersWithItems = getContainersWithItems(containers);
 
         let finalItemIndex = newItemIndex;
         let finalContainerIndex = newContainerIndex;
@@ -136,6 +100,8 @@ export class Page
             finalItemIndex = containersWithItems[finalContainerIndex].items.length - 1;
         else if(finalItemIndex < 0)
             finalItemIndex = 0;
+
+        containersWithItems.flat().forEach(container => container.items.forEach(item => item.style.outline = ''));
 
         const activeElement = containersWithItems[finalContainerIndex].items[finalItemIndex];
 
