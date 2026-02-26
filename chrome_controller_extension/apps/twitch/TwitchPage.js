@@ -7,7 +7,7 @@ export class TwitchPage extends Page
     {
         super([
             new Container("#side-nav", "a, [data-a-target*='side-nav-show']", "column"),
-            new Container("body", "input[data-a-target='tw-input']", "row")
+            new Container("body", "input[autocomplete='twitch-nav-search']", "row")
         ], identifier);
         
         this.containers = this.containers.concat(containers);
