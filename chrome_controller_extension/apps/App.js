@@ -78,7 +78,6 @@ export class App
             target: { tabId: tabId },
             args: [ input ],
             func: (input) => {
-                console.log(document.activeElement.children)
                 if(document.activeElement.tagName.toLowerCase() === "input")
                     document.activeElement.value = input;
             }
