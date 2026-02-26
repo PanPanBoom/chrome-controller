@@ -20,24 +20,7 @@ export class VideoPage extends Page
 
     applyNavigation = (containers, oldItemIndex, oldContainerIndex, newItemIndex, newContainerIndex) =>
     {
-        let containersWithItems = [];
-        
-        containers.forEach((container, containerIndex) => {
-            const containerElements = Array.from(document.querySelectorAll(container.selectors));
-
-            const containerWithItems = containerElements.map((el) => {
-                const items = container.itemsSelectors === "" ? [el] : Array.from(el.querySelectorAll(container.itemsSelectors));
-                
-                items.forEach(item => item.style.outline = '');
-
-                return {
-                    items: items,
-                    containerIndex: containerIndex
-                };
-            }).filter(container => container.items.length > 0);
-
-            containersWithItems = containersWithItems.concat(containerWithItems);
-        });
+        let containersWithItems = getContainersWithItems(containers);
 
         const inactiveElement = document.querySelectorAll('.inactive, .passive');
         if(inactiveElement.length > 0)
@@ -55,6 +38,8 @@ export class VideoPage extends Page
             finalItemIndex = containersWithItems[finalContainerIndex].items.length - 1;
         else if(finalItemIndex < 0)
             finalItemIndex = 0;
+
+        containersWithItems.flat().forEach(container => container.items.forEach(item => item.style.outline = ''));
 
         const activeElement = containersWithItems[finalContainerIndex].items[finalItemIndex];
 
