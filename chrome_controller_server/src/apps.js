@@ -11,8 +11,8 @@ export const apps = [
         img: "/assets/netflix.png"
     },
     {
-        name: "Prime Video",
-        url: "https://www.primevideo.com/",
-        img: "/assets/prime.png"
+        name: "Twitch",
+        url: "https://www.twitch.tv/",
+        img: "/assets/twitch.png"
     }
 ]
