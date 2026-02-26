@@ -4,7 +4,6 @@ function getContainersWithItems(containers)
         
     containers.forEach((container, containerIndex) => {
         const containerElements = Array.from(document.querySelectorAll(container.selectors));
-        console.log(containerElements);
         const containerWithItems = containerElements.map((el) => {
             const items = Array.from(el.querySelectorAll(container.itemsSelectors)).filter(item => {
                 const itemRect = item.getBoundingClientRect();
