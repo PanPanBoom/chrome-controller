@@ -48,7 +48,7 @@ export default function Index() {
     if(foundServers.length > 0)
     {
       setServerIp(foundServers[0]);
-      router.push({ pathname: '/remote' });
+      router.push({ pathname: '/(tabs)/remote' });
     }
   }
 

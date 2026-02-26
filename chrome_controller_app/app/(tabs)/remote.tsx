@@ -1,12 +1,10 @@
 import { Text, View, Image, ScrollView, TextInput } from "react-native";
-import { AppButton } from "@/components/AppButton";
 import { DPad } from "@/components/DPad";
 import { Button } from "@/components/ui/Button";
 import { Maximize, Undo2, Volume1, Volume2 } from "lucide-react-native";
 import { useContext, useEffect, useRef, useState } from "react";
 import { remoteConstantsDTO } from "@/dtos/remoteConstants";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { socket } from '../server/socket';
+import { socket } from '../../server/socket';
 import { useLocalSearchParams } from "expo-router";
 import { AppsSection } from "@/components/AppsSection";
 import { AppContext } from "@/contexts/appContext";
@@ -71,7 +69,7 @@ export default function Remote() {
     }
 
     return (
-        <SafeAreaView className="flex-1">
+        <View className="flex-1 bg-background">
         {
             commands != undefined &&
             <View className="flex-1 flex gap-4 items-center">
@@ -92,7 +90,6 @@ export default function Remote() {
                     </Button>
                     </View>
                 </View>
-                <AppsSection/>
                 <TextInput 
                     className="w-0 h-0 opacity-0" 
                     ref={inputRef} 
@@ -108,6 +105,6 @@ export default function Remote() {
                     })}/>
             </View>
         }
-        </SafeAreaView>
+        </View>
     );
 }
