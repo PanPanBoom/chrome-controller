@@ -1,12 +1,11 @@
 import { Tabs } from "expo-router";
 import { Banknote, Cast, LucideIcon, LucideProps, TvMinimalPlay } from "lucide-react-native";
 import { JSX } from "react";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { colors } from "@/constants/colors";
 
 export default function TabLayout()
 {
-    const TabIcon = (Element: LucideIcon, props?: (JSX.IntrinsicAttributes & LucideProps)) => <Element size={30} strokeWidth={1.2} color={colors.secondary} {...props} />;
+    const TabIcon = (Element: LucideIcon, color: string, props?: (JSX.IntrinsicAttributes & LucideProps)) => <Element size={30} strokeWidth={1.2} color={color} {...props} />;
 
     return (
         
@@ -14,15 +13,17 @@ export default function TabLayout()
                 headerShown: false,
                 tabBarStyle: { backgroundColor: colors.background },
                 tabBarShowLabel: false,
+                tabBarActiveTintColor: colors.primary,
+                tabBarInactiveTintColor: colors.secondary
             }}>
                 <Tabs.Screen name="remote" options={{
-                    tabBarIcon: () => TabIcon(Banknote, {style: {transform: [{rotate: "0deg"}]}}),
+                    tabBarIcon: ({ color }) => TabIcon(Banknote, color, {style: {transform: [{rotate: "90deg"}]}}),
                 }}/>
                 <Tabs.Screen name="apps" options={{
-                    tabBarIcon: () => TabIcon(TvMinimalPlay)
+                    tabBarIcon: ({ color }) => TabIcon(TvMinimalPlay, color)
                 }}/>
                 <Tabs.Screen name="cast" options={{
-                    tabBarIcon: () => TabIcon(Cast)
+                    tabBarIcon: ({ color }) => TabIcon(Cast, color)
                 }}/>
             </Tabs>
         
