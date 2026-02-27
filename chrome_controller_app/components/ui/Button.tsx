@@ -1,15 +1,8 @@
-import { Pressable } from "react-native";
+import { Pressable, PressableProps } from "react-native";
 
-type ButtonProps = {
-    children?: React.ReactNode;
-    className?: string;
-    onPressOut?: () => void;
-    onLongPress?: () => void;
-}
-
-export const Button = (props: ButtonProps) => {
+export const Button = ({className, ...props}: PressableProps) => {
     return (
-        <Pressable className={`p-3 flex justify-center items-center bg-secondary rounded-xl active:bg-neutral-300 ${props.className != undefined ? props.className : ""}`} onPressOut={props.onPressOut} onLongPress={props.onLongPress}>
+        <Pressable className={`p-3 flex justify-center items-center active:bg-neutral-300 ${className != undefined ? className : "bg-background-light rounded-xl"}`} {...props}>
             {props.children}
         </Pressable>
     )

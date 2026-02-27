@@ -10,7 +10,11 @@ module.exports = {
         primary: colors.primary,
         secondary: colors.secondary,
         text: colors.text,
-        background: colors.background,
+        background: {
+          DEFAULT: colors.background,
+          light: colors.backgroundLight,
+          hover: colors.backgroundHover
+        }
       }
     },
   },
