@@ -5,7 +5,7 @@ import Svg, { Path, G } from 'react-native-svg';
 import { CurvedPanel, polarToCartesian } from "./ui/CurvedPanel";
 import { LucideIcon } from "lucide-react-native";
 
-type DPadSideProps = ViewProps & {
+type DPadSideProps = {
     startAngle: number;
     endAngle: number;
     icons: {
@@ -16,10 +16,10 @@ type DPadSideProps = ViewProps & {
 
 export const DPadSide = (props: DPadSideProps) => {
     const [activeIndex, setActiveIndex] = useState(-1);
-    const size = 425;
-    const iconSize = 20;
-    const innerR = size * 0.3;
-    const outerR = size * 0.37;
+    const size = 430;
+    const iconSize = 15;
+    const innerR = size * 0.32;
+    const outerR = size * 0.38;
 
     const step = Math.abs(props.endAngle - props.startAngle) / 3;
 
@@ -34,7 +34,7 @@ export const DPadSide = (props: DPadSideProps) => {
     const iconCoordinates = sections.map(section => polarToCartesian(size/2, size/2, (innerR + outerR)/2, (section.startAngle + section.endAngle)/2));
 
     return (
-        <View {...props}>
+        <View className="absolute left-[50%] top-[50%] -translate-x-[50%] -translate-y-[50%]">
             <Svg width={size} height={size}>
                 {
                     sections.map((section, index) => <CurvedPanel
@@ -48,6 +48,10 @@ export const DPadSide = (props: DPadSideProps) => {
                                                         onPressOut={() => setActiveIndex(-1)}
                                                         fill={activeIndex === index ? colors.backgroundHover : colors.backgroundLight}
                                                         onPress={props.icons[index].onPress}
+                                                        stroke={colors.backgroundLight}
+                                                        strokeWidth={10}
+                                                        strokeLinejoin="round"
+                                                        strokeLinecap="round"
                                                         />)
                 }
             </Svg>

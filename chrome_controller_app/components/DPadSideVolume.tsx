@@ -7,10 +7,8 @@ import { AppContext } from '@/contexts/appContext'
 import { colors } from '@/constants/colors'
 import { polarToCartesian } from './ui/CurvedPanel'
 
-export const DPadSideVolume = (props: ViewProps) => {
+export const DPadSideVolume = () => {
     const { serverIp } = useContext(AppContext);
-    const startAngle = 240;
-    const endAngle = 300;
     const volumeStep = 5;
 
     const icons = [
@@ -29,6 +27,6 @@ export const DPadSideVolume = (props: ViewProps) => {
     ]
 
     return (
-        <DPadSide startAngle={startAngle} endAngle={endAngle} icons={icons} {...props}/>
+        <DPadSide startAngle={240} endAngle={300} icons={icons}/>
     )
 }
