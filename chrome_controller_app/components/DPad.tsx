@@ -8,6 +8,7 @@ import { JSX, useContext } from "react"
 import { sendKeyPress } from "@/server/socket"
 import { colors } from "@/constants/colors"
 import { DPadSideVolume } from "./DPadSideVolume"
+import { DPadSidePlaceholder } from "./DPadSidePlaceholder"
 
 type DPadProps = {
     commands: remoteConstantsDTO;
@@ -18,7 +19,7 @@ export const DPad = (props: DPadProps) => {
 
     return (
         <View className="w-[55%] aspect-square border-primary border border-[5px] bg-background rounded-full" style={{ shadowColor: colors.primary, shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0.8, shadowRadius: 15 }}>
-            <DPadSideVolume className="absolute left-[50%] top-[50%] -translate-x-[50%] -translate-y-[50%]"/>
+            <DPadSideVolume />
             <View className="p-5 flex-1">
                 <View className="flex relative rounded-full p-2 aspect-square" style={{transform: [{ rotate: '45deg' }]}}>
                     <DPadButton keySimulated={props.commands.DPad.up} commands={props.commands}/>
@@ -34,6 +35,7 @@ export const DPad = (props: DPadProps) => {
                     </Button>
                 </View>
             </View>
+            <DPadSidePlaceholder />
         </View>
     )
 }
