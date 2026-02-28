@@ -6,6 +6,7 @@ import { useContext, useEffect, useRef, useState } from "react";
 import { remoteConstantsDTO } from "@/dtos/remoteConstants";
 import { getCommands, sendFullscreenToggle, sendInput, sendKeyPress, sendVolume, socket, submitInput } from '../../server/socket';
 import { AppContext } from "@/contexts/appContext";
+import { IconButton } from "@/components/ui/IconButton";
 
 export default function Remote() {
     const { serverIp } = useContext(AppContext);
@@ -50,20 +51,12 @@ export default function Remote() {
             commands != undefined &&
             <View className="flex-1 flex gap-4 items-center">
                 <DPad commands={commands}/>
-                <View className="flex-row gap-4 justify-center items-center">
-                    <Button onPressOut={() => sendKeyPress(serverIp, commands?.back || '')}>
-                    <Undo2 />
-                    </Button>
-                    <Button onPressOut={() => sendFullscreenToggle(serverIp)}>
-                    <Maximize />
-                    </Button>
+                <View className="flex-row w-full gap-4 justify-around items-center">
+                    <IconButton icon={Undo2} onPressOut={() => sendKeyPress(serverIp, commands?.back || '')} />
+                    <IconButton icon={Maximize} onPressOut={() => sendFullscreenToggle(serverIp)} />
                     <View className="flex gap-2">
-                    <Button onPressOut={() => handleVolume(1)}>
-                        <Volume2 />
-                    </Button>
-                    <Button onPressOut={() => handleVolume(-1)}>
-                        <Volume1 />
-                    </Button>
+                        <IconButton icon={Volume2} onPressOut={() => handleVolume(1)} />
+                        <IconButton icon={Volume1} onPressOut={() => handleVolume(-1)} />
                     </View>
                 </View>
                 <TextInput 
