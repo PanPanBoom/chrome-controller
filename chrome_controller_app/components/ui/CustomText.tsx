@@ -1,7 +1,10 @@
+import { cn } from "@/etc/utils";
 import { Text, TextProps } from "react-native";
 
-export const CustomText = ({children, ...props}: TextProps) => {
+export const CustomText = ({className, ...props}: TextProps) => {
     return (
-        <Text style={{fontFamily: 'Satoshi'}} {...props}>{children}</Text>
+        <Text style={{fontFamily: 'Satoshi'}} className={cn("text-text", className)} {...props}>
+            {props.children}
+        </Text>
     )
 }

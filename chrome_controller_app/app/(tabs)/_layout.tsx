@@ -8,7 +8,6 @@ export default function TabLayout()
     const TabIcon = (Element: LucideIcon, color: string, props?: (JSX.IntrinsicAttributes & LucideProps)) => <Element size={35} strokeWidth={1} color={color} {...props} />;
 
     return (
-        
             <Tabs screenOptions={{
                 headerShown: false,
                 tabBarStyle: { backgroundColor: colors.backgroundLight, borderTopWidth: 0, paddingBottom: 0, height: "13%" },
@@ -28,7 +27,6 @@ export default function TabLayout()
                 <Tabs.Screen name="cast" options={{
                     tabBarIcon: ({ color }) => TabIcon(Cast, color)
                 }}/>
-            </Tabs>
-        
+            </Tabs>   
     )
 }
