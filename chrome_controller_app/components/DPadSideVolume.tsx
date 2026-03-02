@@ -1,11 +1,8 @@
-import { View, ViewProps } from 'react-native'
 import { DPadSide } from './DPadSide'
 import { Plus, Minus, Volume2, LucideIcon } from 'lucide-react-native'
 import { sendVolume } from '@/server/socket'
 import { useContext } from 'react'
 import { AppContext } from '@/contexts/appContext'
-import { colors } from '@/constants/colors'
-import { polarToCartesian } from './ui/CurvedPanel'
 
 export const DPadSideVolume = () => {
     const { serverIp } = useContext(AppContext);

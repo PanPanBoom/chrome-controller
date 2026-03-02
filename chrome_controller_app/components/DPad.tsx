@@ -20,6 +20,7 @@ export const DPad = (props: DPadProps) => {
     return (
         <View className="w-[55%] aspect-square border-primary border border-[5px] bg-background rounded-full" style={{ shadowColor: colors.primary, shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0.8, shadowRadius: 15 }}>
             <DPadSideVolume />
+            <DPadSidePlaceholder />
             <View className="p-5 flex-1">
                 <View className="flex relative rounded-full p-2 aspect-square" style={{transform: [{ rotate: '45deg' }]}}>
                     <DPadButton keySimulated={props.commands.DPad.up} commands={props.commands}/>
@@ -35,7 +36,6 @@ export const DPad = (props: DPadProps) => {
                     </Button>
                 </View>
             </View>
-            <DPadSidePlaceholder />
         </View>
     )
 }
