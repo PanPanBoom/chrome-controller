@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/Button";
 import { TextButton } from "@/components/ui/TextButton";
 import { AppContext } from "@/contexts/appContext";
 import { sendPing } from "@/server/socket";
+import { Screen } from "@/components/ui/Screen";
+import { CustomText } from "@/components/ui/CustomText";
 
 export default function Index() {
   const [loading, setLoading] = useState(true);
@@ -58,7 +60,7 @@ export default function Index() {
   }, []);
 
   return (
-    <View className="flex flex-1 justify-center items-center">
+    <Screen>
       {
         loading ?
         <View>
@@ -66,10 +68,12 @@ export default function Index() {
           <Text>Recherche de serveurs...</Text>
         </View> :
         <View className="flex justify-center items-center gap-4">
-          <Text>Aucun serveur trouvé</Text>
-          <TextButton onPressOut={scanNetwork} className="w-[75%]">Rechercher</TextButton>
+          <CustomText>Aucun serveur trouvé</CustomText>
+          <Button onPressOut={scanNetwork} className="w-[75%]">
+            <CustomText>Rechercher</CustomText>
+          </Button>
         </View>
       }
-    </View>
+    </Screen>
   );
 }

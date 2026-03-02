@@ -1,11 +1,11 @@
 import { AppsSection } from "@/components/AppsSection";
-import { View, Text } from "react-native";
+import { Screen } from "@/components/ui/Screen";
 
 export default function Apps()
 {
     return (
-        <View className="bg-background flex-1">
+        <Screen>
             <AppsSection />
-        </View>
+        </Screen>
     )
 }

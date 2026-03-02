@@ -1,14 +1,14 @@
-import { Pressable, TouchableOpacity, View, Text } from "react-native"
-import { TextButton } from "./ui/TextButton"
+import { View } from "react-native"
 import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp, LucideIcon } from "lucide-react-native"
 import { Button } from "./ui/Button"
 import { remoteConstantsDTO } from "@/dtos/remoteConstants"
 import { AppContext } from "@/contexts/appContext"
-import { JSX, useContext } from "react"
+import { useContext } from "react"
 import { sendKeyPress } from "@/server/socket"
 import { colors } from "@/constants/colors"
 import { DPadSideVolume } from "./DPadSideVolume"
 import { DPadSidePlaceholder } from "./DPadSidePlaceholder"
+import { CustomText } from "./ui/CustomText"
 
 type DPadProps = {
     commands: remoteConstantsDTO;
@@ -18,7 +18,7 @@ export const DPad = (props: DPadProps) => {
     const { serverIp } = useContext(AppContext);
 
     return (
-        <View className="w-[55%] aspect-square border-primary border border-[5px] bg-background rounded-full" style={{ shadowColor: colors.primary, shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0.8, shadowRadius: 15 }}>
+        <View className="w-[66%] aspect-square border-primary border border-[5px] bg-background rounded-full" style={{ shadowColor: colors.primary, shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0.8, shadowRadius: 12 }}>
             <DPadSideVolume />
             <DPadSidePlaceholder />
             <View className="p-5 flex-1">
@@ -32,7 +32,7 @@ export const DPad = (props: DPadProps) => {
                         onPressOut={() => sendKeyPress(serverIp, props.commands.DPad.validate)}
                         style={{transform: [{rotate: '-45deg'}]}}
                     >
-                        <Text style={{color: colors.text}}>OK</Text>
+                        <CustomText style={{color: colors.text}}>OK</CustomText>
                     </Button>
                 </View>
             </View>
