@@ -9,6 +9,7 @@ import { colors } from "@/constants/colors"
 import { DPadSideVolume } from "./DPadSideVolume"
 import { DPadSidePlaceholder } from "./DPadSidePlaceholder"
 import { CustomText } from "./ui/CustomText"
+import { DPadSides } from "./DPadSides"
 
 type DPadProps = {
     commands: remoteConstantsDTO;
@@ -19,8 +20,7 @@ export const DPad = (props: DPadProps) => {
 
     return (
         <View className="w-[66%] aspect-square border-primary border border-[5px] bg-background rounded-full" style={{ shadowColor: colors.primary, shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0.8, shadowRadius: 12 }}>
-            <DPadSideVolume />
-            <DPadSidePlaceholder />
+            <DPadSides />
             <View className="p-5 flex-1">
                 <View className="flex relative rounded-full p-2 aspect-square" style={{transform: [{ rotate: '45deg' }]}}>
                     <DPadButton keySimulated={props.commands.DPad.up} commands={props.commands}/>

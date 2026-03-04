@@ -9,6 +9,7 @@ import { AppContext } from "@/contexts/appContext";
 import { IconButton } from "@/components/ui/IconButton";
 import { CustomText } from "@/components/ui/CustomText";
 import { Screen } from "@/components/ui/Screen";
+import { VideoControlsPanel } from "@/components/VideoControlsPanel";
 
 export default function Remote() {
     const { serverIp } = useContext(AppContext);
@@ -56,8 +57,9 @@ export default function Remote() {
                     <IconButton icon={Undo2} onPressOut={() => sendKeyPress(serverIp, commands?.back || '')} />
                     <IconButton icon={Maximize} onPressOut={() => sendFullscreenToggle(serverIp)} />
                 </View>
-                <View className="flex-row">
+                <View className="flex-row gap-5 h-[10%]">
                     <IconButton icon={Star} fill={"#f0b604"}/>
+                    <VideoControlsPanel className="flex-1"/>
                     <IconButton icon={ListIndentIncrease} />
                 </View>
                 <TextInput 
