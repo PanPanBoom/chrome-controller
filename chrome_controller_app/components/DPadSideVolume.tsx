@@ -3,27 +3,21 @@ import { Plus, Minus, Volume2, LucideIcon } from 'lucide-react-native'
 import { sendVolume } from '@/server/socket'
 import { useContext } from 'react'
 import { AppContext } from '@/contexts/appContext'
+import { VOLUME_SIDE_ANGLES } from './DPadSides'
 
 export const DPadSideVolume = () => {
     const { serverIp } = useContext(AppContext);
     const volumeStep = 5;
 
-    const icons = [
-        {
-            icon: Minus,
-            onPress: () => sendVolume(serverIp, -volumeStep)
-        },
-        {
-            icon: Volume2,
-            onPress: () => console.log("mute")
-        },
-        {
-            icon: Plus,
-            onPress: () => sendVolume(serverIp, volumeStep)
-        }
-    ]
+    const onPressArray = [
+        () => sendVolume(serverIp, -volumeStep),
+        () => console.log("mute"),
+        () => sendVolume(serverIp, volumeStep)
+    ];
 
     return (
-        <DPadSide startAngle={240} endAngle={300} icons={icons}/>
+        <DPadSide startAngle={VOLUME_SIDE_ANGLES.startAngle} endAngle={VOLUME_SIDE_ANGLES.endAngle} onPressArray={onPressArray}/>
     )
 }
+
+export const volumeIcons = [ Minus, Volume2, Plus ]
