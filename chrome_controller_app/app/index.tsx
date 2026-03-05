@@ -1,62 +1,33 @@
 import { View, Text, ActivityIndicator } from "react-native";
 import * as Network from 'expo-network';
 import { useContext, useEffect, useState } from "react";
-import { Loader } from "lucide-react-native";
 import { useRouter } from "expo-router";
 import { Button } from "@/components/ui/Button";
-import { TextButton } from "@/components/ui/TextButton";
 import { AppContext } from "@/contexts/appContext";
 import { sendPing } from "@/server/socket";
 import { Screen } from "@/components/ui/Screen";
 import { CustomText } from "@/components/ui/CustomText";
+import { scanNetwork } from "@/etc/utils";
+import { ServerDataDTO } from "@/dtos/serverData";
 
 export default function Index() {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
   const { serverIp, setServerIp } = useContext(AppContext);
 
-  const scanNetwork = async () => {
+  const launchScanNetwork = async () => {
     setLoading(true);
-
-    const ipAddress = await Network.getIpAddressAsync();
-    const baseIp = ipAddress.substring(0, ipAddress.lastIndexOf('.'));
-    
-    console.log(`Scanning network ${baseIp}.x ...`);
-
-    const promises = [];
-    for(let i = 1; i <= 254; i++)
-    {
-      const targetIp = `${baseIp}.${i}`;
-
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 200);
-
-      promises.push(
-        sendPing(targetIp, controller.signal)
-          .then(res => res.text())
-          .then(text => {
-            if(text === 'pong') return targetIp;
-            return null;
-          })
-          .catch(() => null)
-      );
-    }
-
-    const results = await Promise.all(promises);
-    const foundServers = results.filter(ip => ip !== null);
-
-    console.log('Serveurs trouvés :', foundServers);
-
+    const foundServers: ServerDataDTO[] = await scanNetwork();
     setLoading(false);
     if(foundServers.length > 0)
     {
-      setServerIp(foundServers[0]);
+      setServerIp(foundServers[0].ip);
       router.push({ pathname: '/(tabs)/remote' });
     }
   }
 
   useEffect(() => {
-    scanNetwork();
+    launchScanNetwork();
   }, []);
 
   return (
@@ -69,7 +40,7 @@ export default function Index() {
         </View> :
         <View className="flex justify-center items-center gap-4">
           <CustomText>Aucun serveur trouvé</CustomText>
-          <Button onPressOut={scanNetwork} className="w-[75%]">
+          <Button onPressOut={launchScanNetwork} className="w-[75%]">
             <CustomText>Rechercher</CustomText>
           </Button>
         </View>
