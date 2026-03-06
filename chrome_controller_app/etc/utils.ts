@@ -37,7 +37,5 @@ export const scanNetwork = async () => {
     const results = await Promise.all(promises);
     const foundServers = results.filter(server => server !== null);
 
-    console.log('Serveurs trouvés :', foundServers);
-
     return foundServers;
   }

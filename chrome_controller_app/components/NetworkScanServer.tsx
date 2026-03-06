@@ -5,6 +5,7 @@ import { Animated, Image, Pressable, useAnimatedValue, ViewProps } from "react-n
 import { CustomText } from "./ui/CustomText"
 import { useEffect } from "react"
 import { cn } from "@/etc/utils"
+import { router } from "expo-router"
 
 type NetworkScanServer = ViewProps & {
     server: ServerDataDTO;
@@ -26,7 +27,7 @@ export const NetworkScanServer = ({className, ...props}: NetworkScanServer) => {
             inputRange: [0, 100],
             outputRange: [0, 100]
         })}}>
-            <Pressable className="flex-1 justify-center items-center active:saturate-50">
+            <Pressable className="flex-1 justify-center items-center active:saturate-50" onPress={() => router.push({ pathname: '/modal', params: { server: JSON.stringify(props.server)} })}>
                 {/* <Computer color={colors.text} size={20} strokeWidth={1} fill={colors.secondary} /> */}
                 <Image source={{uri: props.server.serverData.img}} className="w-full aspect-square rounded-full border border-secondary"/>
                 <CustomText className="text-xs">{props.server.serverData.name}</CustomText>

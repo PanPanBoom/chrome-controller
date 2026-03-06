@@ -31,19 +31,19 @@ export default function Index() {
   }, []);
 
   return (
-    <Screen>
+    <Screen className="flex justify-center items-center gap-4">
       {
         loading ?
-        <View>
+        <>
           <ActivityIndicator />
-          <Text>Recherche de serveurs...</Text>
-        </View> :
-        <View className="flex justify-center items-center gap-4">
+          <CustomText>Recherche de serveurs...</CustomText>
+        </> :
+        <>
           <CustomText>Aucun serveur trouvé</CustomText>
           <Button onPressOut={launchScanNetwork} className="w-[75%]">
             <CustomText>Rechercher</CustomText>
           </Button>
-        </View>
+        </>
       }
     </Screen>
   );
