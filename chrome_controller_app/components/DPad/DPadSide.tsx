@@ -2,9 +2,19 @@ import { colors } from "@/constants/colors";
 import { useState } from "react";
 import { StyleSheet, View, ViewProps } from "react-native";
 import Svg, { Path, G } from 'react-native-svg';
-import { CurvedPanel, polarToCartesian } from "./ui/CurvedPanel";
+import { CurvedPanel, polarToCartesian } from "../ui/CurvedPanel";
 import { LucideIcon } from "lucide-react-native";
-import { getDPadSections, INNER_R, OUTER_R, PAD_SIZE } from "./DPadSides";
+import { INNER_R, OUTER_R, PAD_SIZE } from "./DPadSides";
+
+export const getDPadSections = (startAngle: number, endAngle: number) => {
+    const step = Math.abs(endAngle - startAngle) / 3;
+    
+    return [
+        { startAngle, endAngle: startAngle + step },
+        { startAngle: startAngle + step, endAngle: endAngle - step },
+        { startAngle: endAngle - step, endAngle}
+    ];
+}
 
 type DPadSideProps = {
     startAngle: number;

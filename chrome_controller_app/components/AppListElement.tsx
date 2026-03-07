@@ -19,7 +19,7 @@ export const AppListElement = (props: AppListElementProps) => {
     }
     
     return (
-        <Pressable className="flex-row flex-1 items-center rounded-full bg-background-light gap-2" onPress={handleClick}>
+        <Pressable className="flex-row flex-1 items-center rounded-full bg-background-light gap-2 active:bg-background-hover" onPress={handleClick}>
             <Image source={{ uri: `http://${serverIp}:3000${props.app.img}`}} className="h-full aspect-square rounded-full"/>
             <CustomText className="my-4 text-xl">{props.app.name}</CustomText>
         </Pressable>

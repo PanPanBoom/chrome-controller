@@ -1,5 +1,5 @@
 import { Text, View, Image, ScrollView, TextInput } from "react-native";
-import { DPad } from "@/components/DPad";
+import { DPad } from "@/components/DPad/DPad";
 import { Button } from "@/components/ui/Button";
 import { Cast, ListIndentIncrease, Maximize, Power, Star, Undo2, Volume1, Volume2 } from "lucide-react-native";
 import { useContext, useEffect, useRef, useState } from "react";
@@ -47,7 +47,7 @@ export default function Remote() {
         {
             commands != undefined &&
             <View className="flex-1 flex gap-4 items-center">
-                <View className="h-[5%] w-full flex-row justify-between items-center">
+                <View className="h-[5%] w-full flex-row justify-between items-center z-20">
                     <IconButton icon={Power} />
                     <CustomText className="text-text text-2xl">Remote</CustomText>
                     <IconButton icon={Cast} />
