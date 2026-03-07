@@ -13,14 +13,14 @@ export const NetworkScanRadar = (props: ViewProps) => {
     const [isScanning, setScanning] = useState(false);
     const [servers, setServers] = useState<ServerDataDTO[]>([]);
 
-    const launchScan = () => {
+    useEffect(() => {
         setServers([]);
         setScanning(true);
         scanNetwork().then(foundServers => {
             setServers(foundServers);
             setScanning(false);
         });
-    }
+    }, []);
 
     return (
         <View className="gap-10">
@@ -30,9 +30,6 @@ export const NetworkScanRadar = (props: ViewProps) => {
                         <NetworkScanServer key={index} server={server} className=""/>)
                 }
             </Radar>
-            <Button onPress={launchScan} className="bg-primary">
-                <CustomText>{isScanning ? "Scan en cours" : "Lancer un scan"}</CustomText>
-            </Button>
         </View>
     )
 }
