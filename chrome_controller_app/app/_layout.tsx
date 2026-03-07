@@ -7,7 +7,8 @@ import { useFonts } from 'expo-font';
 export default function RootLayout() {
   const [loaded, error] = useFonts({
     'Satoshi': require('../assets/fonts/Satoshi-Regular.otf'),
-    'Satoshi-Light': require('../assets/fonts/Satoshi-Light.otf')
+    'Satoshi-Light': require('../assets/fonts/Satoshi-Light.otf'),
+    'Satoshi-Bold': require('../assets/fonts/Satoshi-Bold.otf')
   });
 
   return (
@@ -18,6 +19,7 @@ export default function RootLayout() {
         }}>
           <Stack.Screen name="index"/>
           <Stack.Screen name="(tabs)"/>
+          <Stack.Screen name="scanNetwork" />
           <Stack.Screen 
             name="modal"
             options={{
