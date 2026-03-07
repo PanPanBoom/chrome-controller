@@ -1,6 +1,6 @@
 import { View } from "react-native"
 import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp, LucideIcon } from "lucide-react-native"
-import { Button } from "./ui/Button"
+import { Button } from "../ui/Button"
 import { remoteConstantsDTO } from "@/dtos/remoteConstants"
 import { AppContext } from "@/contexts/appContext"
 import { useContext } from "react"
@@ -8,7 +8,7 @@ import { sendKeyPress } from "@/server/socket"
 import { colors } from "@/constants/colors"
 import { DPadSideVolume } from "./DPadSideVolume"
 import { DPadSidePlaceholder } from "./DPadSidePlaceholder"
-import { CustomText } from "./ui/CustomText"
+import { CustomText } from "../ui/CustomText"
 import { DPadSides } from "./DPadSides"
 
 type DPadProps = {

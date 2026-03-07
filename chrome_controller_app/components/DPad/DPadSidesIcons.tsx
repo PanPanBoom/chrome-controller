@@ -1,9 +1,9 @@
 import { LucideIcon } from "lucide-react-native";
 import { volumeIcons } from "./DPadSideVolume";
 import { placeholderIcons } from "./DPadSidePlaceholder";
-import { getDPadSections } from "./DPadSides";
+import { getDPadSections } from "./DPadSide";
 import { INNER_R, OUTER_R, PAD_SIZE, PLACEHOLDER_SIDE_ANGLES, VOLUME_SIDE_ANGLES } from "./DPadSides";
-import { polarToCartesian } from "./ui/CurvedPanel";
+import { polarToCartesian } from "../ui/CurvedPanel";
 import { colors } from "@/constants/colors";
 
 export const DPadSidesIcons = () => {
