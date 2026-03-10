@@ -13,7 +13,7 @@ import { ServerDataDTO } from "@/dtos/serverData";
 export default function Index() {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
-  const { serverIp, setServerIp } = useContext(AppContext);
+  const { server, setServer } = useContext(AppContext);
 
   const launchScanNetwork = async () => {
     setLoading(true);
@@ -21,7 +21,7 @@ export default function Index() {
     setLoading(false);
     if(foundServers.length > 0)
     {
-      setServerIp(foundServers[0].ip);
+      setServer(foundServers[0]);
       router.push({ pathname: '/(tabs)/remote' });
     }
   }

@@ -1,15 +1,16 @@
+import { ServerDataDTO } from "@/dtos/serverData";
 import { createContext, useState } from "react";
 
 export const AppContext = createContext({
-    serverIp: "",
-    setServerIp: (ip: string) => {}
+    server: {} as ServerDataDTO,
+    setServer: (server: ServerDataDTO) => {}
 });
 
 export const AppProvider = ({ children }) => {
-    const [serverIp, setServerIp] = useState("");
+    const [server, setServer] = useState({} as ServerDataDTO);
 
     return (
-        <AppContext.Provider value={{ serverIp, setServerIp }}>
+        <AppContext.Provider value={{ server, setServer }}>
             {children}
         </AppContext.Provider>
     );

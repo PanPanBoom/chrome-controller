@@ -10,15 +10,16 @@ import { IconButton } from "@/components/ui/IconButton";
 import { CustomText } from "@/components/ui/CustomText";
 import { Screen } from "@/components/ui/Screen";
 import { VideoControlsPanel } from "@/components/VideoControlsPanel";
+import { RedirectionButton } from "@/components/ui/RedirectionButton";
 
 export default function Remote() {
-    const { serverIp } = useContext(AppContext);
+    const { server } = useContext(AppContext);
     const [commands, setCommands] = useState<remoteConstantsDTO | null>(null);
     const [input, setInput] = useState("");
     const inputRef = useRef(null);
 
     useEffect(() => {
-        getCommands(serverIp)
+        getCommands(server.ip)
         .then(res => res.json())
         .then(data => {
             console.log('Commands received from server:', data);
@@ -33,13 +34,9 @@ export default function Remote() {
         })
     }, []);
 
-    useEffect(() => {
-        console.log('Current commands state:', commands);
-    }, [commands]);
-
     const handleInput = (newInput: string) => {
         setInput(newInput);
-        sendInput(serverIp, newInput);
+        sendInput(server.ip, newInput);
     }
 
     return (
@@ -52,10 +49,11 @@ export default function Remote() {
                     <CustomText className="text-text text-2xl">Remote</CustomText>
                     <IconButton icon={Cast} />
                 </View>
-                <DPad commands={commands}/>
+                <RedirectionButton label={server.serverData.name} img={server.serverData.img} className="h-[5%] z-50"/>
+                <DPad commands={commands} className="z-0" style={{marginVertical: 30}}/>
                 <View className="flex-row w-full justify-around gap-4">
-                    <IconButton icon={Undo2} onPressOut={() => sendKeyPress(serverIp, commands?.back || '')} />
-                    <IconButton icon={Maximize} onPressOut={() => sendFullscreenToggle(serverIp)} />
+                    <IconButton icon={Undo2} onPressOut={() => sendKeyPress(server.ip, commands?.back || '')} />
+                    <IconButton icon={Maximize} onPressOut={() => sendFullscreenToggle(server.ip)} />
                 </View>
                 <View className="flex-row gap-5 h-[10%]">
                     <IconButton icon={Star} fill={"#f0b604"}/>
@@ -68,7 +66,7 @@ export default function Remote() {
                     value={input} 
                     onChangeText={handleInput} 
                     returnKeyType="search" 
-                    onSubmitEditing={() => submitInput(serverIp, input)}/>
+                    onSubmitEditing={() => submitInput(server.ip, input)}/>
             </View>
         }
         </Screen>

@@ -10,17 +10,17 @@ type AppListElementProps = {
 }
 
 export const AppListElement = (props: AppListElementProps) => {
-    const { serverIp } = useContext(AppContext);
+    const { server } = useContext(AppContext);
 
     const handleClick = () => {
-        sendAppLaunch(serverIp, props.app.url);
+        sendAppLaunch(server.ip, props.app.url);
         if(props.app.redirect)
             Linking.openURL(props.app.redirect);
     }
     
     return (
         <Pressable className="flex-row flex-1 items-center rounded-full bg-background-light gap-2 active:bg-background-hover" onPress={handleClick}>
-            <Image source={{ uri: `http://${serverIp}:3000${props.app.img}`}} className="h-full aspect-square rounded-full"/>
+            <Image source={{ uri: `http://${server.ip}:3000${props.app.img}`}} className="h-full aspect-square rounded-full"/>
             <CustomText className="my-4 text-xl">{props.app.name}</CustomText>
         </Pressable>
     )
