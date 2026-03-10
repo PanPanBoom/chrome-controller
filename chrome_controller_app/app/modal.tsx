@@ -10,7 +10,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AppContext } from "@/contexts/appContext";
 
 export default function Modal() {
-    const { setServerIp } = useContext(AppContext);
+    const { setServer } = useContext(AppContext);
     const { server } = useLocalSearchParams();
     const parsedServer: ServerDataDTO = JSON.parse(server as string);
 
@@ -18,7 +18,7 @@ export default function Modal() {
     const insets = useSafeAreaInsets();
 
     const handleValidate = () => {
-        setServerIp(parsedServer.ip);
+        setServer(parsedServer);
         router.back();
         router.push('/(tabs)/remote');
     }

@@ -10,10 +10,10 @@ import { FlatList } from "react-native";
 export default function Apps()
 {
     const [apps, setApps] = useState<App[] | null>(null);
-    const { serverIp } = useContext(AppContext);
+    const { server } = useContext(AppContext);
 
     useEffect(() => {
-            getApps(serverIp)
+            getApps(server.ip)
             .then(res => res.json())
             .then(data => {
                 console.log('Apps received from server:', data);

@@ -1,4 +1,4 @@
-import { View } from "react-native"
+import { View, ViewProps } from "react-native"
 import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp, LucideIcon } from "lucide-react-native"
 import { Button } from "../ui/Button"
 import { remoteConstantsDTO } from "@/dtos/remoteConstants"
@@ -7,19 +7,20 @@ import { useContext } from "react"
 import { sendKeyPress } from "@/server/socket"
 import { colors } from "@/constants/colors"
 import { DPadSideVolume } from "./DPadSideVolume"
-import { DPadSidePlaceholder } from "./DPadSidePlaceholder"
+import { DPadSideZoom } from "./DPadSideZoom"
 import { CustomText } from "../ui/CustomText"
 import { DPadSides } from "./DPadSides"
+import { cn } from "@/etc/utils"
 
-type DPadProps = {
+type DPadProps = ViewProps & {
     commands: remoteConstantsDTO;
 }
 
-export const DPad = (props: DPadProps) => {
-    const { serverIp } = useContext(AppContext);
+export const DPad = ({className, style, ...props}: DPadProps) => {
+    const { server } = useContext(AppContext);
 
     return (
-        <View className="w-[66%] aspect-square border-primary border border-[5px] bg-background rounded-full" style={{ shadowColor: colors.primary, shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0.8, shadowRadius: 12 }}>
+        <View className={cn("w-[66%] aspect-square border-primary border border-[5px] bg-background rounded-full", className)} style={[{ shadowColor: colors.primary, shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0.8, shadowRadius: 12 }, style]}>
             <DPadSides />
             <View className="p-5 flex-1">
                 <View className="flex relative rounded-full p-2 aspect-square" style={{transform: [{ rotate: '45deg' }]}}>
@@ -29,7 +30,7 @@ export const DPad = (props: DPadProps) => {
                     <DPadButton keySimulated={props.commands.DPad.down} commands={props.commands} />
                     <Button
                         className={`bg-primary rounded-full m-auto w-[40%] aspect-square`}
-                        onPressOut={() => sendKeyPress(serverIp, props.commands.DPad.validate)}
+                        onPressOut={() => sendKeyPress(server.ip, props.commands.DPad.validate)}
                         style={{transform: [{rotate: '-45deg'}]}}
                     >
                         <CustomText style={{color: colors.text}}>OK</CustomText>
@@ -51,7 +52,7 @@ type ArrowConfig = {
 }
 
 const DPadButton = (props: DPadArrowProps) => {
-    const { serverIp } = useContext(AppContext);
+    const { server } = useContext(AppContext);
 
     const arrowsMapping: Record<string, ArrowConfig> = {
         [props.commands.DPad.up]: {
@@ -75,7 +76,7 @@ const DPadButton = (props: DPadArrowProps) => {
     const Component = arrowsMapping[props.keySimulated].component;
 
     return (
-        <Button className={`${arrowsMapping[props.keySimulated].className} w-[50%] h-[50%] absolute bg-background-light`} onPressOut={() => sendKeyPress(serverIp, props.keySimulated)}>
+        <Button className={`${arrowsMapping[props.keySimulated].className} w-[50%] h-[50%] absolute bg-background-light`} onPressOut={() => sendKeyPress(server.ip, props.keySimulated)}>
             <View className="bg-background-hover rounded-full p-1">
                 <Component style={{transform: [{ rotate: '-45deg' }]}} color={colors.text}/>
             </View>

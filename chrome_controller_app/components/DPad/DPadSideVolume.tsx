@@ -6,13 +6,13 @@ import { AppContext } from '@/contexts/appContext'
 import { VOLUME_SIDE_ANGLES } from './DPadSides'
 
 export const DPadSideVolume = () => {
-    const { serverIp } = useContext(AppContext);
+    const { server } = useContext(AppContext);
     const volumeStep = 5;
 
     const onPressArray = [
-        () => sendVolume(serverIp, -volumeStep),
+        () => sendVolume(server.ip, -volumeStep),
         () => console.log("mute"),
-        () => sendVolume(serverIp, volumeStep)
+        () => sendVolume(server.ip, volumeStep)
     ];
 
     return (
