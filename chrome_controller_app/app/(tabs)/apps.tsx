@@ -1,5 +1,7 @@
 import { AppListElement } from "@/components/AppListElement";
+import { ShowCarousel } from "@/components/ShowCarousel";
 import { CustomText } from "@/components/ui/CustomText";
+import { CustomTitle } from "@/components/ui/CustomTitle";
 import { Screen } from "@/components/ui/Screen";
 import { AppContext } from "@/contexts/appContext";
 import { App } from "@/dtos/app";
@@ -23,7 +25,9 @@ export default function Apps()
         
     return (
         <Screen>
-            <CustomText className="text-xl">Applications</CustomText>
+            <CustomTitle>Tendances</CustomTitle>
+            <ShowCarousel className="h-[30%]"/>
+            <CustomTitle>Applications</CustomTitle>
             <FlatList
                 data={apps}
                 renderItem={({ item }) => <AppListElement app={item} />} 
