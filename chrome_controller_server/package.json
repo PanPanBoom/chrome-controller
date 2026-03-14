@@ -11,8 +11,10 @@
     "start": "node ./server.js"
   },
   "dependencies": {
+    "dotenv": "^17.3.1",
     "express": "^5.2.1",
     "loudness": "^0.4.2",
-    "socket.io": "^4.8.3"
+    "socket.io": "^4.8.3",
+    "streaming-availability": "^4.4.0"
   }
 }

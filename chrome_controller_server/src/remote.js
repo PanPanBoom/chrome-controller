@@ -4,6 +4,8 @@ import { apps } from "./apps.js";
 import os from 'os';
 import { execSync } from "child_process";
 import fs from 'fs';
+import * as streamingAvailability from 'streaming-availability';
+import 'dotenv/config';
 
 const getProfilePicturePath = () => {
     const sid = execSync('powershell -command "[System.Security.Principal.WindowsIdentity]::GetCurrent().User.Value"').toString().trim();
@@ -14,6 +16,33 @@ const getProfilePicturePath = () => {
 
 export default function remoteRoutes(io) {
     const router = Router();
+
+    const apiClient = new streamingAvailability.Client(new streamingAvailability.Configuration({
+        apiKey: process.env.API_KEY
+    }))
+
+    const TTL = 24 * 60 * 60 * 1000;
+    let cache = {
+        data: null,
+        lastFetch: null
+    };
+
+    const getTopShowsData = async () => {
+        const now = Date.now();
+
+        if(cache.data && (now - cache.lastFetch) < TTL) return cache.data;
+
+        const data = await apiClient.showsApi.getTopShows({
+            country: 'fr',
+            service: 'netflix',
+            outputLanguage: 'fr'
+        });
+
+        cache.data = data;
+        cache.lastFetch = now;
+
+        return data;
+    }
     
     router.get('/ping', (req, res) => {
         const imagePath = getProfilePicturePath();
@@ -41,6 +70,11 @@ export default function remoteRoutes(io) {
         io.emit('keyboard');
         res.send({ status : 'ok' });
     });
+
+    router.get('/topShows', (req, res) => {
+        console.log('Shows demandés');
+        getTopShowsData().then(data => res.json(data));
+    })
 
     return router;
 }
