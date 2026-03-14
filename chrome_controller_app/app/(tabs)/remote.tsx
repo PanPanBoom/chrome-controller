@@ -1,7 +1,7 @@
 import { Text, View, Image, ScrollView, TextInput } from "react-native";
 import { DPad } from "@/components/DPad/DPad";
 import { Button } from "@/components/ui/Button";
-import { Cast, ListIndentIncrease, Maximize, Power, Star, Undo2, Volume1, Volume2 } from "lucide-react-native";
+import { Cast, Keyboard, ListIndentIncrease, Maximize, Power, Star, Undo2, Volume1, Volume2 } from "lucide-react-native";
 import { useContext, useEffect, useRef, useState } from "react";
 import { remoteConstantsDTO } from "@/dtos/remoteConstants";
 import { getCommands, sendFullscreenToggle, sendInput, sendKeyPress, socket, submitInput } from '../../server/socket';
@@ -11,12 +11,15 @@ import { CustomText } from "@/components/ui/CustomText";
 import { Screen } from "@/components/ui/Screen";
 import { VideoControlsPanel } from "@/components/VideoControlsPanel";
 import { RedirectionButton } from "@/components/ui/RedirectionButton";
+import { colors } from "@/constants/colors";
+import { TextButton } from "@/components/ui/TextButton";
+import { IconDescriptionButton } from "@/components/ui/IconDescriptionButton";
 
 export default function Remote() {
     const { server } = useContext(AppContext);
     const [commands, setCommands] = useState<remoteConstantsDTO | null>(null);
     const [input, setInput] = useState("");
-    const inputRef = useRef(null);
+    const inputRef = useRef<TextInput>(null);
 
     useEffect(() => {
         getCommands(server.ip)
@@ -43,7 +46,7 @@ export default function Remote() {
         <Screen>
         {
             commands != undefined &&
-            <View className="flex-1 flex gap-4 items-center">
+            <View className="flex-1 flex items-center justify-between">
                 <View className="h-[5%] w-full flex-row justify-between items-center z-20">
                     <IconButton icon={Power} />
                     <CustomText className="text-text text-2xl">Remote</CustomText>
@@ -51,14 +54,19 @@ export default function Remote() {
                 </View>
                 <RedirectionButton label={server.serverData.name} img={server.serverData.img} className="h-[5%] z-50"/>
                 <DPad commands={commands} className="z-0" style={{marginVertical: 30}}/>
-                <View className="flex-row w-full justify-around gap-4">
-                    <IconButton icon={Undo2} onPressOut={() => sendKeyPress(server.ip, commands?.back || '')} />
-                    <IconButton icon={Maximize} onPressOut={() => sendFullscreenToggle(server.ip)} />
+                <View className="flex-row w-[85%] justify-between">
+                    <TextButton onPressOut={() => sendKeyPress(server.ip, commands?.back || '')}>BACK</TextButton>
+                    <TextButton>HOME</TextButton>
+                    <TextButton>EXIT</TextButton>
                 </View>
-                <View className="flex-row gap-5 h-[10%]">
+                <View className="flex-row gap-5 h-[8%]">
                     <IconButton icon={Star} fill={"#f0b604"}/>
                     <VideoControlsPanel className="flex-1"/>
                     <IconButton icon={ListIndentIncrease} />
+                </View>
+                <View className="flex-row w-full justify-between px-2">
+                    <IconDescriptionButton icon={Keyboard} description="Keyboard"/>
+                    <IconDescriptionButton icon={Maximize} description="Fullscreen" onPressOut={() => sendFullscreenToggle(server.ip)} />
                 </View>
                 <TextInput 
                     className="w-0 h-0 opacity-0" 
