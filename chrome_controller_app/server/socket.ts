@@ -58,9 +58,10 @@ export const sendAppLaunch = async (ip: string, url: string) => await sendComman
 
 export const getApps = async (ip: string) => await sendCommand(ip, 'remote/apps');
 
-export const getTopShows = async (ip: string, filter: string) => {
+export const getTopShows = async (ip: string, platform: string, filter: string) => {
     const params = new URLSearchParams();
-    params.append("show_type", filter);
+    params.append("showType", filter);
+    params.append("platform", platform);
 
     return await(sendCommand(ip, `remote/topShows?${params}`));
 }

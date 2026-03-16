@@ -10,10 +10,15 @@ import { ShowCarouselFilter } from "./ShowCarouselFilter";
 import { TextButton } from "./ui/TextButton";
 import { ShowCarouselFilterGroup } from "./ShowCarouselFilterGroup";
 
-export const ShowCarousel = ({className, ...props}: ViewProps) => {
+type ShowCarouselProps = ViewProps & {
+    platform: string;
+}
+
+export const ShowCarousel = ({className, ...props}: ShowCarouselProps) => {
     const { server } = useContext(AppContext);
     const [activeIndex, setActiveIndex] = useState(0);
-    const [data, setData] = useState<ShowDTO[]>([]);
+    const [shows, setShows] = useState<ShowDTO[]>([]);
+    const [currentFilter, setCurrentFilter] = useState('');
 
     const { width } = Dimensions.get('screen');
 
@@ -22,27 +27,31 @@ export const ShowCarousel = ({className, ...props}: ViewProps) => {
     const NB_SHOWS_DISPLAYED = 3;
 
     useEffect(() => {
-        getTopShows(server.ip, "")
+        getTopShows(server.ip, props.platform, currentFilter)
             .then(res => res.json())
-            .then(dataFetched => setData(dataFetched));
+            .then(dataFetched => setShows(dataFetched));
     }, []);
 
+    useEffect(() => {
+        getTopShows(server.ip, props.platform, currentFilter)
+            .then(res => res.json())
+            .then(dataFetched => setShows(dataFetched));
+    }, [props.platform, currentFilter]);
+
     const handleNext = () => setActiveIndex(i => {
-        if(i + 1 > data.length - 1) return 0;
+        if(i + 1 > shows.length - 1) return 0;
         
         return i + 1;
     });
 
     const handlePrev = () => setActiveIndex(i => {
-        if(i - 1 < 0) return data.length - 1;
+        if(i - 1 < 0) return shows.length - 1;
 
         return i - 1;
     })
 
     const handleFilterChange = (filter: string) => {
-        getTopShows(server.ip, filter)
-            .then(res => res.json())
-            .then(dataFetched => setData(dataFetched));
+        setCurrentFilter(filter);
     }
 
     return (
@@ -50,12 +59,12 @@ export const ShowCarousel = ({className, ...props}: ViewProps) => {
             <ShowCarouselFilterGroup onFilterChange={handleFilterChange}/>
             <View className="flex-row">
                 {
-                    data &&
-                    [...data].reverse().map((show, reversedIndex) => {
-                        const index = data.length - 1 - reversedIndex;
+                    shows &&
+                    [...shows].reverse().map((show, reversedIndex) => {
+                        const index = shows.length - 1 - reversedIndex;
                         let position = index - activeIndex;
                         if(position < 0)
-                            position += data.length;
+                            position += shows.length;
 
                         if (position < 0 || position > NB_SHOWS_DISPLAYED - 1) return null;
                         
