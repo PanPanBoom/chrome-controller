@@ -7,6 +7,7 @@ import { TextButton } from "./TextButton";
 
 type ContextMenuProps = ViewProps & {
     context?: string[];
+    onChange?: (newOption: string) => void
 }
 
 export const ContextMenu = (props: ContextMenuProps) => {
@@ -15,6 +16,8 @@ export const ContextMenu = (props: ContextMenuProps) => {
 
     const handleNewSelection = (newIndex: number) => {
         setActiveIndex(newIndex);
+        if(props.context)
+            props.onChange?.(props.context[newIndex]);
         setShowMenu(false);
     }
 

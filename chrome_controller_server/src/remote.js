@@ -22,29 +22,35 @@ export default function remoteRoutes(io) {
     }))
 
     const TTL = 24 * 60 * 60 * 1000;
-    let cache = {
-        "": {
-            data: null,
-            lastFetch: null
-        },
-        "series": {
-            data: null,
-            lastFetch: null
-        },
-        "movie": {
-            data: null,
-            lastFetch: null
-        }
-    };
+    // let cache = {
+    //     "": {
+    //         data: null,
+    //         lastFetch: null
+    //     },
+    //     "series": {
+    //         data: null,
+    //         lastFetch: null
+    //     },
+    //     "movie": {
+    //         data: null,
+    //         lastFetch: null
+    //     }
+    // };
+    let cache = {};
 
-    const getTopShowsData = async (filter) => {
+    const getTopShowsData = async (platform, filter) => {
+        if(!cache[platform])
+            cache[platform] = {};
+        if(!cache[platform][filter])
+            cache[platform][filter] = { data: null, lastFetch: 0 };
+
         const now = Date.now();
 
-        if(cache[filter].data && (now - cache[filter].lastFetch) < TTL) return cache[filter].data;
+        if(cache[platform]?.[filter]?.data && (now - cache[platform]?.[filter]?.lastFetch) < TTL) return cache[platform][filter].data;
 
         let requestParams = {
             country: 'fr',
-            service: 'netflix',
+            service: platform.toLowerCase(),
             outputLanguage: 'fr'
         };
 
@@ -53,15 +59,15 @@ export default function remoteRoutes(io) {
 
         const data = await apiClient.showsApi.getTopShows(requestParams);
 
-        cache[filter].data = data.map(show => ({
+        cache[platform][filter].data = data.map(show => ({
             title: show.title,
             img: show.imageSet.horizontalPoster.w1440,
             link: show.streamingOptions.fr.filter(streamingOption => streamingOption.service.id.toLowerCase() === "netflix")[0].link,
             overview: show.overview
         }));
-        cache[filter].lastFetch = now;
+        cache[platform][filter].lastFetch = now;
 
-        return cache[filter].data;
+        return cache[platform][filter].data;
     }
     
     router.get('/ping', (req, res) => {
@@ -93,8 +99,7 @@ export default function remoteRoutes(io) {
 
     router.get('/topShows', (req, res) => {
         console.log('Shows demandés');
-        console.log(req.query["show_type"]);
-        getTopShowsData(req.query['show_type']).then(data => res.json(data));
+        getTopShowsData(req.query.platform, req.query.showType).then(data => res.json(data));
     })
 
     return router;
