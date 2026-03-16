@@ -57,3 +57,5 @@ export const sendAppLaunch = async (ip: string, url: string) => await sendComman
     });
 
 export const getApps = async (ip: string) => await sendCommand(ip, 'remote/apps');
+
+export const getTopShows = async (ip: string) => await(sendCommand(ip, 'remote/topShows'));

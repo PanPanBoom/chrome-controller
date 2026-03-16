@@ -36,10 +36,6 @@ export const NetworkScanRadar = (props: ViewProps) => {
         });
     }, []);
 
-    useEffect(() => {
-        console.log(radarRadius, serverRadius);
-    }, [radarRadius, serverRadius]);
-
     return (
         <View className="gap-10">
             <Radar active={isScanning} setCenterRadius={setCenterRadius} onLayout={e => setRadarRadius(e.nativeEvent.layout.width/2)} {...props}>
