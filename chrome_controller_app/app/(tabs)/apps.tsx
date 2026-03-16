@@ -24,7 +24,7 @@ export default function Apps()
         }, []);
         
     return (
-        <Screen>
+        <Screen className="gap-3">
             <CustomTitle>Tendances</CustomTitle>
             <ShowCarousel />
             <CustomTitle>Applications</CustomTitle>
