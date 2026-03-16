@@ -1,5 +1,6 @@
 import { AppListElement } from "@/components/AppListElement";
 import { ShowCarousel } from "@/components/ShowCarousel";
+import { ContextMenu } from "@/components/ui/ContextMenu";
 import { CustomText } from "@/components/ui/CustomText";
 import { CustomTitle } from "@/components/ui/CustomTitle";
 import { Screen } from "@/components/ui/Screen";
@@ -7,7 +8,7 @@ import { AppContext } from "@/contexts/appContext";
 import { App } from "@/dtos/app";
 import { getApps } from "@/server/socket";
 import { useContext, useEffect, useState } from "react";
-import { FlatList } from "react-native";
+import { FlatList, View } from "react-native";
 
 export default function Apps()
 {
@@ -25,7 +26,10 @@ export default function Apps()
         
     return (
         <Screen className="gap-3">
-            <CustomTitle>Tendances</CustomTitle>
+            <View className="flex-row gap-4">
+                <CustomTitle>Tendances</CustomTitle>
+                <ContextMenu context={apps?.map(app => app.name)}/>
+            </View>
             <ShowCarousel />
             <CustomTitle>Applications</CustomTitle>
             <FlatList
