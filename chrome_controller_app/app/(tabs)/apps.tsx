@@ -26,7 +26,7 @@ export default function Apps()
     return (
         <Screen>
             <CustomTitle>Tendances</CustomTitle>
-            <ShowCarousel className="h-[30%]"/>
+            <ShowCarousel />
             <CustomTitle>Applications</CustomTitle>
             <FlatList
                 data={apps}

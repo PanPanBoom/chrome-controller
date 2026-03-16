@@ -38,10 +38,15 @@ export default function remoteRoutes(io) {
             outputLanguage: 'fr'
         });
 
-        cache.data = data;
+        cache.data = data.map(show => ({
+            title: show.title,
+            img: show.imageSet.horizontalPoster.w720,
+            link: show.streamingOptions.fr.filter(streamingOption => streamingOption.service.id.toLowerCase() === "netflix")[0].link,
+            overview: show.overview
+        }));
         cache.lastFetch = now;
 
-        return data;
+        return cache.data;
     }
     
     router.get('/ping', (req, res) => {
