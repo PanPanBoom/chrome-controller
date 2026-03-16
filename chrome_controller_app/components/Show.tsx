@@ -1,4 +1,4 @@
-import { Image, View, ViewProps } from "react-native"
+import { Image, Pressable, View, ViewProps } from "react-native"
 import { CustomText } from "./ui/CustomText"
 import { Button } from "./ui/Button"
 import { BlurView } from "expo-blur"
@@ -15,12 +15,20 @@ import { BlurredIconButton } from "./ui/BlurredIconButton"
 
 type ShowProps = ViewProps & {
     data: ShowDTO;
+    onPrev?: () => void;
+    onNext?: () => void;
 }
 
 export const Show = ({className, ...props}: ShowProps) => {
     const { server } = useContext(AppContext);
     const [showInfos, setShowInfos] = useState(false);
 
+    const carouselButtons = (
+        <>
+            <Pressable className="w-1/2 h-full absolute left-0" onPress={props.onPrev}/>
+            <Pressable className="w-1/2 h-full absolute right-0" onPress={props.onNext}/>
+        </>
+    );
     const castButton = (<BlurredIconButton icon={Cast} color={colors.text} onPress={() => sendAppLaunch(server.ip, props.data.link)}/>);
     const infoButton = (<BlurredIconButton icon={Info} color={colors.text} iconSize={20} blurViewClassName="p-1" className="absolute top-2 right-2" onPress={() => setShowInfos(prev => !prev)}/>);
     const infoSection = (
@@ -36,15 +44,19 @@ export const Show = ({className, ...props}: ShowProps) => {
                 props.data.img.includes('svg') ?
                 <>
                     { infoSection }
+                    { carouselButtons }
                     { castButton }
                 </> : showInfos ? 
                 <>
                     { infoSection }
+                    { carouselButtons }
                     { infoButton }
                 </> :
                 <>
                     <Image source={{uri: props.data.img}} className="w-full aspect-video absolute"/>
+                    { carouselButtons }
                     { infoButton }
+                    { castButton }
                 </>
             }
         </View>

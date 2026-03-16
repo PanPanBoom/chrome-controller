@@ -23,30 +23,45 @@ export default function remoteRoutes(io) {
 
     const TTL = 24 * 60 * 60 * 1000;
     let cache = {
-        data: null,
-        lastFetch: null
+        "": {
+            data: null,
+            lastFetch: null
+        },
+        "series": {
+            data: null,
+            lastFetch: null
+        },
+        "movie": {
+            data: null,
+            lastFetch: null
+        }
     };
 
-    const getTopShowsData = async () => {
+    const getTopShowsData = async (filter) => {
         const now = Date.now();
 
-        if(cache.data && (now - cache.lastFetch) < TTL) return cache.data;
+        if(cache[filter].data && (now - cache[filter].lastFetch) < TTL) return cache[filter].data;
 
-        const data = await apiClient.showsApi.getTopShows({
+        let requestParams = {
             country: 'fr',
             service: 'netflix',
             outputLanguage: 'fr'
-        });
+        };
 
-        cache.data = data.map(show => ({
+        if(filter !== "")
+            requestParams.showType = filter;
+
+        const data = await apiClient.showsApi.getTopShows(requestParams);
+
+        cache[filter].data = data.map(show => ({
             title: show.title,
-            img: show.imageSet.horizontalPoster.w720,
+            img: show.imageSet.horizontalPoster.w1440,
             link: show.streamingOptions.fr.filter(streamingOption => streamingOption.service.id.toLowerCase() === "netflix")[0].link,
             overview: show.overview
         }));
-        cache.lastFetch = now;
+        cache[filter].lastFetch = now;
 
-        return cache.data;
+        return cache[filter].data;
     }
     
     router.get('/ping', (req, res) => {
@@ -78,7 +93,8 @@ export default function remoteRoutes(io) {
 
     router.get('/topShows', (req, res) => {
         console.log('Shows demandés');
-        getTopShowsData().then(data => res.json(data));
+        console.log(req.query["show_type"]);
+        getTopShowsData(req.query['show_type']).then(data => res.json(data));
     })
 
     return router;
