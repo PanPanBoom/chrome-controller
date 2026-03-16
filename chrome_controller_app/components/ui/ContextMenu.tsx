@@ -1,18 +1,17 @@
-import { FlatList, Pressable, View } from "react-native"
+import { FlatList, Pressable, View, ViewProps } from "react-native"
 import { CustomText } from "./CustomText";
 import { useState } from "react";
 import { ChevronDown } from "lucide-react-native";
 import { colors } from "@/constants/colors";
 import { TextButton } from "./TextButton";
 
-export const ContextMenu = () => {
+type ContextMenuProps = ViewProps & {
+    context?: string[];
+}
+
+export const ContextMenu = (props: ContextMenuProps) => {
     const [activeIndex, setActiveIndex] = useState(0);
     const [showMenu, setShowMenu] = useState(false);
-    const data = [
-        "Netflix",
-        "Youtube",
-        "Twitch"
-    ];
 
     const handleNewSelection = (newIndex: number) => {
         setActiveIndex(newIndex);
@@ -20,19 +19,18 @@ export const ContextMenu = () => {
     }
 
     return (
-        <View className="overflow-visible justify-center items-center">
+        <View className="justify-center items-center">
             <Pressable className="flex-row justify-center items-center" onPress={() => setShowMenu(prev => !prev)}>
-                <CustomText className="text-secondary">{data[activeIndex]}</CustomText>
-                <ChevronDown color={colors.secondary} size={20} />
+                <CustomText className="text-secondary">{props.context ? props.context[activeIndex] : ""}</CustomText>
+                <ChevronDown color={colors.secondary} size={20} style={{transform: [{rotate: `${(showMenu ? 180 : 0)}deg`}]}}/>
             </Pressable>
             {
                 showMenu &&
-                <FlatList 
-                    data={data}
-                    renderItem={({ item, index }) => <TextButton className="aspect-auto rounded-none bg-transparent" onPress={() => handleNewSelection(index)}>{item}</TextButton>}
-                    keyExtractor={item => item}
-                    className="absolute top-full z-50 bg-background-light rounded-lg"
-                />
+                <View className="absolute top-full z-50 bg-background-light rounded-lg" style={{minWidth: '100%'}}>
+                    {
+                        props.context?.map((option, index) => <TextButton key={option} className="aspect-auto rounded-none bg-transparent p-2 px-1" onPress={() => handleNewSelection(index)}>{option}</TextButton>)
+                    }
+                </View>
             }
         </View>
     )
