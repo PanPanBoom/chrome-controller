@@ -26,16 +26,17 @@ export const ShowCarousel = ({className, ...props}: ShowCarouselProps) => {
     const SPACING = 25;
     const NB_SHOWS_DISPLAYED = 3;
 
-    useEffect(() => {
-        getTopShows(server.ip, props.platform, currentFilter)
-            .then(res => res.json())
-            .then(dataFetched => setShows(dataFetched));
-    }, []);
+    // useEffect(() => {
+    //     getTopShows(server.ip, props.platform, currentFilter)
+    //         .then(res => res.json())
+    //         .then(dataFetched => setShows(dataFetched));
+    // }, []);
 
     useEffect(() => {
-        getTopShows(server.ip, props.platform, currentFilter)
-            .then(res => res.json())
-            .then(dataFetched => setShows(dataFetched));
+        if(props.platform)
+            getTopShows(server.ip, props.platform, currentFilter)
+                .then(res => res.json())
+                .then(dataFetched => setShows(dataFetched));
     }, [props.platform, currentFilter]);
 
     const handleNext = () => setActiveIndex(i => {
