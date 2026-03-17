@@ -6,6 +6,9 @@ import { execSync } from "child_process";
 import fs from 'fs';
 import * as streamingAvailability from 'streaming-availability';
 import 'dotenv/config';
+import { google } from 'googleapis';
+import { youtube } from "googleapis/build/src/apis/youtube/index.js";
+import { ApiManager } from "./ApiManager.js";
 
 const getProfilePicturePath = () => {
     const sid = execSync('powershell -command "[System.Security.Principal.WindowsIdentity]::GetCurrent().User.Value"').toString().trim();
@@ -17,58 +20,14 @@ const getProfilePicturePath = () => {
 export default function remoteRoutes(io) {
     const router = Router();
 
-    const apiClient = new streamingAvailability.Client(new streamingAvailability.Configuration({
-        apiKey: process.env.API_KEY
-    }))
+    const saApiClient = new streamingAvailability.Client(new streamingAvailability.Configuration({
+        apiKey: process.env.STREAMINGAVAILABILITY_API_KEY
+    }));
 
-    const TTL = 24 * 60 * 60 * 1000;
-    // let cache = {
-    //     "": {
-    //         data: null,
-    //         lastFetch: null
-    //     },
-    //     "series": {
-    //         data: null,
-    //         lastFetch: null
-    //     },
-    //     "movie": {
-    //         data: null,
-    //         lastFetch: null
-    //     }
-    // };
-    let cache = {};
-
-    const getTopShowsData = async (platform, filter) => {
-        if(!cache[platform])
-            cache[platform] = {};
-        if(!cache[platform][filter])
-            cache[platform][filter] = { data: null, lastFetch: 0 };
-
-        const now = Date.now();
-
-        if(cache[platform]?.[filter]?.data && (now - cache[platform]?.[filter]?.lastFetch) < TTL) return cache[platform][filter].data;
-
-        let requestParams = {
-            country: 'fr',
-            service: platform.toLowerCase(),
-            outputLanguage: 'fr'
-        };
-
-        if(filter !== "")
-            requestParams.showType = filter;
-
-        const data = await apiClient.showsApi.getTopShows(requestParams);
-
-        cache[platform][filter].data = data.map(show => ({
-            title: show.title,
-            img: show.imageSet.horizontalPoster.w1440,
-            link: show.streamingOptions.fr.filter(streamingOption => streamingOption.service.id.toLowerCase() === "netflix")[0].link,
-            overview: show.overview
-        }));
-        cache[platform][filter].lastFetch = now;
-
-        return cache[platform][filter].data;
-    }
+    const ytApiClient = google.youtube({
+        version: 'v3',
+        auth: process.env.YOUTUBE_API_KEY
+    });
     
     router.get('/ping', (req, res) => {
         const imagePath = getProfilePicturePath();
@@ -99,7 +58,8 @@ export default function remoteRoutes(io) {
 
     router.get('/topShows', (req, res) => {
         console.log('Shows demandés');
-        getTopShowsData(req.query.platform, req.query.showType).then(data => res.json(data));
+        console.log(req.query.platform.toLowerCase());
+        ApiManager.getTopShows(req.query.platform.toLowerCase(), req.query.showType).then(data => res.json(data));
     })
 
     return router;
