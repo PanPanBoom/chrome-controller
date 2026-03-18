@@ -1,11 +1,13 @@
 import { NetflixApi } from "./NetflixApi.js";
+import { TwitchApi } from "./TwitchApi.js";
 import { YoutubeApi } from "./YoutubeApi.js";
 
 export class ApiManager
 {
     static apis = {
         youtube: new YoutubeApi(),
-        netflix: new NetflixApi()
+        netflix: new NetflixApi(),
+        twitch: new TwitchApi()
     }
 
     static async getTopShows(platform, filter)
