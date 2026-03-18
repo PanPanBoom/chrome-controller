@@ -7,7 +7,7 @@ import { TextButton } from "./TextButton";
 
 type ContextMenuProps = ViewProps & {
     context?: string[];
-    onChange?: (newOption: string) => void
+    onChange?: (newOptionIndex: number) => void
 }
 
 export const ContextMenu = (props: ContextMenuProps) => {
@@ -16,8 +16,7 @@ export const ContextMenu = (props: ContextMenuProps) => {
 
     const handleNewSelection = (newIndex: number) => {
         setActiveIndex(newIndex);
-        if(props.context)
-            props.onChange?.(props.context[newIndex]);
+        props.onChange?.(newIndex);
         setShowMenu(false);
     }
 
@@ -31,7 +30,7 @@ export const ContextMenu = (props: ContextMenuProps) => {
                 showMenu &&
                 <View className="absolute top-full z-50 bg-background-light rounded-lg" style={{minWidth: '100%'}}>
                     {
-                        props.context?.map((option, index) => <TextButton key={option} className="aspect-auto rounded-none bg-transparent p-2 px-1" onPress={() => handleNewSelection(index)}>{option}</TextButton>)
+                        props.context?.map((option, index) => <TextButton key={option} className="aspect-auto rounded-none bg-transparent p-2" onPress={() => handleNewSelection(index)}>{option}</TextButton>)
                     }
                 </View>
             }

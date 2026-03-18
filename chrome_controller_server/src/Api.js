@@ -5,6 +5,7 @@ export class Api
         this.cache = {};
         this.apiClient = null;
         this.TTL = 6 * 60 * 60 * 1000;
+        this.filters = [];
     }
 
     async getTopShows(filter)
