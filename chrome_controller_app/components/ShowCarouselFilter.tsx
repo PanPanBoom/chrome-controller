@@ -10,7 +10,7 @@ type ShowCarouselFilterProps = TextButtonProps & {
 
 export const ShowCarouselFilter = (props: ShowCarouselFilterProps) => {
     return (
-        <TextButton className={cn("aspect-auto rounded-xl px-4 py-1", props.active ? "bg-primary" : "")} textClassName="text-text" {...props}>
+        <TextButton className={cn("aspect-auto px-6 py-2", props.active ? "bg-primary" : "")} textClassName={props.active ? "text-text" : "text-secondary"} {...props}>
             {props.children}
         </TextButton>
     )

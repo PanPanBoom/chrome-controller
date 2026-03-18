@@ -9,9 +9,10 @@ import { ShowDTO } from "@/dtos/show";
 import { ShowCarouselFilter } from "./ShowCarouselFilter";
 import { TextButton } from "./ui/TextButton";
 import { ShowCarouselFilterGroup } from "./ShowCarouselFilterGroup";
+import { App } from "@/dtos/app";
 
 type ShowCarouselProps = ViewProps & {
-    platform: string;
+    platform: App;
 }
 
 export const ShowCarousel = ({className, ...props}: ShowCarouselProps) => {
@@ -26,15 +27,9 @@ export const ShowCarousel = ({className, ...props}: ShowCarouselProps) => {
     const SPACING = 25;
     const NB_SHOWS_DISPLAYED = 3;
 
-    // useEffect(() => {
-    //     getTopShows(server.ip, props.platform, currentFilter)
-    //         .then(res => res.json())
-    //         .then(dataFetched => setShows(dataFetched));
-    // }, []);
-
     useEffect(() => {
         if(props.platform)
-            getTopShows(server.ip, props.platform, currentFilter)
+            getTopShows(server.ip, props.platform.name, currentFilter)
                 .then(res => res.json())
                 .then(dataFetched => setShows(dataFetched));
     }, [props.platform, currentFilter]);
@@ -56,8 +51,8 @@ export const ShowCarousel = ({className, ...props}: ShowCarouselProps) => {
     }
 
     return (
-        <View className={cn("gap-2", className)} {...props}>
-            <ShowCarouselFilterGroup onFilterChange={handleFilterChange}/>
+        <View className={cn("gap-3", className)} {...props}>
+            <ShowCarouselFilterGroup filters={props.platform.filters} onFilterChange={handleFilterChange}/>
             <View className="flex-row">
                 {
                     shows &&

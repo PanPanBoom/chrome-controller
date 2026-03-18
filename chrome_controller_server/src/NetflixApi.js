@@ -10,6 +10,20 @@ export class NetflixApi extends Api
         this.apiClient = new streamingAvailability.Client(new streamingAvailability.Configuration({
             apiKey: process.env.STREAMINGAVAILABILITY_API_KEY
         }));
+        this.filters = [
+            {
+                displayText: "Tout",
+                apiValue: ""
+            },
+            {
+                displayText: "Séries",
+                apiValue: "series"
+            },
+            {
+                displayText: "Films",
+                apiValue: "movie"
+            }
+        ]
     }
 
     async getTopShows(filter)

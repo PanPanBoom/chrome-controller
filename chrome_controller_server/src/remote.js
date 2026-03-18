@@ -19,15 +19,6 @@ const getProfilePicturePath = () => {
 
 export default function remoteRoutes(io) {
     const router = Router();
-
-    const saApiClient = new streamingAvailability.Client(new streamingAvailability.Configuration({
-        apiKey: process.env.STREAMINGAVAILABILITY_API_KEY
-    }));
-
-    const ytApiClient = google.youtube({
-        version: 'v3',
-        auth: process.env.YOUTUBE_API_KEY
-    });
     
     router.get('/ping', (req, res) => {
         const imagePath = getProfilePicturePath();
@@ -42,7 +33,10 @@ export default function remoteRoutes(io) {
 
     router.get('/apps', (req, res) => {
         console.log('Apps demandées');
-        res.json(apps);
+        res.json(apps.map(app => ({
+            ...app,
+            filters: ApiManager.getFilters(app.name.toLowerCase())
+        })));
     });
     
     router.get('/config/commands', (req, res) => {

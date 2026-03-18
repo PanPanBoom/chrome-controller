@@ -14,4 +14,9 @@ export class ApiManager
     {
         return await this.apis[platform].getTopShows(filter);
     }
+
+    static getFilters(platform)
+    {
+        return this.apis[platform].filters;
+    }
 }

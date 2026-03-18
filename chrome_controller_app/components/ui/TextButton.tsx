@@ -13,7 +13,7 @@ export type TextButtonProps = PressableProps & {
 export const TextButton = ({className, ...props}: TextButtonProps) => {
     return (
         <Button className={cn("rounded-full aspect-square p-3", className)} {...props}>
-            <CustomText className={cn("text-sm text-secondary", props.textClassName)}>{props.children}</CustomText>
+            <CustomText numberOfLines={1} className={cn("text-sm text-secondary", props.textClassName)}>{props.children}</CustomText>
         </Button>
     )
 }

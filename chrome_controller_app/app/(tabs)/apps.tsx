@@ -13,7 +13,7 @@ import { FlatList, View } from "react-native";
 export default function Apps()
 {
     const [apps, setApps] = useState<App[] | null>(null);
-    const [trendsPlatform, setTrendsPlatform] = useState("");
+    const [trendsPlatform, setTrendsPlatform] = useState<App | null>(null);
     const { server } = useContext(AppContext);
 
     useEffect(() => {
@@ -22,7 +22,7 @@ export default function Apps()
             .then(data => {
                 console.log('Apps received from server:', data);
                 setApps(data);
-                setTrendsPlatform(data[0].name);
+                setTrendsPlatform(data[0]);
             });
         }, []);
 
@@ -32,11 +32,14 @@ export default function Apps()
         
     return (
         <Screen className="gap-3">
-            <View className="flex-row gap-4">
+            <View className="flex-row w-full justify-between">
                 <CustomTitle>Tendances</CustomTitle>
-                <ContextMenu context={apps?.map(app => app.name)} onChange={(newPlatform: string) => setTrendsPlatform(newPlatform)}/>
+                <ContextMenu context={apps?.map(app => app.name)} onChange={(newPlatformIndex: number) => apps && setTrendsPlatform(apps[newPlatformIndex])}/>
             </View>
-            <ShowCarousel platform={trendsPlatform}/>
+            {
+                trendsPlatform &&
+                <ShowCarousel platform={trendsPlatform}/>
+            }
             <CustomTitle>Applications</CustomTitle>
             <FlatList
                 data={apps}
