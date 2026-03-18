@@ -23,10 +23,9 @@ export class YoutubeApi extends Api
             chart: 'mostPopular',
             hl:'fr_FR',
             part:'snippet',
-            regionCode: 'fr'
+            regionCode: 'fr',
+            maxResults: 20
         });
-
-        console.log(response.data.items[0].snippet.thumbnails);
 
         this.cache.data = response.data.items.map(video => ({
             title: video.snippet.title,
@@ -35,8 +34,6 @@ export class YoutubeApi extends Api
             overview: video.snippet.description
         }));
         this.cache.lastFetch = now;
-
-        console.log(this.cache.data);
 
         return this.cache.data;
     }
