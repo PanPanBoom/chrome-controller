@@ -47,7 +47,7 @@ export class NetflixApi extends Api
         const data = await this.apiClient.showsApi.getTopShows(requestParams);
 
         this.cache[filter].data = data.map(show => ({
-            title: show.title,
+            title: "",
             img: show.imageSet.horizontalPoster.w1440,
             link: show.streamingOptions.fr.filter(streamingOption => streamingOption.service.id.toLowerCase() === "netflix")[0].link,
             overview: show.overview

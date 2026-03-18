@@ -10,6 +10,7 @@ export class TwitchApi extends Api
         super();
         const authProvider = new AppTokenAuthProvider(process.env.TWITCH_API_ID, process.env.TWITCH_API_SECRET);
         this.apiClient = new ApiClient({ authProvider });
+        this.TTL = 30 * 60 * 1000;
     }
 
     async getTopShows(filter)
@@ -24,10 +25,10 @@ export class TwitchApi extends Api
         });
 
         this.cache.data = response.data.map(stream => ({
-            title: stream.title,
+            title: stream.userDisplayName,
             img: stream.getThumbnailUrl(1280, 720),
             link: `https://www.twitch.tv/${stream.userName}`,
-            overview: stream.userDisplayName
+            overview: stream.title
         }));
         this.cache.lastFetch = now;
 
