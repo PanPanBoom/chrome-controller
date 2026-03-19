@@ -65,3 +65,11 @@ export const getTopShows = async (ip: string, platform: string, filter: string) 
 
     return await(sendCommand(ip, `remote/topShows?${params}`));
 }
+
+export const sendZoom = async (ip: string, zoomValue: number) => await sendCommand(ip, 'extension/zoom', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ zoomValue })
+    });

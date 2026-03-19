@@ -3,14 +3,16 @@ import { Minus, Plus, ZoomIn } from "lucide-react-native";
 import { useContext } from "react"
 import { DPadSide } from "./DPadSide";
 import { ZOOM_SIDE_ANGLES } from "./DPadSides";
+import { sendZoom } from "@/server/socket";
 
 export const DPadSideZoom = () => {
-    // const { serverIp } = useContext(AppContext);
+    const { server } = useContext(AppContext);
+    const zoomStep = 0.1;
 
     const onPressArray = [
-        () => console.log("zoom"),
-        () => console.log("r"),
-        () => console.log("dezoom")
+        () => sendZoom(server.ip, 1 * zoomStep),
+        () => sendZoom(server.ip, 0),
+        () => sendZoom(server.ip, -1 * zoomStep)
     ];
 
     return (

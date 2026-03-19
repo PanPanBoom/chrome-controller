@@ -49,5 +49,12 @@ export default function extensionRoutes(io) {
         res.send({ status: 'ok' });
     });
 
+    router.post('/zoom', (req, res) => {
+        const { zoomValue } = req.body;
+        
+        io.emit('command', { action: "ZOOM", zoomValue});
+        res.send({ status: 'ok' });
+    })
+
     return router;
 }
