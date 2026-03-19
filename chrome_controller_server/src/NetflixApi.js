@@ -7,6 +7,7 @@ export class NetflixApi extends Api
     constructor()
     {
         super();
+        this.platform = "netflix";
         this.apiClient = new streamingAvailability.Client(new streamingAvailability.Configuration({
             apiKey: process.env.STREAMINGAVAILABILITY_API_KEY
         }));
@@ -26,7 +27,7 @@ export class NetflixApi extends Api
         ]
     }
 
-    async getTopShows(filter)
+    async sendTopShowsRequest(filter)
     {
         if(!this.cache[filter])
             this.cache[filter] = {};

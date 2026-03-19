@@ -7,13 +7,14 @@ export class YoutubeApi extends Api
     constructor()
     {
         super();
+        this.platform = "youtube";
         this.apiClient = google.youtube({
             version: 'v3',
             auth: process.env.YOUTUBE_API_KEY
         });
     }
 
-    async getTopShows(filter)
+    async sendTopShowsRequest(filter)
     {
         const now = Date.now();
 
