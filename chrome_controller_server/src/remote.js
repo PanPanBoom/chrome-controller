@@ -8,7 +8,7 @@ import * as streamingAvailability from 'streaming-availability';
 import 'dotenv/config';
 import { google } from 'googleapis';
 import { youtube } from "googleapis/build/src/apis/youtube/index.js";
-import { ApiManager } from "./ApiManager.js";
+import { ApiManager } from "./APIs/ApiManager.js";
 
 const getProfilePicturePath = () => {
     const sid = execSync('powershell -command "[System.Security.Principal.WindowsIdentity]::GetCurrent().User.Value"').toString().trim();
