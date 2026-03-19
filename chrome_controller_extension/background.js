@@ -53,6 +53,16 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                 apps[newPlatform].reset();
             }
 
+            else if(message.action == 'ZOOM')
+            {
+                if(message.zoomValue == 0)
+                    chrome.tabs.setZoom(1)
+
+                else
+                    chrome.tabs.getZoom()
+                        .then(currentZoom => chrome.tabs.setZoom(currentZoom + message.zoomValue));
+            }
+
             else if(message.action == 'FULLSCREEN')
                 chrome.windows.update(chrome.windows.WINDOW_ID_CURRENT, { state: "fullscreen"});
 
