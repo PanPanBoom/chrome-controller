@@ -8,12 +8,13 @@ export class TwitchApi extends Api
     constructor()
     {
         super();
+        this.platform = "twitch";
         const authProvider = new AppTokenAuthProvider(process.env.TWITCH_API_ID, process.env.TWITCH_API_SECRET);
         this.apiClient = new ApiClient({ authProvider });
         this.TTL = 30 * 60 * 1000;
     }
 
-    async getTopShows(filter)
+    async sendTopShowsRequest(filter)
     {
         const now = Date.now();
 
