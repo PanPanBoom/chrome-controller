@@ -33,7 +33,7 @@ export default function Remote() {
         socket.on('keyboard', () => {
             console.log('Keyboard show event');
             if(inputRef.current)
-            inputRef.current.focus();
+                inputRef.current.focus();
         })
     }, []);
 
@@ -65,7 +65,7 @@ export default function Remote() {
                     <IconButton icon={ListIndentIncrease} />
                 </View>
                 <View className="flex-row w-full justify-between px-2">
-                    <IconDescriptionButton icon={Keyboard} description="Keyboard"/>
+                    <IconDescriptionButton icon={Keyboard} description="Keyboard" onPress={() => inputRef.current?.focus()}/>
                     <IconDescriptionButton icon={Maximize} description="Fullscreen" onPressOut={() => sendFullscreenToggle(server.ip)} />
                 </View>
                 <TextInput 
@@ -74,7 +74,10 @@ export default function Remote() {
                     value={input} 
                     onChangeText={handleInput} 
                     returnKeyType="search" 
-                    onSubmitEditing={() => submitInput(server.ip, input)}/>
+                    onSubmitEditing={() => {
+                        if(input !== "")
+                            submitInput(server.ip, input)
+                    }}/>
             </View>
         }
         </Screen>

@@ -30,6 +30,12 @@ export const sendVolume = async (ip: string, volumeValue: number) => await sendC
         body: JSON.stringify({ volumeValue })
     });
 
+export const sendMute = async (ip: string) => await sendCommand(ip, 'mute', {
+    method: 'POST'
+});
+
+export const getisMuted = async (ip: string) => await sendCommand(ip, 'isMuted');
+
 export const sendInput = async (ip: string, input: string) => await sendCommand(ip, 'extension/input', {
         method: 'POST',
         headers: {

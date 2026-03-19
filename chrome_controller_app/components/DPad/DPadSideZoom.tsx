@@ -2,7 +2,7 @@ import { AppContext } from "@/contexts/appContext"
 import { Minus, Plus, ZoomIn } from "lucide-react-native";
 import { useContext } from "react"
 import { DPadSide } from "./DPadSide";
-import { ZOOM_SIDE_ANGLES } from "./DPadSides";
+import { ZOOM_SIDE_ANGLES } from "./constants";
 import { sendZoom } from "@/server/socket";
 
 export const DPadSideZoom = () => {
@@ -19,5 +19,3 @@ export const DPadSideZoom = () => {
         <DPadSide startAngle={ZOOM_SIDE_ANGLES.startAngle} endAngle={ZOOM_SIDE_ANGLES.endAngle} onPressArray={onPressArray}/> 
     )
 }
-
-export const zoomIcons = [ Plus, ZoomIn, Minus ];

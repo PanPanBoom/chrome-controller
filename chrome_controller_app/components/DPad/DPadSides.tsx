@@ -3,22 +3,28 @@ import { DPadSideVolume } from "./DPadSideVolume";
 import { DPadSideZoom } from "./DPadSideZoom";
 import { View } from "react-native";
 import { DPadSidesIcons } from "./DPadSidesIcons";
-
-export const PAD_SIZE = 430;
-
-export const VOLUME_SIDE_ANGLES = { startAngle: 240, endAngle: 300 };
-export const ZOOM_SIDE_ANGLES = { startAngle: 60, endAngle: 120 };
-export const INNER_R = PAD_SIZE * 0.32;
-export const OUTER_R = PAD_SIZE * 0.38;
+import { PAD_SIZE } from "./constants";
+import { useContext, useEffect, useState } from "react";
+import { getisMuted } from "@/server/socket";
+import { AppContext } from "@/contexts/appContext";
 
 export const DPadSides = () => {
+    const { server } = useContext(AppContext);
+    const [isMuted, setIsMuted] = useState(false);
+
+    useEffect(() => {
+        getisMuted(server.ip)
+            .then(res => res.json())
+            .then(data => setIsMuted(data.isMuted));
+    });
+    
     return (
         <View className="z-0 absolute left-[50%] top-[50%] -translate-x-[50%] -translate-y-[50%]">
             <Svg width={PAD_SIZE} height={PAD_SIZE}>
-                <DPadSideVolume />
+                <DPadSideVolume onMuteChange={(isMuted => setIsMuted(isMuted))}/>
                 <DPadSideZoom />
             </Svg>
-            <DPadSidesIcons />
+            <DPadSidesIcons isMuted={isMuted}/>
         </View>
     )
 }
