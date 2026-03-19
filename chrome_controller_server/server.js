@@ -33,10 +33,21 @@ app.use('/remote', remoteRoutes(io));
 
 app.post('/volume', async (req, res) => {
     const { volumeValue } = req.body;
-    console.log(`Volume : ${volumeValue > 0 ? "+" : ""}${volumeValue}`);
 
-    const vol = await loudness.getVolume();
-    await loudness.setVolume(vol + volumeValue);
+    if(volumeValue == 0)
+    {
+        const isMuted = await loudness.getMuted();
+        console.log(isMuted ? "Demute" : "Mute");
+        await loudness.setMuted(!isMuted);
+    }
+
+    else
+    {
+        console.log(`Volume : ${volumeValue > 0 ? "+" : ""}${volumeValue}`);
+    
+        const vol = await loudness.getVolume();
+        await loudness.setVolume(vol + volumeValue);
+    }
 
     res.send({ status: 'ok' });
 })
