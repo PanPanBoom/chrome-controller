@@ -11,7 +11,7 @@ export const DPadSideVolume = () => {
 
     const onPressArray = [
         () => sendVolume(server.ip, -volumeStep),
-        () => console.log("mute"),
+        () => sendVolume(server.ip, 0),
         () => sendVolume(server.ip, volumeStep)
     ];
 
