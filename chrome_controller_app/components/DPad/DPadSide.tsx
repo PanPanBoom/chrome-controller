@@ -4,7 +4,7 @@ import { StyleSheet, View, ViewProps } from "react-native";
 import Svg, { Path, G } from 'react-native-svg';
 import { CurvedPanel, polarToCartesian } from "../ui/CurvedPanel";
 import { LucideIcon } from "lucide-react-native";
-import { INNER_R, OUTER_R, PAD_SIZE } from "./DPadSides";
+import { INNER_R, OUTER_R, PAD_SIZE } from "./constants";
 
 export const getDPadSections = (startAngle: number, endAngle: number) => {
     const step = Math.abs(endAngle - startAngle) / 3;
@@ -42,7 +42,7 @@ export const DPadSide = (props: DPadSideProps) => {
                                                     fill={activeIndex === index ? colors.backgroundHover : colors.backgroundLight}
                                                     onPress={props.onPressArray[index]}
                                                     stroke={colors.backgroundLight}
-                                                    strokeWidth={10}
+                                                    strokeWidth={5}
                                                     strokeLinejoin="round"
                                                     strokeLinecap="round"
                                                     />)

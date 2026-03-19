@@ -1,16 +1,31 @@
-import { LucideIcon } from "lucide-react-native";
-import { volumeIcons } from "./DPadSideVolume";
-import { zoomIcons } from "./DPadSideZoom";
+import { Plus, Minus, Volume2, ZoomIn, LucideIcon, VolumeOff } from "lucide-react-native";
 import { getDPadSections } from "./DPadSide";
-import { INNER_R, OUTER_R, PAD_SIZE, ZOOM_SIDE_ANGLES, VOLUME_SIDE_ANGLES } from "./DPadSides";
+import { INNER_R, OUTER_R, PAD_SIZE, ZOOM_SIDE_ANGLES, VOLUME_SIDE_ANGLES } from "./constants";
 import { polarToCartesian } from "../ui/CurvedPanel";
 import { colors } from "@/constants/colors";
 
-export const DPadSidesIcons = () => {
+type DPadSideIconsProps = {
+    isMuted: boolean;
+}
+
+export const DPadSidesIcons = (props: DPadSideIconsProps) => {
     const iconSize = 15;
+    const volumeIcons = [ Minus, props.isMuted ? VolumeOff : Volume2, Plus ];
+    const zoomIcons = [ Plus, ZoomIn, Minus ];
     const icons = volumeIcons.concat(zoomIcons);
 
-    const buildIcon = (Icon: LucideIcon, coordinates: {x: number, y: number}, key: number) => <Icon key={key} size={iconSize} color={colors.text} style={{position: "absolute", top: coordinates.y - iconSize/2, left: coordinates.x - iconSize/2}}/>
+    const buildIcon = (Icon: LucideIcon, coordinates: {x: number, y: number}, key: number) =>
+        <Icon
+            key={key}
+            size={iconSize}
+            color={colors.text} 
+            style={{
+                position: "absolute", 
+                top: coordinates.y - iconSize/2, 
+                left: coordinates.x - iconSize/2
+            }}
+        />
+    
     const volumeSections = getDPadSections(VOLUME_SIDE_ANGLES.startAngle, VOLUME_SIDE_ANGLES.endAngle);
     const zoomSections = getDPadSections(ZOOM_SIDE_ANGLES.startAngle, ZOOM_SIDE_ANGLES.endAngle);
     const sections = volumeSections.concat(zoomSections);

@@ -20,7 +20,7 @@ export const DPad = ({className, style, ...props}: DPadProps) => {
     const { server } = useContext(AppContext);
 
     return (
-        <View className={cn("w-[66%] aspect-square border-primary border border-[5px] bg-background rounded-full", className)} style={[{ shadowColor: colors.primary, shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0.8, shadowRadius: 12 }, style]}>
+        <View className={cn("w-[66%] aspect-square border-primary border border-[7px] bg-background rounded-full", className)} style={[{ shadowColor: colors.primary, shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0.8, shadowRadius: 12 }, style]}>
             <DPadSides />
             <View className="p-5 flex-1">
                 <View className="flex relative rounded-full p-2 aspect-square" style={{transform: [{ rotate: '45deg' }]}}>

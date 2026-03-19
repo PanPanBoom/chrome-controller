@@ -34,23 +34,24 @@ app.use('/remote', remoteRoutes(io));
 app.post('/volume', async (req, res) => {
     const { volumeValue } = req.body;
 
-    if(volumeValue == 0)
-    {
-        const isMuted = await loudness.getMuted();
-        console.log(isMuted ? "Demute" : "Mute");
-        await loudness.setMuted(!isMuted);
-    }
+    console.log(`Volume : ${volumeValue > 0 ? "+" : ""}${volumeValue}`);
 
-    else
-    {
-        console.log(`Volume : ${volumeValue > 0 ? "+" : ""}${volumeValue}`);
+    const vol = await loudness.getVolume();
+    await loudness.setVolume(vol + volumeValue);
     
-        const vol = await loudness.getVolume();
-        await loudness.setVolume(vol + volumeValue);
-    }
-
     res.send({ status: 'ok' });
 })
+
+app.post('/mute', async (req, res) => {
+    const isMuted = await loudness.getMuted();
+
+    console.log(isMuted ? "Demute" : "Mute");
+    await loudness.setMuted(!isMuted);
+
+    res.send({ status: 'ok', isMuted: !isMuted});
+})
+
+app.get('/isMuted', async (req, res) => res.send({ status: 'ok', isMuted: await loudness.getMuted()}))
 
 server.listen(3000, '0.0.0.0', () => {
     console.log('Serveur actif sur localhost:3000');
