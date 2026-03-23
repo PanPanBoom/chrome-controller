@@ -56,7 +56,7 @@ export class NetflixApi extends Api
             country: 'fr'
         });
 
-        const show = shows.find(show => show.title === title)
+        const show = shows.find(show => show.title === title) || shows[0];
 
         return {
             id: show.id,
