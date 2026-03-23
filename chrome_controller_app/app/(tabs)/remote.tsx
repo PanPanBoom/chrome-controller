@@ -14,6 +14,7 @@ import { RedirectionButton } from "@/components/ui/RedirectionButton";
 import { colors } from "@/constants/colors";
 import { TextButton } from "@/components/ui/TextButton";
 import { IconDescriptionButton } from "@/components/ui/IconDescriptionButton";
+import { FavoriteButton } from "@/components/FavoriteButton";
 
 export default function Remote() {
     const { server } = useContext(AppContext);
@@ -60,7 +61,7 @@ export default function Remote() {
                     <TextButton>EXIT</TextButton>
                 </View>
                 <View className="flex-row gap-5 h-[8%]">
-                    <IconButton icon={Star} fill={"#f0b604"}/>
+                    <FavoriteButton />
                     <VideoControlsPanel className="flex-1"/>
                     <IconButton icon={ListIndentIncrease} />
                 </View>

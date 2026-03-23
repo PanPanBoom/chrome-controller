@@ -58,4 +58,9 @@ export class Api
     {
         throw new Error("Must be implemented.");
     }
+
+    async getShowByTitle(title)
+    {
+        throw new Error("Must be implemented.");
+    }
 }

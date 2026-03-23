@@ -1,7 +1,7 @@
-import { Page } from "../Page.js";
 import { Container } from "../Container.js";
+import { ShowPage } from "../ShowPage.js";
 
-export class VideoPage extends Page
+export class VideoPage extends ShowPage
 {
     constructor()
     {

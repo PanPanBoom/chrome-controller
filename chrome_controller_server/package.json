@@ -13,6 +13,7 @@
   "dependencies": {
     "@twurple/api": "^8.0.3",
     "@twurple/auth": "^8.0.3",
+    "better-sqlite3": "^12.8.0",
     "dotenv": "^17.3.1",
     "express": "^5.2.1",
     "googleapis": "^171.4.0",

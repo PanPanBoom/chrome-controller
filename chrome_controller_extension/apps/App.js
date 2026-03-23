@@ -1,4 +1,5 @@
 import { remoteConstants } from "../constants.js";
+import { ShowPage } from "./ShowPage.js";
 
 export class App
 {
@@ -9,6 +10,7 @@ export class App
 
         this.pages = [];
         this.currentPageIndex = 0;
+        this.currentShow = "";
     }
 
     reset()
@@ -31,16 +33,37 @@ export class App
     async navigate(key, tabId)
     {
         const currentPageIndex = await this.getCurrentPageIndex(tabId);
-        this.updatePageIndex(currentPageIndex);
+        this.updatePageIndex(currentPageIndex, tabId);
         this.pages[currentPageIndex].navigate(key, tabId);
     }
 
-    updatePageIndex(newId)
+    updatePageIndex(newId, tabId)
     {
         if(newId != this.currentPageIndex)
         {
             this.currentPageIndex = newId;
+            this.updateCurrentShow(tabId);
             this.pages[newId].reset();
+        }
+    }
+
+    async updateCurrentShow(tabId)
+    {
+        let newShow = "";
+
+        if(this.pages[this.currentPageIndex] instanceof ShowPage)
+            newShow = await this.pages[this.currentPageIndex].getShow(tabId);
+
+        if(newShow !== this.currentShow)
+        {
+            this.currentShow = newShow;
+            fetch('http://localhost:3000/showUpdate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ title: newShow })
+            });
         }
     }
 

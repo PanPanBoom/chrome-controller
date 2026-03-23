@@ -4,10 +4,13 @@ import { Server } from 'socket.io';
 import loudness from 'loudness';
 import remoteRoutes from './src/remote.js';
 import extensionRoutes from './src/extension.js';
+import { ApiManager } from './src/APIs/ApiManager.js';
+import { getShowByTitle, removeShowByTitle, saveShow } from './src/db.js';
 
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: "*" } });
+let currentShowTitle = "";
 
 let isExtensionConnected = false;
 
@@ -52,6 +55,37 @@ app.post('/mute', async (req, res) => {
 })
 
 app.get('/isMuted', async (req, res) => res.send({ status: 'ok', isMuted: await loudness.getMuted()}))
+
+app.post('/addFavorite', async (req, res) => {
+    let showApiData = await ApiManager.apis.netflix.getShowByTitle(currentShowTitle);
+    showApiData.title = currentShowTitle;
+
+    console.log(showApiData);
+    
+    saveShow(showApiData);
+    console.log(`${currentShowTitle} added to favorites`);
+    
+    res.send({ status: 'ok' });
+});
+
+app.delete('/removeFavorite', async (req, res) => {
+    removeShowByTitle(currentShowTitle);
+
+    console.log(`${currentShowTitle} removed from favorites`);
+    
+    res.send({ status: 'ok' });
+});
+
+app.post('/showUpdate', async (req, res) => {
+    const { title } = req.body;
+    currentShowTitle = title.split('(')[0].trimEnd();
+    console.log('new show sent by extension:', title);
+    if(title === "")
+        io.emit('disabledFavorite');
+    else
+        io.emit(`${getShowByTitle(currentShowTitle) ? 'active' : 'inactive'}Favorite`);
+    res.send({ status: 'ok' });
+})
 
 server.listen(3000, '0.0.0.0', () => {
     console.log('Serveur actif sur localhost:3000');
