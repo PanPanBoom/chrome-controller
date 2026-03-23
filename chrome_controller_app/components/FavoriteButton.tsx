@@ -1,4 +1,4 @@
-import { Star } from "lucide-react-native"
+import { LoaderCircle, Star } from "lucide-react-native"
 import { IconButton } from "./ui/IconButton"
 import { useContext, useEffect, useState } from "react"
 import { sendFavorite, socket } from "@/server/socket";
@@ -8,6 +8,7 @@ export const FavoriteButton = () => {
     const { server } = useContext(AppContext);
     const [isInFavorite, setIsInFavorite] = useState(false);
     const [isDisabled, setIsDisabled] = useState(true);
+    const [isFetching, setIsFetching] = useState(false);
 
     useEffect(() => {
         socket.on('activeFavorite', () => {
@@ -25,7 +26,11 @@ export const FavoriteButton = () => {
     })
 
     const handlePress = () => {
-        sendFavorite(server.ip, !isInFavorite).then(() => setIsInFavorite(prev => !prev));
+        setIsFetching(true);
+        sendFavorite(server.ip, !isInFavorite).then(() => {
+            setIsInFavorite(prev => !prev)
+            setIsFetching(false);
+        });
     }
 
     return (
@@ -33,7 +38,7 @@ export const FavoriteButton = () => {
             icon={Star}
             fill={isInFavorite ? "#f0b604" : undefined}
             onPress={handlePress}
-            disabled={isDisabled}
+            disabled={isDisabled || isFetching}
         />
     )
 }
