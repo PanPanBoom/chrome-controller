@@ -6,7 +6,7 @@ export const AppContext = createContext({
     setServer: (server: ServerDataDTO) => {}
 });
 
-export const AppProvider = ({ children }) => {
+export const AppProvider = ({ children }: any) => {
     const [server, setServer] = useState({} as ServerDataDTO);
 
     return (
