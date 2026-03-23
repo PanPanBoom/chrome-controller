@@ -19,4 +19,9 @@ export class ApiManager
     {
         return this.apis[platform].filters;
     }
+
+    static async getShowByTitle(platform, title)
+    {
+        return await this.apis[platform].getShowByTitle(title);
+    }
 }

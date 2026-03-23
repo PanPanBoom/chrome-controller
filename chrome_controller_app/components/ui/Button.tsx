@@ -20,7 +20,7 @@ export const Button = ({className, onPressIn, onPressOut, style, ...props}: Pres
             className={cn("p-3 flex justify-center items-center bg-background-light active:bg-background-hover rounded-xl", className)}
             onPressIn={handlePressIn}
             onPressOut={handlePressOut}
-            style={[{opacity: isPressed ? 0.5 : 1}, style as any]}
+            style={[{opacity: isPressed || props.disabled ? 0.5 : 1}, style as any]}
             {...props}
         >
             {props.children}
