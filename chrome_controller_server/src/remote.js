@@ -52,9 +52,16 @@ export default function remoteRoutes(io) {
 
     router.get('/topShows', (req, res) => {
         console.log('Shows demandés');
-        console.log(req.query.platform.toLowerCase());
         ApiManager.getTopShows(req.query.platform.toLowerCase(), req.query.showType).then(data => res.json(data));
-    })
+    });
+
+    router.post('/videoUpdate', (req, res) => {
+        const { onVideoPage } = req.body;
+        console.log('update video : ' + onVideoPage);
+        io.emit(`video${onVideoPage ? 'Enabled' : 'Disabled'}`);
+
+        res.send({ status: 'ok' });
+    });
 
     return router;
 }

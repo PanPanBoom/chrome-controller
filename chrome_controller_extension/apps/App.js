@@ -1,5 +1,6 @@
 import { remoteConstants } from "../constants.js";
 import { ShowPage } from "./ShowPage.js";
+import { VideoPage } from "./VideoPage.js";
 
 export class App
 {
@@ -42,9 +43,22 @@ export class App
         if(newId != this.currentPageIndex)
         {
             this.currentPageIndex = newId;
+
             this.updateCurrentShow(tabId);
+            this.alertServerForVideoPage();
             this.pages[newId].reset();
         }
+    }
+
+    async alertServerForVideoPage()
+    {
+        fetch("http://localhost:3000/remote/videoUpdate", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ onVideoPage: this.pages[this.currentPageIndex] instanceof VideoPage})
+        });
     }
 
     async updateCurrentShow(tabId)
@@ -110,5 +124,20 @@ export class App
     submit(input, tabId)
     {
         throw new Error("Must be implemented.");
+    }
+
+    togglePlayPause(tabId)
+    {
+        const currentPage = this.pages[this.currentPageIndex];
+        console.log(currentPage);
+        if(currentPage instanceof VideoPage)
+            currentPage.togglePlayPause(tabId);
+    }
+
+    moveCurrentTime(tabId, value)
+    {
+        const currentPage = this.pages[this.currentPageIndex];
+        if(currentPage instanceof VideoPage)
+            currentPage.moveCurrentTime(tabId, value);
     }
 }

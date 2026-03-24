@@ -39,8 +39,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if(message.type === 'COMMAND_RECEIVED')
     {
         chrome.tabs.query({ active: true, currentWindow: true}, (tabs) => {
-            if(tabs.length == 0)
-                chrome.tabs.create({ url: "https://www.youtube.com/tv" });
+            // if(tabs.length == 0)
+            //     chrome.tabs.create({ url: "https://www.youtube.com/tv" });
         
             const activeTab = tabs[0];
             const currentPlatform = activeTab.url.split(".")[1];
@@ -74,6 +74,15 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
             else if(message.action == 'HANDLE')
                 apps[currentPlatform].handle(message.key, activeTab.id);
+
+            else if(message.action == 'PLAY_PAUSE')
+                apps[currentPlatform].togglePlayPause(activeTab.id);
+
+            else if(message.action == 'REWIND')
+                apps[currentPlatform].moveCurrentTime(activeTab.id, -1);
+
+            else if(message.action == 'FORWARD')
+                apps[currentPlatform].moveCurrentTime(activeTab.id, 1);
         });
     }
 });
