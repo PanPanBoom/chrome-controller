@@ -9,7 +9,7 @@ type IconDescriptionButtonProps = IconButtonProps & {
 
 export const IconDescriptionButton = ({className, ...props}: IconDescriptionButtonProps) => {
     return (
-        <View className="gap-2 justify-center items-center">
+        <View className="gap-1 justify-center items-center">
             <IconButton className={cn("aspect-auto px-6", className)} iconSize={20} {...props} />
             <CustomText className="text-secondary text-sm">{props.description}</CustomText>
         </View>

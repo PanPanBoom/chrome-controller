@@ -86,3 +86,9 @@ export const sendFavorite = async (ip: string, isFavorite: boolean) => await sen
         'Content-Type': 'application/json'
     }
 });
+
+export const sendPlayPause = async (ip: string) => await sendCommand(ip, 'extension/togglePlayPause', { method: 'POST' });
+
+export const sendRewind = async (ip: string) => await sendCommand(ip, 'extension/rewind', { method: 'POST' });
+
+export const sendForward = async (ip: string) => await sendCommand(ip, 'extension/forward', { method: 'POST' });

@@ -49,25 +49,25 @@ export default function Remote() {
             commands != undefined &&
             <View className="flex-1 flex items-center justify-between">
                 <View className="h-[5%] w-full flex-row justify-between items-center z-20">
-                    <IconButton icon={Power} />
-                    <CustomText className="text-text text-2xl">Remote</CustomText>
-                    <IconButton icon={Cast} />
+                    <IconButton icon={Power} disabled/>
+                    <CustomText className="text-text text-2xl">Télécommande</CustomText>
+                    <IconButton icon={Cast} disabled/>
                 </View>
                 <RedirectionButton label={server.serverData.name} img={server.serverData.img} className="h-[5%] z-50"/>
                 <DPad commands={commands} className="z-0" style={{marginVertical: 30}}/>
                 <View className="flex-row w-[85%] justify-between">
                     <TextButton onPressOut={() => sendKeyPress(server.ip, commands?.back || '')}>BACK</TextButton>
-                    <TextButton>HOME</TextButton>
-                    <TextButton>EXIT</TextButton>
+                    <TextButton disabled>HOME</TextButton>
+                    <TextButton disabled>EXIT</TextButton>
                 </View>
                 <View className="flex-row gap-5 h-[8%]">
                     <FavoriteButton />
                     <VideoControlsPanel className="flex-1"/>
-                    <IconButton icon={ListIndentIncrease} />
+                    <IconButton icon={ListIndentIncrease} disabled/>
                 </View>
                 <View className="flex-row w-full justify-between px-2">
-                    <IconDescriptionButton icon={Keyboard} description="Keyboard" onPress={() => inputRef.current?.focus()}/>
-                    <IconDescriptionButton icon={Maximize} description="Fullscreen" onPressOut={() => sendFullscreenToggle(server.ip)} />
+                    <IconDescriptionButton icon={Keyboard} description="Clavier" onPress={() => inputRef.current?.focus()}/>
+                    <IconDescriptionButton icon={Maximize} description="Plein écran" onPressOut={() => sendFullscreenToggle(server.ip)} />
                 </View>
                 <TextInput 
                     className="w-0 h-0 opacity-0" 

@@ -1,12 +1,8 @@
 import { App } from "../App.js";
-import { remoteConstants } from "../../constants.js";
-import { Page } from "../Page.js";
-import { VideoPage } from "./VideoPage.js";
-import { Container } from "../Container.js";
 import { Homepage } from "./Homepage.js";
 import { PreviewModalPage } from "./PreviewModalPage.js";
 import { SearchResultsPage } from "./SearchResultsPage.js";
-import { ShowPage } from "../ShowPage.js";
+import { NetflixVideoPage } from "./NetflixVideoPage.js";
 
 export class Netflix extends App
 {
@@ -16,7 +12,7 @@ export class Netflix extends App
 
         this.pages = [
             new PreviewModalPage(),
-            new VideoPage(),
+            new NetflixVideoPage(),
             new SearchResultsPage(),
             new Homepage()
         ];
@@ -27,7 +23,8 @@ export class Netflix extends App
         if(newIndex != this.currentPageIndex)
         {
             this.currentPageIndex = newIndex;
-            this.updateCurrentShow(tabId)
+            this.updateCurrentShow(tabId);
+            this.alertServerForVideoPage();
 
             if(newIndex < this.pages.length - 1)
                 this.pages[newIndex].reset();
