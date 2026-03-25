@@ -6,10 +6,22 @@ export const remoteConstants = {
         down: "down",
         validate: "validate"
     },
-    back: "back",
     volume: {
         up: "volumeUp",
         down: "volumeDown"
+    },
+    zoom: {
+        in: "zoomIn",
+        out: "zoomOut"
+    },
+    back: "back",
+    home: "home",
+    exit: "exit",
+    favorite: "favorite",
+    videoControls: {
+        rewind: "rewind",
+        playPause: "playPause",
+        forward: "forward"
     }
 }
 

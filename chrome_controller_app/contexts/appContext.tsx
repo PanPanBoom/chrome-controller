@@ -1,3 +1,4 @@
+import { remoteConstantsDTO } from "@/dtos/remoteConstants";
 import { ServerDataDTO } from "@/dtos/serverData";
 import { createContext, useState } from "react";
 

@@ -74,15 +74,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
             else if(message.action == 'HANDLE')
                 apps[currentPlatform].handle(message.key, activeTab.id);
-
-            else if(message.action == 'PLAY_PAUSE')
-                apps[currentPlatform].togglePlayPause(activeTab.id);
-
-            else if(message.action == 'REWIND')
-                apps[currentPlatform].moveCurrentTime(activeTab.id, -1);
-
-            else if(message.action == 'FORWARD')
-                apps[currentPlatform].moveCurrentTime(activeTab.id, 1);
         });
     }
 });
+
+chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+    if(changeInfo.status === 'complete')
+    {
+        const currentPlatform = tab.url.split(".")[1];
+        apps[currentPlatform].updatePageIndex(tabId);
+    }
+})
