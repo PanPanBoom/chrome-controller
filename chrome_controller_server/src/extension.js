@@ -49,5 +49,35 @@ export default function extensionRoutes(io) {
         res.send({ status: 'ok' });
     });
 
+    router.post('/zoom', (req, res) => {
+        const { zoomValue } = req.body;
+        
+        io.emit('command', { action: "ZOOM", zoomValue});
+        res.send({ status: 'ok' });
+    });
+
+    router.post('/togglePlayPause', (req, res) => {
+        console.log("Play/Pause");
+        io.emit('command', { action: "PLAY_PAUSE" });
+        res.send({ status: 'ok' });
+    });
+
+    router.post('/rewind', (req, res) => {
+        console.log('rewind');
+        io.emit('command', { action: 'REWIND' });
+        res.send({ status: 'ok' });
+    });
+
+    router.post('/forward', (req, res) => {
+        console.log('forward');
+        io.emit('command', { action: 'FORWARD' });
+        res.send({ status: 'ok' });
+    });
+
+    router.get('/videoEnabled', (req, res) => {
+        io.emit('command', { action: 'IS_VIDEO_ENABLED' });
+        res.send({ status: 'ok' });
+    })
+
     return router;
 }

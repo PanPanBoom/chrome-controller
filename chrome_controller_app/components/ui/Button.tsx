@@ -1,15 +1,28 @@
-import { Pressable } from "react-native";
+import { cn } from "@/etc/utils";
+import { useEffect, useState } from "react";
+import { GestureResponderEvent, Pressable, PressableProps } from "react-native";
 
-type ButtonProps = {
-    children?: React.ReactNode;
-    className?: string;
-    onPressOut?: () => void;
-    onLongPress?: () => void;
-}
+export const Button = ({className, onPressIn, onPressOut, style, ...props}: PressableProps) => {
+    const [isPressed, setIsPressed] = useState(false);
 
-export const Button = (props: ButtonProps) => {
+    const handlePressIn = (e: GestureResponderEvent) => {
+        setIsPressed(true);
+        onPressIn?.(e);
+    }
+
+    const handlePressOut = (e: GestureResponderEvent) => {
+        setIsPressed(false);
+        onPressOut?.(e);
+    }
+
     return (
-        <Pressable className={`p-3 flex justify-center items-center bg-neutral-200 rounded-xl active:bg-neutral-300 ${props.className != undefined ? props.className : ""}`} onPressOut={props.onPressOut} onLongPress={props.onLongPress}>
+        <Pressable 
+            className={cn("p-3 flex justify-center items-center bg-background-light active:bg-background-hover rounded-xl", className)}
+            onPressIn={handlePressIn}
+            onPressOut={handlePressOut}
+            style={[{opacity: isPressed || props.disabled ? 0.5 : 1}, style as any]}
+            {...props}
+        >
             {props.children}
         </Pressable>
     )

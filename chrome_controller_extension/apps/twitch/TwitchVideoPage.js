@@ -1,30 +1,17 @@
-import { Page } from "../Page.js";
+import { TwitchPage } from "./TwitchPage.js";
 import { Container } from "../Container.js";
 
-export class VideoPage extends Page
+export class TwitchVideoPage extends TwitchPage
 {
     constructor()
     {
-        super(
-            [
-                new Container(".watch-video", "[data-uia='control-flag'], [data-uia='control-nav-back']", "row"),
-                new Container(".watch-video", ".watch-video--skip-content-button", "row"),
-                new Container("[data-uia='selector-episode']", ".default-ltr-iqcdef-cache-rnz48h", "column"),
-                new Container(".default-ltr-iqcdef-cache-fwwk01", "li", "column"),
-                new Container(".default-ltr-iqcdef-cache-1npqywr", "[data-uia^='control-play-pause-'], [data-uia$='10'], [data-uia^='control-volume-'], [data-uia='control-next'], [data-uia='control-episodes'], [data-uia='control-audio-subtitle'], [data-uia='control-speed'], [data-uia^='control-fullscreen']", "row"),
-                new Container(".default-ltr-iqcdef-cache-zjik7", ".default-ltr-iqcdef-cache-1csye0r", "row")
-            ],
-            '.watch-video'
-        );
+        super([
+            new Container("[data-a-target='player-controls']", "button", "row")
+        ], "[data-a-target='video-player']");
     }
 
-    applyNavigation = (containers, oldItemIndex, oldContainerIndex, newItemIndex, newContainerIndex) =>
-    {
+    applyNavigation = (containers, oldItemIndex, oldContainerIndex, newItemIndex, newContainerIndex) => {
         let containersWithItems = getContainersWithItems(containers);
-
-        const inactiveElement = document.querySelectorAll('.inactive, .passive');
-        if(inactiveElement.length > 0)
-            inactiveElement[0].click();
 
         let finalItemIndex = newItemIndex;
         let finalContainerIndex = newContainerIndex;
@@ -43,6 +30,9 @@ export class VideoPage extends Page
 
         const activeElement = containersWithItems[finalContainerIndex].items[finalItemIndex];
 
+        if(containersWithItems[finalContainerIndex].containerIndex === containers.length - 1)
+            activeElement.focus();
+        
         if(oldItemIndex !== finalItemIndex && containers[containersWithItems[finalContainerIndex].containerIndex].direction === "column")
             activeElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
 

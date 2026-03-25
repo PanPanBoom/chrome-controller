@@ -1,4 +1,6 @@
 import { remoteConstants } from "../constants.js";
+import { ShowPage } from "./ShowPage.js";
+import { VideoPage } from "./VideoPage.js";
 
 export class App
 {
@@ -9,6 +11,7 @@ export class App
 
         this.pages = [];
         this.currentPageIndex = 0;
+        this.currentShow = "";
     }
 
     reset()
@@ -16,31 +19,83 @@ export class App
         this.pages.forEach(page => page.reset());
     }
 
-    handle(key, tabId)
+    async handle(key, tabId)
     {
-        if(key === remoteConstants.DPad.validate)
-            this.validate(tabId);
-
-        else if(key === remoteConstants.back)
-            this.back(tabId);
-
-        else
-            this.navigate(key, tabId);
-    }
-
-    async navigate(key, tabId)
-    {
-        const currentPageIndex = await this.getCurrentPageIndex(tabId);
-        this.updatePageIndex(currentPageIndex);
-        this.pages[currentPageIndex].navigate(key, tabId);
-    }
-
-    updatePageIndex(newId)
-    {
-        if(newId != this.currentPageIndex)
+        await this.updatePageIndex(tabId);
+        switch(key)
         {
-            this.currentPageIndex = newId;
-            this.pages[newId].reset();
+            case remoteConstants.DPad.validate:
+                this.validate(tabId);
+                break;
+
+            case remoteConstants.DPad.back:
+                this.back(tabId);
+                break;
+
+            case remoteConstants.videoControls.rewind:
+                this.moveCurrentTime(tabId, -1);
+                break;
+
+            case remoteConstants.videoControls.forward:
+                this.moveCurrentTime(tabId, 1);
+                break;
+
+            case remoteConstants.videoControls.playPause:
+                this.togglePlayPause(tabId);
+                break;
+
+            default:
+                this.navigate(key, tabId);
+                break;
+        }
+    }
+
+    navigate(key, tabId)
+    {
+        this.pages[this.currentPageIndex].navigate(key, tabId);
+    }
+
+    async updatePageIndex(tabId)
+    {
+        const newIndex = await this.getCurrentPageIndex(tabId);
+        if(newIndex != this.currentPageIndex)
+        {
+            this.currentPageIndex = newIndex;
+
+            this.updateCurrentShow(tabId);
+            this.alertServerForVideoPage();
+            this.pages[newIndex].reset();
+        }
+    }
+
+    async alertServerForVideoPage()
+    {
+        fetch("http://localhost:3000/remote/videoUpdate", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ onVideoPage: this.pages[this.currentPageIndex] instanceof VideoPage})
+        });
+    }
+
+    async updateCurrentShow(tabId)
+    {
+        let newShow = "";
+
+        if(this.pages[this.currentPageIndex] instanceof ShowPage)
+            newShow = await this.pages[this.currentPageIndex].getShow(tabId);
+
+        if(newShow !== this.currentShow)
+        {
+            this.currentShow = newShow;
+            fetch('http://localhost:3000/showUpdate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ title: newShow })
+            });
         }
     }
 
@@ -87,5 +142,20 @@ export class App
     submit(input, tabId)
     {
         throw new Error("Must be implemented.");
+    }
+
+    togglePlayPause(tabId)
+    {
+        const currentPage = this.pages[this.currentPageIndex];
+        console.log(currentPage);
+        if(currentPage instanceof VideoPage)
+            currentPage.togglePlayPause(tabId);
+    }
+
+    moveCurrentTime(tabId, value)
+    {
+        const currentPage = this.pages[this.currentPageIndex];
+        if(currentPage instanceof VideoPage)
+            currentPage.moveCurrentTime(tabId, value);
     }
 }

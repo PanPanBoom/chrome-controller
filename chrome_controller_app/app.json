@@ -52,7 +52,8 @@
           }
         }
       ],
-      "./plugins/withFollyFix"
+      "./plugins/withFollyFix",
+      "expo-font"
     ],
     "experiments": {
       "typedRoutes": true,
