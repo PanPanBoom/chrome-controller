@@ -4,7 +4,7 @@ import { FastForward, Pause, Play, Rewind } from "lucide-react-native"
 import { Pressable, View, ViewProps } from "react-native"
 import { IconButton } from "./ui/IconButton";
 import { useContext, useEffect, useState } from "react";
-import { sendKeyPress, socket } from "@/server/socket";
+import { getIsVideoEnabled, sendKeyPress, socket } from "@/server/socket";
 import { AppContext } from "@/contexts/appContext";
 import { RemoteContext } from "@/contexts/remoteContext";
 
@@ -23,6 +23,8 @@ export const VideoControlsPanel = ({className, ...props}: ViewProps) => {
             setIsPaused(false);
         });
         socket.on('videoDisabled', () => setIsDisabled(true));
+
+        getIsVideoEnabled(server.ip);
     }, []);
 
     const handlePlayPauseClick = () => {

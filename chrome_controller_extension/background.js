@@ -72,6 +72,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             else if(message.action == 'SUBMIT')
                 apps[currentPlatform].submit(message.input, activeTab.id);
 
+            else if(message.action == 'IS_VIDEO_ENABLED')
+                apps[currentPlatform].alertServerForVideoPage();
+
             else if(message.action == 'HANDLE')
                 apps[currentPlatform].handle(message.key, activeTab.id);
         });
