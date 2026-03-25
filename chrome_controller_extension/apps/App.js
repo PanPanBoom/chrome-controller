@@ -70,7 +70,6 @@ export class App
 
     async alertServerForVideoPage()
     {
-        console.log("alerting remote for video");
         fetch("http://localhost:3000/remote/videoUpdate", {
             method: 'POST',
             headers: {
