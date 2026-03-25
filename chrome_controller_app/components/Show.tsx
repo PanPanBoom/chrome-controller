@@ -24,21 +24,6 @@ export const Show = ({className, ...props}: ShowProps) => {
     const { server } = useContext(AppContext);
     const [showInfos, setShowInfos] = useState(false);
 
-    const carouselButtons = (
-        <>
-            <Pressable className="w-1/2 h-full absolute left-0" onPress={props.onPrev}/>
-            <Pressable className="w-1/2 h-full absolute right-0" onPress={props.onNext}/>
-        </>
-    );
-    const castButton = (<BlurredIconButton icon={Cast} color={colors.text} onPress={() => sendAppLaunch(server.ip, props.data.link)}/>);
-    const infoButton = (<BlurredIconButton icon={Info} color={colors.text} iconSize={20} blurViewClassName="p-1" className="absolute top-2 right-2" onPress={() => setShowInfos(prev => !prev)}/>);
-    const infoSection = (
-        <>
-            <CustomTitle className="text-xl">{props.data.title}</CustomTitle>
-            <CustomText className="text-justify px-4 text-xs">{props.data.overview}</CustomText>
-        </>
-    );
-
     return (
         <View className={cn("w-full justify-center items-center border border-background-hover bg-background-hover rounded-xl aspect-video overflow-hidden", className)} {...props}>
             {
@@ -60,7 +45,10 @@ export const Show = ({className, ...props}: ShowProps) => {
                     <View className="flex-1" pointerEvents="none"/>
                 }
                 <View className="pt-2 pr-2">
-                    <BlurredIconButton icon={Info} color={colors.text} iconSize={20} blurViewClassName="p-1" className="" onPress={() => setShowInfos(prev => !prev)}/>
+                    {
+                        props.data.overview !== "" &&
+                        <BlurredIconButton icon={Info} color={colors.text} iconSize={20} blurViewClassName="p-1" onPress={() => setShowInfos(prev => !prev)}/>
+                    }
                 </View>
             </View>
             <ScrollView horizontal className="grow-0 p-2 w-full" showsHorizontalScrollIndicator={false}>   
