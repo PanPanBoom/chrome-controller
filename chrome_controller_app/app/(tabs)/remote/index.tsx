@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/Button";
 import { Cast, Keyboard, ListIndentIncrease, Maximize, Power, Star, Undo2, Volume1, Volume2 } from "lucide-react-native";
 import { useContext, useEffect, useRef, useState } from "react";
 import { remoteConstantsDTO } from "@/dtos/remoteConstants";
-import { getCommands, sendFullscreenToggle, sendInput, sendKeyPress, socket, submitInput } from '../../server/socket';
+import { getCommands, sendFullscreenToggle, sendInput, sendKeyPress, socket, submitInput } from '../../../server/socket';
 import { AppContext } from "@/contexts/appContext";
 import { IconButton } from "@/components/ui/IconButton";
 import { CustomText } from "@/components/ui/CustomText";
@@ -15,10 +15,12 @@ import { colors } from "@/constants/colors";
 import { TextButton } from "@/components/ui/TextButton";
 import { IconDescriptionButton } from "@/components/ui/IconDescriptionButton";
 import { FavoriteButton } from "@/components/FavoriteButton";
+import { RemoteContext, RemoteProvider } from "@/contexts/remoteContext";
 
 export default function Remote() {
     const { server } = useContext(AppContext);
-    const [commands, setCommands] = useState<remoteConstantsDTO | null>(null);
+    const { commands, setCommands } = useContext(RemoteContext);
+    // const [commands, setCommands] = useState<remoteConstantsDTO | null>(null);
     const [input, setInput] = useState("");
     const inputRef = useRef<TextInput>(null);
 
@@ -46,7 +48,7 @@ export default function Remote() {
     return (
         <Screen>
         {
-            commands != undefined &&
+            commands.DPad &&
             <View className="flex-1 flex items-center justify-between">
                 <View className="h-[5%] w-full flex-row justify-between items-center z-20">
                     <IconButton icon={Power} disabled/>
@@ -54,7 +56,7 @@ export default function Remote() {
                     <IconButton icon={Cast} disabled/>
                 </View>
                 <RedirectionButton label={server.serverData.name} img={server.serverData.img} className="h-[5%] z-50"/>
-                <DPad commands={commands} className="z-0" style={{marginVertical: 30}}/>
+                <DPad className="z-0" style={{marginVertical: 30}}/>
                 <View className="flex-row w-[85%] justify-between">
                     <TextButton onPressOut={() => sendKeyPress(server.ip, commands?.back || '')}>BACK</TextButton>
                     <TextButton disabled>HOME</TextButton>

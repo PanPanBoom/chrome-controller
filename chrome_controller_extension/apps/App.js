@@ -19,34 +19,52 @@ export class App
         this.pages.forEach(page => page.reset());
     }
 
-    handle(key, tabId)
+    async handle(key, tabId)
     {
-        if(key === remoteConstants.DPad.validate)
-            this.validate(tabId);
-
-        else if(key === remoteConstants.back)
-            this.back(tabId);
-
-        else
-            this.navigate(key, tabId);
-    }
-
-    async navigate(key, tabId)
-    {
-        const currentPageIndex = await this.getCurrentPageIndex(tabId);
-        this.updatePageIndex(currentPageIndex, tabId);
-        this.pages[currentPageIndex].navigate(key, tabId);
-    }
-
-    updatePageIndex(newId, tabId)
-    {
-        if(newId != this.currentPageIndex)
+        await this.updatePageIndex(tabId);
+        switch(key)
         {
-            this.currentPageIndex = newId;
+            case remoteConstants.DPad.validate:
+                this.validate(tabId);
+                break;
+
+            case remoteConstants.DPad.back:
+                this.back(tabId);
+                break;
+
+            case remoteConstants.videoControls.rewind:
+                this.moveCurrentTime(tabId, -1);
+                break;
+
+            case remoteConstants.videoControls.forward:
+                this.moveCurrentTime(tabId, 1);
+                break;
+
+            case remoteConstants.videoControls.playPause:
+                this.togglePlayPause(tabId);
+                break;
+
+            default:
+                this.navigate(key, tabId);
+                break;
+        }
+    }
+
+    navigate(key, tabId)
+    {
+        this.pages[this.currentPageIndex].navigate(key, tabId);
+    }
+
+    async updatePageIndex(tabId)
+    {
+        const newIndex = await this.getCurrentPageIndex(tabId);
+        if(newIndex != this.currentPageIndex)
+        {
+            this.currentPageIndex = newIndex;
 
             this.updateCurrentShow(tabId);
             this.alertServerForVideoPage();
-            this.pages[newId].reset();
+            this.pages[newIndex].reset();
         }
     }
 
