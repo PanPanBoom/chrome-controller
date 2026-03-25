@@ -74,5 +74,10 @@ export default function extensionRoutes(io) {
         res.send({ status: 'ok' });
     });
 
+    router.get('/videoEnabled', (req, res) => {
+        io.emit('command', { action: 'IS_VIDEO_ENABLED' });
+        res.send({ status: 'ok' });
+    })
+
     return router;
 }

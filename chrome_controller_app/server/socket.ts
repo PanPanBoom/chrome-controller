@@ -86,3 +86,5 @@ export const sendFavorite = async (ip: string, isFavorite: boolean) => await sen
         'Content-Type': 'application/json'
     }
 });
+
+export const getIsVideoEnabled = async (ip: string) => await sendCommand(ip, 'extension/videoEnabled');
