@@ -23,7 +23,7 @@ export const FavoriteButton = () => {
             setIsInFavorite(false);
             setIsDisabled(true)
         });
-    })
+    }, [])
 
     const handlePress = () => {
         setIsFetching(true);

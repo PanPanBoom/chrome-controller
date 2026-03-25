@@ -18,7 +18,10 @@ export const VideoControlsPanel = ({className, ...props}: ViewProps) => {
     const iconColor = colors.text;
 
     useEffect(() => {
-        socket.on('videoEnabled', () => setIsDisabled(false));
+        socket.on('videoEnabled', () => {
+            setIsDisabled(false);
+            setIsPaused(false);
+        });
         socket.on('videoDisabled', () => setIsDisabled(true));
     }, []);
 
@@ -29,7 +32,7 @@ export const VideoControlsPanel = ({className, ...props}: ViewProps) => {
     return (
         <View className={cn("flex-row justify-center items-center", className)}>
             <IconButton icon={Rewind} color={iconColor} className={cn(buttonsStyle, "rounded-l-full")} onPress={() => sendKeyPress(server.ip, commands.videoControls.rewind)} disabled={isDisabled} />
-            <IconButton icon={isPaused ? Pause : Play} color={iconColor} className={buttonsStyle} onPress={handlePlayPauseClick} disabled={isDisabled} />
+            <IconButton icon={isPaused ? Play : Pause} color={iconColor} className={buttonsStyle} onPress={handlePlayPauseClick} disabled={isDisabled} />
             <IconButton icon={FastForward} color={iconColor} className={cn(buttonsStyle, "rounded-r-full")} onPress={() => sendKeyPress(server.ip, commands.videoControls.forward)} disabled={isDisabled} />
         </View>
     )
