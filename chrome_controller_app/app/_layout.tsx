@@ -1,7 +1,6 @@
 import { Stack } from "expo-router";
 import "../global.css";
 import { AppProvider } from "@/contexts/appContext";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { useFonts } from 'expo-font';
 
 export default function RootLayout() {
@@ -13,7 +12,6 @@ export default function RootLayout() {
 
   return (
     <AppProvider>
-      <SafeAreaView className="flex-1 bg-background" edges={["top"]}>
         <Stack screenOptions={{
           headerShown: false,
         }}>
@@ -27,7 +25,6 @@ export default function RootLayout() {
               sheetAllowedDetents: 'fitToContents'
             }} />
         </Stack>
-      </SafeAreaView>
     </AppProvider>
   );
 }
