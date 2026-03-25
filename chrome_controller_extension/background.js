@@ -39,8 +39,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if(message.type === 'COMMAND_RECEIVED')
     {
         chrome.tabs.query({ active: true, currentWindow: true}, (tabs) => {
-            if(tabs.length == 0)
-                chrome.tabs.create({ url: "https://www.youtube.com/tv" });
+            // if(tabs.length == 0)
+            //     chrome.tabs.create({ url: "https://www.youtube.com/tv" });
         
             const activeTab = tabs[0];
             const currentPlatform = activeTab.url.split(".")[1];
@@ -53,6 +53,16 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                 apps[newPlatform].reset();
             }
 
+            else if(message.action == 'ZOOM')
+            {
+                if(message.zoomValue == 0)
+                    chrome.tabs.setZoom(1)
+
+                else
+                    chrome.tabs.getZoom()
+                        .then(currentZoom => chrome.tabs.setZoom(currentZoom + message.zoomValue));
+            }
+
             else if(message.action == 'FULLSCREEN')
                 chrome.windows.update(chrome.windows.WINDOW_ID_CURRENT, { state: "fullscreen"});
 
@@ -62,8 +72,19 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             else if(message.action == 'SUBMIT')
                 apps[currentPlatform].submit(message.input, activeTab.id);
 
+            else if(message.action == 'IS_VIDEO_ENABLED')
+                apps[currentPlatform].alertServerForVideoPage();
+
             else if(message.action == 'HANDLE')
                 apps[currentPlatform].handle(message.key, activeTab.id);
         });
     }
 });
+
+chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+    if(changeInfo.status === 'complete')
+    {
+        const currentPlatform = tab.url.split(".")[1];
+        apps[currentPlatform].updatePageIndex(tabId);
+    }
+})

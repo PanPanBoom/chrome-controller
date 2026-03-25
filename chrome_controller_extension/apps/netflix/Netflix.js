@@ -1,8 +1,8 @@
 import { App } from "../App.js";
-import { remoteConstants } from "../../constants.js";
-import { Page } from "../Page.js";
-import { VideoPage } from "./VideoPage.js";
-import { Container } from "../Container.js";
+import { Homepage } from "./Homepage.js";
+import { PreviewModalPage } from "./PreviewModalPage.js";
+import { SearchResultsPage } from "./SearchResultsPage.js";
+import { NetflixVideoPage } from "./NetflixVideoPage.js";
 
 export class Netflix extends App
 {
@@ -11,28 +11,23 @@ export class Netflix extends App
         super();
 
         this.pages = [
-            new Page([
-                new Container(".previewModal--container", ".previewModal-close > span, .previewModal--player-titleTreatment a, .episodeSelector-dropdown button, .episodeSelector-dropdown li, .episode-item", "column")
-            ], '.previewModal--container'),
-            new VideoPage(),
-            new Page([
-                new Container(".default-ltr-iqcdef-cache-1cglebk", ".default-ltr-iqcdef-cache-1cglebk a", "row")
-            ], '.default-ltr-iqcdef-cache-1seef1c'),
-            new Page([
-                new Container(".main-header", ".navigation-tab > a, [data-uia='search-box-launcher']", "row"),
-                new Container(".subgenres", "[aria-labelledby='profileLanguageDropDown-header']", "row"),
-                new Container(".sub-menu-list", ".sub-menu a", "column"),
-                new Container(".billboard-links", ".billboard-links button", "row"),
-                new Container(".slider", "a.slider-refocus, .handlePrev, .handleNext", "row"),
-            ], ".main-header")
+            new PreviewModalPage(),
+            new NetflixVideoPage(),
+            new SearchResultsPage(),
+            new Homepage()
         ];
     }
 
-    updatePageIndex(newIndex)
+    async updatePageIndex(tabId)
     {
+        const newIndex = await this.getCurrentPageIndex(tabId);
+
         if(newIndex != this.currentPageIndex)
         {
             this.currentPageIndex = newIndex;
+            this.updateCurrentShow(tabId);
+            this.alertServerForVideoPage();
+
             if(newIndex < this.pages.length - 1)
                 this.pages[newIndex].reset();
         }

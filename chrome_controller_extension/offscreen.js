@@ -13,6 +13,7 @@ socket.on('command', (data) => {
         action: data.action,
         key: data.key,
         url: data.url,
-        input: data.input
+        input: data.input,
+        zoomValue: data.zoomValue
     });
 });
