@@ -4,6 +4,7 @@ import { CustomText } from "./ui/CustomText";
 import { useContext } from "react";
 import { AppContext } from "@/contexts/appContext";
 import { sendAppLaunch } from "@/server/socket";
+import { router } from "expo-router";
 
 type AppListElementProps = {
     app: App;
@@ -16,6 +17,7 @@ export const AppListElement = (props: AppListElementProps) => {
         sendAppLaunch(server.ip, props.app.url);
         if(props.app.redirect)
             Linking.openURL(props.app.redirect);
+        router.push('/(tabs)/remote');
     }
     
     return (
