@@ -59,8 +59,6 @@ app.get('/isMuted', async (req, res) => res.send({ status: 'ok', isMuted: await 
 app.post('/addFavorite', async (req, res) => {
     let showApiData = await ApiManager.apis.netflix.getShowByTitle(currentShowTitle);
     showApiData.title = currentShowTitle;
-
-    console.log(showApiData);
     
     saveShow(showApiData);
     console.log(`${currentShowTitle} added to favorites`);

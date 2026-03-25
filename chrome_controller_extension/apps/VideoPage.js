@@ -4,7 +4,6 @@ export class VideoPage extends ShowPage
 {
     async togglePlayPause(tabId)
     {
-        console.log("toggleplaypause");
         chrome.scripting.executeScript({
             target: { tabId },
             func: () => {
