@@ -20,10 +20,7 @@ export class Netflix extends App
 
     async updatePageIndex(tabId)
     {
-        console.log("tabId in page update: " + tabId);
         const newIndex = await this.getCurrentPageIndex(tabId);
-
-        console.log(this.pages[newIndex]);
 
         if(newIndex != this.currentPageIndex)
         {
