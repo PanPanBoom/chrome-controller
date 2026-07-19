@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/Button";
 import { Cast, Keyboard, ListIndentIncrease, Maximize, Power, Star, Undo2, Volume1, Volume2 } from "lucide-react-native";
 import { useContext, useEffect, useRef, useState } from "react";
 import { remoteConstantsDTO } from "@/dtos/remoteConstants";
-import { getCommands, sendFullscreenToggle, sendInput, sendKeyPress, socket, submitInput } from '../../../server/socket';
+import { getCommands, getDevices, sendFullscreenToggle, sendInput, sendKeyPress, socket, submitInput } from '../../../server/socket';
 import { AppContext } from "@/contexts/appContext";
 import { IconButton } from "@/components/ui/IconButton";
 import { CustomText } from "@/components/ui/CustomText";
@@ -16,12 +16,16 @@ import { TextButton } from "@/components/ui/TextButton";
 import { IconDescriptionButton } from "@/components/ui/IconDescriptionButton";
 import { FavoriteButton } from "@/components/FavoriteButton";
 import { RemoteContext, RemoteProvider } from "@/contexts/remoteContext";
+import { router } from "expo-router";
+import { ExpandableIconButton } from "@/components/ui/ExpandableIconButton";
+import { DeviceSelectionWidget } from "@/components/DeviceSelectionWidget";
 
 export default function Remote() {
-    const { server } = useContext(AppContext);
+    const { server, device, setDevice } = useContext(AppContext);
     const { commands, setCommands } = useContext(RemoteContext);
     // const [commands, setCommands] = useState<remoteConstantsDTO | null>(null);
     const [input, setInput] = useState("");
+    const [devices, setDevices] = useState([]);
     const inputRef = useRef<TextInput>(null);
 
     useEffect(() => {
@@ -31,6 +35,15 @@ export default function Remote() {
             console.log('Commands received from server:', data);
             setCommands(data);
             // console.log(data);
+        });
+
+        getDevices(server.ip)
+        .then(res => res.json())
+        .then(data => {
+            // console.log('Devices received from server:', data);
+            setDevices(data);
+            if(data.length > 0)
+                setDevice(data[0]);
         });
 
         socket.on('keyboard', () => {
@@ -53,9 +66,11 @@ export default function Remote() {
                 <View className="h-[5%] w-full flex-row justify-between items-center z-20">
                     <IconButton icon={Power} disabled/>
                     <CustomText className="text-text text-2xl">Télécommande</CustomText>
-                    <IconButton icon={Cast} disabled/>
+                    <IconButton icon={Cast} />
                 </View>
-                <RedirectionButton label={server.serverData.name} img={server.serverData.img} className="h-[5%] z-50"/>
+                <RedirectionButton label={device.name} img={server.serverData.img} className="h-[5%] z-50">
+                    <DeviceSelectionWidget devices={devices} />
+                </RedirectionButton>
                 <DPad className="z-0" style={{marginVertical: 30}}/>
                 <View className="flex-row w-[85%] justify-between">
                     <TextButton onPressOut={() => sendKeyPress(server.ip, commands?.back || '')}>BACK</TextButton>

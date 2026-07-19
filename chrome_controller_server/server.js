@@ -6,10 +6,8 @@ import remoteRoutes from './src/remote.js';
 import extensionRoutes from './src/extension.js';
 import { ApiManager } from './src/APIs/ApiManager.js';
 import { getShowByTitle, removeShowByTitle, saveShow } from './src/db.js';
-import Bonjour from 'bonjour';
 
 const app = express();
-const bonjour = Bonjour();
 const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: "*" } });
 let currentShowTitle = "";
@@ -30,12 +28,6 @@ io.on("connection", (socket) => {
         console.log("Deconnexion de l'extension");
     });
 })
-
-bonjour.find({ type: 'androidtvremote2' }, (service) => {
-    console.log('Android TV trouvée :', service.name);
-    console.log('IP :', service.addresses[0]);
-    console.log('Port :', service.port);
-});
 
 app.use(express.json());
 app.use('/assets', express.static('assets'));
