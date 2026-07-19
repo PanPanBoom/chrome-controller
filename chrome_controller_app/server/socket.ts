@@ -88,3 +88,5 @@ export const sendFavorite = async (ip: string, isFavorite: boolean) => await sen
 });
 
 export const getIsVideoEnabled = async (ip: string) => await sendCommand(ip, 'extension/videoEnabled');
+
+export const getDevices = async (ip: string) => await sendCommand(ip, 'remote/devices');

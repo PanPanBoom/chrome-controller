@@ -4,5 +4,6 @@ export type ServerDataDTO = {
         name: string;
         platform: string;
         img: any;
+        tv: boolean;
     }
 }

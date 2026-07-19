@@ -9,6 +9,9 @@ import 'dotenv/config';
 import { google } from 'googleapis';
 import { youtube } from "googleapis/build/src/apis/youtube/index.js";
 import { ApiManager } from "./APIs/ApiManager.js";
+import Bonjour from 'bonjour';
+
+const bonjour = new Bonjour();
 
 const getProfilePicturePath = () => {
     const sid = execSync('powershell -command "[System.Security.Principal.WindowsIdentity]::GetCurrent().User.Value"').toString().trim();
@@ -27,7 +30,8 @@ export default function remoteRoutes(io) {
         res.json({
             name: os.userInfo().username,
             platform: os.type(),
-            img: `data:image/jpeg;base64,${imageBase64}`
+            img: `data:image/jpeg;base64,${imageBase64}`,
+            tv: false
         });
     });
 
@@ -63,5 +67,35 @@ export default function remoteRoutes(io) {
         res.send({ status: 'ok' });
     });
 
+    router.get('/devices', (req, res) => {
+        const devices = [{
+            name: "Extension",
+            host: req.hostname,
+            ip: req.ip
+        }];
+
+        const bonjourBrower = bonjour.find({ type: 'androidtvremote2' }, (device) => {
+            devices.push({
+                name: device.name,
+                host: device.host,
+                ip: device.addresses[0]
+            });
+        });
+
+        console.log('Recherche des appareils sur le réseau local...');
+
+        setTimeout(() => {
+            bonjourBrower.stop();
+            console.log(devices);
+            res.json(devices);
+        }, 3000);
+    });
+
     return router;
 }
+            // res.json({
+            //     name: device.name,
+            //     ip: device.addresses[0],
+            //     platform: device.txt.platform,
+            //     img: device.txt.img
+            // });

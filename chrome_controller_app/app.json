@@ -53,14 +53,7 @@
         }
       ],
       "./plugins/withFollyFix",
-      "expo-font",
-      [
-        "expo-bonjour",
-        {
-          "localNetworkUsageDescription": "Détection d'AndroidTV sur le réseau local",
-          "bonjourServices": ["_androidtvremote2._tcp"]
-        }
-      ]
+      "expo-font"
     ],
     "experiments": {
       "typedRoutes": true,
