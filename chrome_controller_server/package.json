@@ -11,9 +11,9 @@
     "start": "node ./server.js"
   },
   "dependencies": {
-    "@cldmv/node-android-tv-remote": "^2.1.0",
     "@twurple/api": "^8.0.3",
     "@twurple/auth": "^8.0.3",
+    "androidtv-remote": "^1.0.10",
     "better-sqlite3": "^12.8.0",
     "bonjour": "^3.5.1",
     "dotenv": "^17.3.1",

@@ -19,10 +19,13 @@ import { RemoteContext, RemoteProvider } from "@/contexts/remoteContext";
 import { router } from "expo-router";
 import { ExpandableIconButton } from "@/components/ui/ExpandableIconButton";
 import { DeviceSelectionWidget } from "@/components/DeviceSelectionWidget";
+import { ModalContext } from "@/contexts/modalProvider";
+import { PairingCodeWidget } from "@/components/PairingCodeWidget";
 
 export default function Remote() {
     const { server, device, setDevice } = useContext(AppContext);
     const { commands, setCommands } = useContext(RemoteContext);
+    const { showModal } = useContext(ModalContext);
     // const [commands, setCommands] = useState<remoteConstantsDTO | null>(null);
     const [input, setInput] = useState("");
     const [devices, setDevices] = useState([]);
@@ -50,7 +53,12 @@ export default function Remote() {
             console.log('Keyboard show event');
             if(inputRef.current)
                 inputRef.current.focus();
-        })
+        });
+
+        socket.on('tvCodeRequest', () => {
+            showModal(<PairingCodeWidget />);
+        });
+
     }, []);
 
     const handleInput = (newInput: string) => {

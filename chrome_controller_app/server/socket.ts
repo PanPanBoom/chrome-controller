@@ -90,3 +90,19 @@ export const sendFavorite = async (ip: string, isFavorite: boolean) => await sen
 export const getIsVideoEnabled = async (ip: string) => await sendCommand(ip, 'extension/videoEnabled');
 
 export const getDevices = async (ip: string) => await sendCommand(ip, 'remote/devices');
+
+export const connectTv = async (ipServer: string, ipTv: string) => await sendCommand(ipServer, 'connectTv', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ ip: ipTv })
+});
+
+export const sendTvCode = async (ip: string, code: string) => await sendCommand(ip, 'tvCode', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ code })
+});

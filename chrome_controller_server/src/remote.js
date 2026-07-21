@@ -93,9 +93,3 @@ export default function remoteRoutes(io) {
 
     return router;
 }
-            // res.json({
-            //     name: device.name,
-            //     ip: device.addresses[0],
-            //     platform: device.txt.platform,
-            //     img: device.txt.img
-            // });
