@@ -25,6 +25,8 @@ export const remoteConstants = {
     }
 }
 
+// export const remoteConstants = await fetch("localhost:3000/remote/config/commands");
+
 export default remoteConstants;
 
 // if (typeof module !== 'undefined') {

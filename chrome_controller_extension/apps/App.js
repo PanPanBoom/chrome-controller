@@ -1,4 +1,3 @@
-import { remoteConstants } from "../constants.js";
 import { ShowPage } from "./ShowPage.js";
 import { VideoPage } from "./VideoPage.js";
 
@@ -21,7 +20,10 @@ export class App
 
     async handle(key, tabId)
     {
+        const { remoteConstants } = await chrome.storage.local.get('remoteConstants');
+
         await this.updatePageIndex(tabId);
+        
         switch(key)
         {
             case remoteConstants.DPad.validate:
