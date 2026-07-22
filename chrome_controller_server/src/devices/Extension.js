@@ -17,4 +17,20 @@ export class Extension extends Device
     {
         io.emit('command', { action: 'OPEN_TAB', url });
     }
+
+    sendInput(input)
+    {
+        io.emit('command', { action: 'INPUT', input });
+    }
+
+    submitInput(input)
+    {
+        io.emit('command', { action: 'SUBMIT', input });
+    }
+
+    async handleVolume(volumeValue)
+    {
+        const vol = await loudness.getVolume();
+        await loudness.setVolume(vol + volumeValue);
+    }
 }

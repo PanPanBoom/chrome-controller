@@ -12,4 +12,19 @@ export class Device {
     {
         throw new Error("Need to be implemented");
     }
+
+    sendInput(input)
+    {
+        throw new Error("Need to be implemented");
+    }
+
+    submitInput(input)
+    {
+        throw new Error("Need to be implemented");
+    }
+
+    handleVolume(volumeValue)
+    {
+        throw new Error("Need to be implemented");
+    }
 }

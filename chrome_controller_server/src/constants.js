@@ -26,5 +26,3 @@ export const remoteConstants = {
         forward: RemoteKeyCode.KEYCODE_FAST_FORWARD
     }
 }
-
-export default remoteConstants;
