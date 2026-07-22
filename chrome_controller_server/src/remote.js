@@ -1,5 +1,5 @@
 import { Router } from "express";
-import COMMANDS from '../../chrome_controller_extension/constants.js';
+import COMMANDS from './constants.js'
 import { apps } from "./apps.js";
 import os from 'os';
 import { execSync } from "child_process";

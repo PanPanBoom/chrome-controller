@@ -1,34 +1,30 @@
+import { RemoteKeyCode } from "androidtv-remote";
+
 export const remoteConstants = {
     DPad: {
-        left: "left",
-        right: "right",
-        up: "up",
-        down: "down",
-        validate: "validate"
+        left: RemoteKeyCode.KEYCODE_DPAD_LEFT,
+        right: RemoteKeyCode.KEYCODE_DPAD_RIGHT,
+        up: RemoteKeyCode.KEYCODE_DPAD_UP,
+        down: RemoteKeyCode.KEYCODE_DPAD_DOWN,
+        validate: RemoteKeyCode.KEYCODE_DPAD_CENTER
     },
     volume: {
-        up: "volumeUp",
-        down: "volumeDown"
+        up: RemoteKeyCode.KEYCODE_VOLUME_UP,
+        down: RemoteKeyCode.KEYCODE_VOLUME_DOWN
     },
     zoom: {
         in: "zoomIn",
         out: "zoomOut"
     },
-    back: "back",
-    home: "home",
+    back: RemoteKeyCode.KEYCODE_BACK,
+    home: RemoteKeyCode.KEYCODE_HOME,
     exit: "exit",
     favorite: "favorite",
     videoControls: {
-        rewind: "rewind",
-        playPause: "playPause",
-        forward: "forward"
+        rewind: RemoteKeyCode.KEYCODE_REWIND,
+        playPause: RemoteKeyCode.KEYCODE_MEDIA_PLAY_PAUSE,
+        forward: RemoteKeyCode.KEYCODE_FAST_FORWARD
     }
 }
 
-// export const remoteConstants = await fetch("localhost:3000/remote/config/commands");
-
 export default remoteConstants;
-
-// if (typeof module !== 'undefined') {
-//     module.exports = remoteConstants;
-// }
