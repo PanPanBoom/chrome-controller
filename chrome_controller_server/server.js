@@ -9,10 +9,12 @@ import { getShowByTitle, removeShowByTitle, saveShow } from './src/db.js';
 import { AndroidRemote } from "androidtv-remote"
 import { state } from './src/state.js';
 import fs from 'fs';
+import { Extension } from './src/devices/Extension.js';
+import { AndroidTv } from './src/devices/AndroidTv.js';
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server, { cors: { origin: "*" } });
+export const io = new Server(server, { cors: { origin: "*" } });
 let currentShowTitle = "";
 
 let isExtensionConnected = false;
@@ -93,45 +95,11 @@ app.post('/connectTv', async (req, res) => {
 
     if(ip != "")
     {
-        console.log(`Connecting to TV at ${ip}...`);
-
-        let cert = {};
-
-        try
-        {
-            cert = JSON.parse(fs.readFileSync('cert.json', 'utf8'));
-        } 
-        
-        catch(e)
-        {
-            console.log("No certificate found, starting pairing process...");
-        }
-
-        state.androidRemote = new AndroidRemote(ip, {
-            pairing_port : 6467,
-            remote_port : 6466,
-            name : 'androidtv-remote',
-            cert: cert,
-        });
-    
-        console.log(`Connected to TV at ${ip}`);
-        console.log(state.androidRemote);
-
-        state.androidRemote.on('secret', () => {
-            io.emit('tvCodeRequest');
-        });
-
-        state.androidRemote.on('ready', () => {
-            let cert = state.androidRemote.getCertificate();
-
-            fs.writeFile('cert.json', JSON.stringify(cert), (e) => console.log(e));
-        })
-
-        await state.androidRemote.start();
+        state.currentDevice = new AndroidTv(ip);
     }
 
     else
-        state.androidRemote = null;
+        state.currentDevice = new Extension();
 
     res.send({ status: 'ok' });
 })
@@ -140,8 +108,8 @@ app.post('/tvCode', async (req, res) => {
     const { code } = req.body;
 
     console.log(`Received code: ${code}`);
-    if(state.androidRemote)
-        state.androidRemote.sendCode(code);
+    if(state.currentDevice)
+        state.currentDevice.sendCode(code);
 
     res.send({ status: 'ok' });
 })

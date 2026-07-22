@@ -82,7 +82,7 @@ export default function Remote() {
                 <DPad className="z-0" style={{marginVertical: 30}}/>
                 <View className="flex-row w-[85%] justify-between">
                     <TextButton onPressOut={() => sendKeyPress(server.ip, commands?.back || '')}>BACK</TextButton>
-                    <TextButton disabled>HOME</TextButton>
+                    <TextButton onPressOut={() => sendKeyPress(server.ip, commands?.home || '')}>HOME</TextButton>
                     <TextButton disabled>EXIT</TextButton>
                 </View>
                 <View className="flex-row gap-5 h-[8%]">
