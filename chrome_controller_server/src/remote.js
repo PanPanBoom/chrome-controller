@@ -1,5 +1,5 @@
 import { Router } from "express";
-import COMMANDS from './constants.js'
+import { remoteConstants} from './constants.js'
 import { apps } from "./apps.js";
 import os from 'os';
 import { execSync } from "child_process";
@@ -44,8 +44,8 @@ export default function remoteRoutes(io) {
     });
     
     router.get('/config/commands', (req, res) => {
-        console.log(`Constantes chargées : ${JSON.stringify(COMMANDS)}`);
-        res.json(COMMANDS);
+        console.log(`Constantes chargées : ${JSON.stringify(remoteConstants)}`);
+        res.json(remoteConstants);
     });
     
     router.get('/keyboard', (req, res) => {

@@ -13,7 +13,7 @@
   "dependencies": {
     "@twurple/api": "^8.0.3",
     "@twurple/auth": "^8.0.3",
-    "androidtv-remote": "^1.0.10",
+    "androidtv-remote": "github:astrokin/androidtv-remote",
     "better-sqlite3": "^12.8.0",
     "bonjour": "^3.5.1",
     "dotenv": "^17.3.1",

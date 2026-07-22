@@ -1,12 +1,16 @@
 import { Device } from "./Device.js";
-import { AndroidRemote, RemoteDirection } from "androidtv-remote";
+import { AndroidRemote, RemoteDirection, RemoteKeyCode } from "androidtv-remote";
 import { io } from '../../server.js';
 import fs from 'fs';
+import { charToKeycode } from "../constants.js";
+import { remoteMessageManager } from "androidtv-remote/dist/remote/RemoteMessageManager.js";
 
 export class AndroidTv extends Device {
     constructor(ip)
     {
         super(ip);
+        this.currentApp = null;
+        this.lastInputSent = "";
 
         console.log(`Connecting to TV at ${ip}...`);
         
@@ -46,6 +50,16 @@ export class AndroidTv extends Device {
             console.error('AndroidTvRemote error: ', err);
         });
 
+        this.remote.on('current_app', (current_app) => {
+            console.log('updating current app');
+            this.currentApp = current_app;
+        });
+
+        this.remote.on('input', () => {
+            console.log("Show keyboard");
+            io.emit('keyboard');
+        })
+
         this.remote.start();
     }
 
@@ -57,6 +71,27 @@ export class AndroidTv extends Device {
     openUrl(url)
     {
         this.remote.sendAppLink(url);
+    }
+
+    sendInput(input)
+    {
+        if(this.lastInputSent.length > input.length)
+            this.keyPress(RemoteKeyCode.KEYCODE_DEL);
+
+        else
+            this.remote.sendText(input[input.length - 1]);
+
+        this.lastInputSent = input;
+    }
+
+    submitInput(input)
+    {
+        this.keyPress(RemoteKeyCode.KEYCODE_ENTER);
+    }
+
+    handleVolume(volumeValue)
+    {
+        this.keyPress(volumeValue > 0 ? RemoteKeyCode.KEYCODE_VOLUME_UP : RemoteKeyCode.KEYCODE_VOLUME_DOWN, RemoteDirection.SHORT);
     }
 
     sendCode(code)

@@ -6,7 +6,6 @@ import remoteRoutes from './src/remote.js';
 import extensionRoutes from './src/extension.js';
 import { ApiManager } from './src/APIs/ApiManager.js';
 import { getShowByTitle, removeShowByTitle, saveShow } from './src/db.js';
-import { AndroidRemote } from "androidtv-remote"
 import { state } from './src/state.js';
 import fs from 'fs';
 import { Extension } from './src/devices/Extension.js';
@@ -44,8 +43,7 @@ app.post('/volume', async (req, res) => {
 
     console.log(`Volume : ${volumeValue > 0 ? "+" : ""}${volumeValue}`);
 
-    const vol = await loudness.getVolume();
-    await loudness.setVolume(vol + volumeValue);
+    state.currentDevice.handleVolume(volumeValue);
     
     res.send({ status: 'ok' });
 })

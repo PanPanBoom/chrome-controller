@@ -14,7 +14,8 @@ export default function extensionRoutes(io) {
         const { input } = req.body;
         console.log('Input : ' + input);
 
-        io.emit('command', { action: 'INPUT', input });
+        state.currentDevice.sendInput(input);
+
         res.send({status: 'ok'});
     });
 
@@ -22,7 +23,7 @@ export default function extensionRoutes(io) {
         const { input } = req.body;
         console.log('Submit input: ' + input);
 
-        io.emit('command', { action: 'SUBMIT', input });
+        state.currentDevice.submitInput(input);
         res.send({status: 'ok'});
     });
 
