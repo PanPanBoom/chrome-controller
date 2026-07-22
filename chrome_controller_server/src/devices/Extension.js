@@ -12,4 +12,9 @@ export class Extension extends Device
     {
         io.emit('command', { action: "HANDLE", key});
     }
+
+    openUrl(url)
+    {
+        io.emit('command', { action: 'OPEN_TAB', url });
+    }
 }
