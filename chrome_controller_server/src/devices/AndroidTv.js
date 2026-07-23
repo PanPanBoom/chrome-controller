@@ -10,7 +10,7 @@ export class AndroidTv extends Device {
         this.currentApp = null;
         this.lastInputSent = "";
     }
-    
+
     async init()
     {
         console.log(`Connecting to TV at ${this.ip}...`);
@@ -45,6 +45,8 @@ export class AndroidTv extends Device {
             let cert = this.remote.getCertificate();
 
             fs.writeFile('cert.json', JSON.stringify(cert), (e) => console.log(e));
+
+            io.emit('videoEnabled');
         });
 
         this.remote.on('error', (err) => {
