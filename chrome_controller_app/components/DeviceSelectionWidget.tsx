@@ -36,8 +36,8 @@ export const DeviceSelectionWidget = (props: DeviceSelectionWidgetProps) => {
     }
 
     useEffect(() => {
-        console.log(selectedDeviceIndex);
-    }, [selectedDeviceIndex]);
+        setSelectedDeviceIndex(props.devices.findIndex((currentDevice) => device.name === currentDevice.name));
+    }, [device]);
 
     return (
         <View className="flex gap-2">

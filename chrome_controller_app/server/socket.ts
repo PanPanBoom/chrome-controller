@@ -14,7 +14,7 @@ export const sendPing = async (ip: string, signal: AbortController["signal"]) =>
 
 export const getCommands = async (ip: string) => await sendCommand(ip, 'remote/config/commands');
 
-export const sendKeyPress = async (ip: string, key: string) => await sendCommand(ip, 'extension/keypress', {
+export const sendKeyPress = async (ip: string, key: number) => await sendCommand(ip, 'extension/keypress', {
     method: 'POST',
     headers: {
         'Content-Type': 'application/json'
