@@ -2,8 +2,6 @@ import { Device } from "./Device.js";
 import { AndroidRemote, RemoteDirection, RemoteKeyCode } from "androidtv-remote";
 import { io } from '../../server.js';
 import fs from 'fs';
-import { charToKeycode } from "../constants.js";
-import { remoteMessageManager } from "androidtv-remote/dist/remote/RemoteMessageManager.js";
 
 export class AndroidTv extends Device {
     constructor(ip)
@@ -11,8 +9,11 @@ export class AndroidTv extends Device {
         super(ip);
         this.currentApp = null;
         this.lastInputSent = "";
-
-        console.log(`Connecting to TV at ${ip}...`);
+    }
+    
+    async init()
+    {
+        console.log(`Connecting to TV at ${this.ip}...`);
         
         let cert = {};
 
@@ -26,14 +27,14 @@ export class AndroidTv extends Device {
             console.log("No certificate found, starting pairing process...");
         }
 
-        this.remote = new AndroidRemote(ip, {
+        this.remote = new AndroidRemote(this.ip, {
             pairing_port : 6467,
             remote_port : 6466,
             name : 'androidtv-remote',
             cert: cert,
         });
 
-        console.log(`Connected to TV at ${ip}`);
+        console.log(`Connected to TV at ${this.ip}`);
         console.log(this.remote);
 
         this.remote.on('secret', () => {
@@ -58,9 +59,14 @@ export class AndroidTv extends Device {
         this.remote.on('input', () => {
             console.log("Show keyboard");
             io.emit('keyboard');
-        })
+        });
 
-        this.remote.start();
+        this.remote.on('volume', (volume) => {
+            console.log(volume);
+            this.isMuted = volume.muted;
+        });
+
+        return await this.remote.start();
     }
 
     keyPress(key)
@@ -94,8 +100,14 @@ export class AndroidTv extends Device {
         this.keyPress(volumeValue > 0 ? RemoteKeyCode.KEYCODE_VOLUME_UP : RemoteKeyCode.KEYCODE_VOLUME_DOWN, RemoteDirection.SHORT);
     }
 
+    toggleMute()
+    {
+        super.toggleMute();
+        this.keyPress(RemoteKeyCode.KEYCODE_MUTE);
+    }
+
     sendCode(code)
     {
-        this.remote.sendCode(code);
+        return this.remote.sendCode(code);
     }
 }

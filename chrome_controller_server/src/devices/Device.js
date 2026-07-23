@@ -1,6 +1,7 @@
 export class Device {
     constructor(ip) {
         this.ip = ip;
+        this.isMuted = false;
     }
 
     keyPress(key)
@@ -26,5 +27,10 @@ export class Device {
     handleVolume(volumeValue)
     {
         throw new Error("Need to be implemented");
+    }
+
+    toggleMute()
+    {
+        this.isMuted = !this.isMuted;
     }
 }

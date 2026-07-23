@@ -1,7 +1,6 @@
 import express from 'express';
 import http from 'http';
 import { Server } from 'socket.io';
-import loudness from 'loudness';
 import remoteRoutes from './src/remote.js';
 import extensionRoutes from './src/extension.js';
 import { ApiManager } from './src/APIs/ApiManager.js';
@@ -49,15 +48,12 @@ app.post('/volume', async (req, res) => {
 })
 
 app.post('/mute', async (req, res) => {
-    const isMuted = await loudness.getMuted();
+    await state.currentDevice.toggleMute();
 
-    console.log(isMuted ? "Demute" : "Mute");
-    await loudness.setMuted(!isMuted);
-
-    res.send({ status: 'ok', isMuted: !isMuted});
+    res.send({ status: 'ok', isMuted: state.currentDevice.isMuted});
 })
 
-app.get('/isMuted', async (req, res) => res.send({ status: 'ok', isMuted: await loudness.getMuted()}))
+app.get('/isMuted', async (req, res) => res.send({ status: 'ok', isMuted: state.currentDevice.isMuted}))
 
 app.post('/addFavorite', async (req, res) => {
     let showApiData = await ApiManager.apis.netflix.getShowByTitle(currentShowTitle);
@@ -94,6 +90,9 @@ app.post('/connectTv', async (req, res) => {
     if(ip != "")
     {
         state.currentDevice = new AndroidTv(ip);
+        const isStarted = await state.currentDevice.init();
+        if(!isStarted)
+            return res.status(401).send({ status: 'error', message: 'Connection aborted' });
     }
 
     else
@@ -106,8 +105,12 @@ app.post('/tvCode', async (req, res) => {
     const { code } = req.body;
 
     console.log(`Received code: ${code}`);
-    if(state.currentDevice)
-        state.currentDevice.sendCode(code);
+    console.log(state.currentDevice);
+
+    if (!state.currentDevice)
+        return res.status(400).send({ status: 'error', message: 'No device connected' });
+
+    await state.currentDevice.sendCode(code);
 
     res.send({ status: 'ok' });
 })

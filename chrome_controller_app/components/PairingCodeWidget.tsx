@@ -5,11 +5,20 @@ import { TextInput, View } from "react-native";
 import { CustomTitle } from "./ui/CustomTitle";
 import { Button } from "./ui/Button";
 import { CustomText } from "./ui/CustomText";
+import { ModalContext } from "@/contexts/modalProvider";
 
 export const PairingCodeWidget = () => {
     const { server } = useContext(AppContext);
+    const { hideModal } = useContext(ModalContext);
 
     const [input, setInput] = useState("");
+
+    const handleSubmit = () => {
+        if(input !== "")
+            sendTvCode(server.ip, input);
+
+        hideModal();
+    }
     
     return (
         <View className="flex gap-4">
@@ -20,12 +29,9 @@ export const PairingCodeWidget = () => {
                     value={input} 
                     onChangeText={setInput}
                     returnKeyType="send" 
-                    onSubmitEditing={() => {
-                        if(input !== "")
-                            sendTvCode(server.ip, input);
-                    }}
+                    onSubmitEditing={handleSubmit}
                 />
-                <Button className="bg-primary">
+                <Button className="bg-primary" onPress={handleSubmit}>
                     <CustomText>Envoyer</CustomText>
                 </Button>
             </View>

@@ -1,4 +1,5 @@
 import { Device } from "./Device.js";
+import loudness from 'loudness';
 import { io } from '../../server.js';
 
 export class Extension extends Device
@@ -26,6 +27,14 @@ export class Extension extends Device
     submitInput(input)
     {
         io.emit('command', { action: 'SUBMIT', input });
+    }
+
+    async toggleMute()
+    {
+        const isMuted = await loudness.getMuted();
+
+        console.log(isMuted ? "Demute" : "Mute");
+        await loudness.setMuted(!isMuted);
     }
 
     async handleVolume(volumeValue)

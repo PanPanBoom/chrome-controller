@@ -23,7 +23,7 @@ export const RedirectionButton = ({className, style, children, ...props}: Redire
 
     const toggleExpand = () => {
         Animated.spring(animation, {
-            toValue: expanded ? buttonHeight : buttonHeight + listHeight + 20,
+            toValue: expanded ? buttonHeight : buttonHeight + listHeight + 10,
             useNativeDriver: false
         }).start();
         setExpanded(!expanded);
@@ -31,18 +31,18 @@ export const RedirectionButton = ({className, style, children, ...props}: Redire
 
     const iconSize = 20;
     return (
-        <Animated.View style={{ height: animation, overflow: 'hidden' }} className={cn('bg-background-light rounded-full', className)}>
-            <Button onPress={toggleExpand} className="flex-row rounded-full gap-2 p-2" style={[{ height: buttonHeight }, style as any]} {...props}>
+        <Animated.View style={{ height: animation, overflow: 'hidden' }} className={cn('bg-background-light rounded-2xl', className)}>
+            <Button onPress={toggleExpand} className="flex-row rounded-2xl gap-2 p-1" style={[{ height: buttonHeight }, style as any]} {...props}>
                 {
                     props.icon &&
                     <Computer color={colors.text} size={iconSize}/> 
                 }
                 {
                     props.img &&
-                    <Image source={{ uri: props.img }} className="aspect-square rounded-full" style={{width: "25%"}}/>
+                    <Image source={{ uri: props.img }} className="aspect-square rounded-full" style={{width: "20%"}}/>
                 }
                 <CustomText className="text-lg">{props.label}</CustomText>
-                <ChevronRight color={colors.secondary} size={iconSize}/>
+                <ChevronRight color={colors.secondary} size={iconSize} className={cn("transition-transform duration-300", expanded ? "rotate-[90deg]" : "rotate-[0deg]")} style={{}}/>
             </Button>
             {
                 expanded && 
