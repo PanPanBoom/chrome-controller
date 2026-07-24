@@ -40,7 +40,7 @@ export const DPad = ({className, style, ...props}: ViewProps) => {
 }
 
 type DPadArrowProps = {
-    keySimulated: string;
+    keySimulated: number;
 }
 
 type ArrowConfig = {

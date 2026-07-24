@@ -2,6 +2,7 @@ import { Stack } from "expo-router";
 import "../global.css";
 import { AppProvider } from "@/contexts/appContext";
 import { useFonts } from 'expo-font';
+import { ModalProvider } from "@/contexts/modalProvider";
 
 export default function RootLayout() {
   const [loaded, error] = useFonts({
@@ -12,6 +13,7 @@ export default function RootLayout() {
 
   return (
     <AppProvider>
+      <ModalProvider>
         <Stack screenOptions={{
           headerShown: false,
         }}>
@@ -25,6 +27,7 @@ export default function RootLayout() {
               sheetAllowedDetents: 'fitToContents'
             }} />
         </Stack>
+      </ModalProvider>
     </AppProvider>
   );
 }

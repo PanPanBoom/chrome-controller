@@ -17,15 +17,16 @@ export const NetworkScanRadar = (props: ViewProps) => {
     const [serverRadius, setServerRadius] = useState(0);
     const [centerRadius, setCenterRadius] = useState(0);
 
-    const serverPosition = useMemo(() => {
-        const angle = Math.random() * 2 * Math.PI;
-        const distance = centerRadius + Math.random() * (radarRadius - centerRadius - serverRadius);
-
-        return {
-            top: radarRadius + Math.sin(angle) * distance - serverRadius,
-            left: radarRadius + Math.cos(angle) * distance - serverRadius
-        }
-    }, []);
+    const serverPosition = useMemo(() => 
+        servers.map(() => {
+            const angle = Math.random() * 2 * Math.PI;
+            const distance = centerRadius + Math.random() * (radarRadius - centerRadius - serverRadius);
+    
+            return {
+                top: radarRadius + Math.sin(angle) * distance - serverRadius,
+                left: radarRadius + Math.cos(angle) * distance - serverRadius
+            }
+        }), [servers.length, centerRadius, radarRadius, serverRadius]);
 
     useEffect(() => {
         setServers([]);
@@ -40,8 +41,9 @@ export const NetworkScanRadar = (props: ViewProps) => {
         <View className="gap-10">
             <Radar active={isScanning} setCenterRadius={setCenterRadius} onLayout={e => setRadarRadius(e.nativeEvent.layout.width/2)} {...props}>
                 {
+                    isScanning == false &&
                     servers.map((server, index) => 
-                        <NetworkScanServer key={index} server={server} style={serverPosition} onLayout={e => setServerRadius(e.nativeEvent.layout.width/2)}/>)
+                        <NetworkScanServer key={index} server={server} style={serverPosition[index]} onLayout={e => setServerRadius(e.nativeEvent.layout.width/2)}/>)
                 }
             </Radar>
         </View>

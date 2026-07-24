@@ -9,14 +9,16 @@ import { getisMuted } from "@/server/socket";
 import { AppContext } from "@/contexts/appContext";
 
 export const DPadSides = () => {
-    const { server } = useContext(AppContext);
+    const { server, device } = useContext(AppContext);
     const [isMuted, setIsMuted] = useState(false);
 
     useEffect(() => {
         getisMuted(server.ip)
             .then(res => res.json())
             .then(data => setIsMuted(data.isMuted));
-    });
+
+        console.log("Device changed, updating mute status");
+    }, [device]);
     
     return (
         <View className="z-0 absolute left-[50%] top-[50%] -translate-x-[50%] -translate-y-[50%]">

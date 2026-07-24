@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { state } from './state.js';
 
 export default function extensionRoutes(io) {
     const router = Router();
@@ -13,7 +14,8 @@ export default function extensionRoutes(io) {
         const { input } = req.body;
         console.log('Input : ' + input);
 
-        io.emit('command', { action: 'INPUT', input });
+        state.currentDevice.sendInput(input);
+
         res.send({status: 'ok'});
     });
 
@@ -21,7 +23,7 @@ export default function extensionRoutes(io) {
         const { input } = req.body;
         console.log('Submit input: ' + input);
 
-        io.emit('command', { action: 'SUBMIT', input });
+        state.currentDevice.submitInput(input);
         res.send({status: 'ok'});
     });
 
@@ -37,7 +39,7 @@ export default function extensionRoutes(io) {
         //     });
         // }
 
-        io.emit('command', { action: 'OPEN_TAB', url });
+        state.currentDevice.openUrl(url);
         res.send({ status: 'ok' });
     });
 
@@ -45,7 +47,8 @@ export default function extensionRoutes(io) {
         const { key } = req.body;
         console.log(`Entrée : ${key}`);
 
-        io.emit('command', { action: "HANDLE", key});
+        state.currentDevice.keyPress(key);
+        
         res.send({ status: 'ok' });
     });
 
