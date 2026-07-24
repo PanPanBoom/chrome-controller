@@ -1,5 +1,3 @@
-import { remoteConstants } from "../constants.js";
-
 export class Page
 {
     constructor(containers, identifier)
@@ -54,6 +52,8 @@ export class Page
 
         else
         {
+            const { remoteConstants } = await chrome.storage.local.get('remoteConstants');
+            
             const { up, down, left, right } = remoteConstants.DPad;
             const isRow = this.containers[this.currentContainerIndex].direction === "row";
 

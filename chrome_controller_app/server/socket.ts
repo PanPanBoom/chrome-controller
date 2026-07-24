@@ -14,7 +14,7 @@ export const sendPing = async (ip: string, signal: AbortController["signal"]) =>
 
 export const getCommands = async (ip: string) => await sendCommand(ip, 'remote/config/commands');
 
-export const sendKeyPress = async (ip: string, key: string) => await sendCommand(ip, 'extension/keypress', {
+export const sendKeyPress = async (ip: string, key: number) => await sendCommand(ip, 'extension/keypress', {
     method: 'POST',
     headers: {
         'Content-Type': 'application/json'
@@ -88,3 +88,21 @@ export const sendFavorite = async (ip: string, isFavorite: boolean) => await sen
 });
 
 export const getIsVideoEnabled = async (ip: string) => await sendCommand(ip, 'extension/videoEnabled');
+
+export const getDevices = async (ip: string) => await sendCommand(ip, 'remote/devices');
+
+export const connectTv = async (ipServer: string, ipTv: string) => await sendCommand(ipServer, 'connectTv', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ ip: ipTv })
+});
+
+export const sendTvCode = async (ip: string, code: string) => await sendCommand(ip, 'tvCode', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ code })
+});

@@ -13,7 +13,8 @@
     "activeTab",
     "offscreen",
     "alarms",
-    "system.display"
+    "system.display",
+    "storage"
   ],
   "host_permissions": [
     "http://localhost:3000/*",

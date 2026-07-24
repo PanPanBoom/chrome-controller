@@ -35,6 +35,13 @@ chrome.alarms.onAlarm.addListener((alarm) => {
         setupOffscreen();
 });
 
+chrome.runtime.onInstalled.addListener(async () => {
+    console.log("Fetching remote constants");
+    const response = await fetch('http://localhost:3000/remote/config/commands');
+    const constants = await response.json();
+    chrome.storage.local.set({ remoteConstants: constants });
+})
+
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if(message.type === 'COMMAND_RECEIVED')
     {

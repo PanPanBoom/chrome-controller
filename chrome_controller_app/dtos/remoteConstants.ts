@@ -1,26 +1,27 @@
 export type remoteConstantsDTO = {
+    power: number,
     DPad: {
-        left: string,
-        right: string,
-        up: string,
-        down: string,
-        validate: string
+        left: number,
+        right: number,
+        up: number,
+        down: number,
+        validate: number
     },
     volume: {
-        up: string,
-        down: string
+        up: number,
+        down: number
     },
     zoom: {
         in: string,
         out: string
     },
-    back: string,
-    home: string,
+    back: number,
+    home: number,
     exit: string,
     favorite: string,
     videoControls: {
-        rewind: string,
-        playPause: string,
-        forward: string
+        rewind: number,
+        playPause: number,
+        forward: number
     }
 }
