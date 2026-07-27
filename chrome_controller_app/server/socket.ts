@@ -69,7 +69,14 @@ export const getTopShows = async (ip: string, platform: string, filter: string) 
     params.append("showType", filter);
     params.append("platform", platform);
 
-    return await(sendCommand(ip, `remote/topShows?${params}`));
+    return await sendCommand(ip, `remote/topShows?${params}`);
+}
+
+export const searchShow = async (ip: string, search: string) => {
+    const params = new URLSearchParams();
+    params.append("search", search);
+
+    return await sendCommand(ip, `remote/searchShow?${params}`);
 }
 
 export const sendZoom = async (ip: string, zoomValue: number) => await sendCommand(ip, 'extension/zoom', {
