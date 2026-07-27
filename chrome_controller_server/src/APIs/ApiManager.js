@@ -24,4 +24,9 @@ export class ApiManager
     {
         return await this.apis[platform].getShowByTitle(title);
     }
+
+    static async searchShowsByTitle(title)
+    {
+        return await this.apis['netflix'].searchShowsByTitle(title);
+    }
 }

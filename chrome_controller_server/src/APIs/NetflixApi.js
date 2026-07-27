@@ -48,7 +48,7 @@ export class NetflixApi extends Api
         }));
     }
 
-    async getShowByTitle(title)
+    async searchShowsByTitle(title)
     {
         const shows = await this.apiClient.showsApi.searchShowsByTitle({
             title,
@@ -56,14 +56,20 @@ export class NetflixApi extends Api
             country: 'fr'
         });
 
-        const show = shows.find(show => show.title === title) || shows[0];
+        return shows.map(show => ({
+                id: show.id,
+                tmdbId: show.tmdbId,
+                title: show.title,
+                img: show.imageSet.horizontalPoster.w1440,
+                link: show.streamingOptions?.fr?.filter(streamingOption => streamingOption.service.id.toLowerCase() === this.platform)[0]?.link,
+                overview: show.overview
+        }));
+    }
 
-        return {
-            id: show.id,
-            title: show.title,
-            img: show.imageSet.horizontalPoster.w1440,
-            link: show.streamingOptions.fr.filter(streamingOption => streamingOption.service.id.toLowerCase() === this.platform)[0].link,
-            overview: show.overview
-        }
+    async getShowByTitle(title)
+    {
+        const shows = await this.searchShowsByTitle(title);
+
+        return shows.find(show => show.title === title) || shows[0];
     }
 }

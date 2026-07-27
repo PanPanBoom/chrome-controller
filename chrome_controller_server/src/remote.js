@@ -59,6 +59,11 @@ export default function remoteRoutes(io) {
         ApiManager.getTopShows(req.query.platform.toLowerCase(), req.query.showType).then(data => res.json(data));
     });
 
+    router.get('/searchShow', (req, res) => {
+        console.log('Recherche de show: ' + req.query.search);
+        ApiManager.searchShowsByTitle(req.query.search).then(data => res.json(data));
+    })
+
     router.post('/videoUpdate', (req, res) => {
         const { onVideoPage } = req.body;
         console.log('update video : ' + onVideoPage);
