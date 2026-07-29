@@ -9,6 +9,7 @@ import { state } from './src/state.js';
 import fs from 'fs';
 import { Extension } from './src/devices/Extension.js';
 import { AndroidTv } from './src/devices/AndroidTv.js';
+import { Readable } from 'stream';
 
 const app = express();
 const server = http.createServer(app);
@@ -113,6 +114,28 @@ app.post('/tvCode', async (req, res) => {
     await state.currentDevice.sendCode(code);
 
     res.send({ status: 'ok' });
+});
+
+app.get('/proxy', async (req, res) => {
+    const videoUrl = req.query.url;
+
+    console.log('Proxy for ' + videoUrl);
+
+    const response = await fetch(videoUrl, {
+        headers: {
+            'Referer': 'https://noxpulse.cc',
+            'Origin': 'https://noxpulse.cc',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'Accept': '*/*',
+            'Accept-Language': 'fr-FR,fr;q=0.9',
+            'Range': 'bytes=0-',
+        }
+    });
+
+    res.setHeader('Content-Type', response.headers.get('content-type'));
+    res.setHeader('Content-Length', response.headers.get('content-length'));
+
+    Readable.fromWeb(response.body).pipe(res);
 })
 
 server.listen(3000, '0.0.0.0', () => {
