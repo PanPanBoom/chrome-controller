@@ -2,7 +2,7 @@ import { FlatList } from "react-native";
 import { ShowCarouselFilter } from "./ShowCarouselFilter";
 import { useEffect, useState } from "react";
 
-type Filter = {
+export type Filter = {
     displayText: string;
     apiValue: string;
 }

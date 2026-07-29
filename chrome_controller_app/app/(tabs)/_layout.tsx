@@ -18,7 +18,7 @@ export default function TabLayout()
                 tabBarActiveBackgroundColor: colors.backgroundHover,
                 tabBarActiveTintColor: colors.primary,
                 tabBarInactiveTintColor: colors.secondary,
-                tabBarItemStyle: { borderRadius: 40, overflow: "hidden", marginHorizontal: 10, marginBottom: 25, marginTop: 10 },
+                tabBarItemStyle: { borderRadius: 40, overflow: "hidden", marginHorizontal: 30, marginBottom: 25, marginTop: 10 },
                 tabBarIconStyle: { flex: 1, alignItems: "center", justifyContent: "center" }
             }}>
                 <Tabs.Screen name="remote" options={{
@@ -27,10 +27,6 @@ export default function TabLayout()
                 }}/>
                 <Tabs.Screen name="apps" options={{
                     tabBarIcon: ({ color }) => TabIcon(TvMinimalPlay, color),
-                    tabBarButton: server.ip ? undefined : ({ref, ...props}) => <View {...props} style={[{opacity: 0.2}, props.style]}/>
-                }}/>
-                <Tabs.Screen name="streaming" options={{
-                    tabBarIcon: ({ color }) => TabIcon(Clapperboard, color),
                     tabBarButton: server.ip ? undefined : ({ref, ...props}) => <View {...props} style={[{opacity: 0.2}, props.style]}/>
                 }}/>
                 <Tabs.Screen name="cast" options={{
