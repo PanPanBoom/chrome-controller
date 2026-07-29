@@ -98,10 +98,18 @@ export class AndroidTv extends Device {
             await page.goto(url, { waitUntil: 'networkidle2' })
 
             // Attendre que la vidéo ait un src valide
-            await page.waitForFunction(() => {
-                const video = document.querySelector('video')
-                return video?.currentSrc && !video.currentSrc.includes('blob:') && video.currentSrc.length > 0
-            }, { timeout: 30000 })
+            try
+            {
+                await page.waitForFunction(() => {
+                    const video = document.querySelector('video')
+                    return video?.currentSrc && !video.currentSrc.includes('blob:') && video.currentSrc.length > 0
+                }, { timeout: 30000 });
+            }
+
+            catch(err)
+            {
+                console.log(err);
+            }
 
             const videoUrl = await page.evaluate(() => {
                 return document.querySelector('video')?.currentSrc

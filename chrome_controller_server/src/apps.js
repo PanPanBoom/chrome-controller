@@ -14,5 +14,10 @@ export const apps = [
         name: "Twitch",
         url: "https://www.twitch.tv/",
         img: "/assets/twitch.png"
+    },
+    {
+        name: "TMDB",
+        url: "https://noxpulse.cc",
+        img: "/assets/tmdb.png"
     }
 ]

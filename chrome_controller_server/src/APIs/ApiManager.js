@@ -1,4 +1,5 @@
 import { NetflixApi } from "./NetflixApi.js";
+import { TMDBApi } from "./TMDBApi.js";
 import { TwitchApi } from "./TwitchApi.js";
 import { YoutubeApi } from "./YoutubeApi.js";
 
@@ -7,7 +8,8 @@ export class ApiManager
     static apis = {
         youtube: new YoutubeApi(),
         netflix: new NetflixApi(),
-        twitch: new TwitchApi()
+        twitch: new TwitchApi(),
+        tmdb: new TMDBApi()
     }
 
     static async getTopShows(platform, filter)
@@ -25,8 +27,8 @@ export class ApiManager
         return await this.apis[platform].getShowByTitle(title);
     }
 
-    static async searchShowsByTitle(title)
+    static async searchShowsByTitle(title, filter)
     {
-        return await this.apis['netflix'].searchShowsByTitle(title);
+        return await this.apis.tmdb.searchShowsByTitle(title, filter);
     }
 }
