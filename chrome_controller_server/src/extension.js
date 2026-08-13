@@ -27,7 +27,7 @@ export default function extensionRoutes(io) {
         res.send({status: 'ok'});
     });
 
-    router.post('/open', (req, res) => {
+    router.post('/open', async (req, res) => {
         const { url } = req.body;
         console.log(`Demande d'ouverture : ${url}`);
 
@@ -39,9 +39,17 @@ export default function extensionRoutes(io) {
         //     });
         // }
 
-        state.currentDevice.openUrl(url);
+        await state.currentDevice.openUrl(url);
         res.send({ status: 'ok' });
     });
+
+    router.post('/playEpisode', async (req, res) => {
+        const { showId, seasonNumber, episodeNumber } = req.body;
+        console.log(`Play episode ${episodeNumber} of season ${seasonNumber}`);
+
+        await state.currentDevice.openUrl(`https://noxpulse.cc/watch/series/${showId}/${seasonNumber}/${episodeNumber}`);
+        res.send({ status: 'ok' });
+    })
 
     router.post('/keypress', (req, res) => {
         const { key } = req.body;

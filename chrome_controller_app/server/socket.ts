@@ -62,6 +62,14 @@ export const sendAppLaunch = async (ip: string, url: string) => await sendComman
     body: JSON.stringify({ url })
 });
 
+export const sendEpisodeLaunch = async (ip: string, showId: string, seasonNumber: number, episodeNumber: number) => await sendCommand(ip, 'extension/playEpisode', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ showId, seasonNumber, episodeNumber })
+});
+
 export const getApps = async (ip: string) => await sendCommand(ip, 'remote/apps');
 
 export const getTopShows = async (ip: string, platform: string, filter: string) => {
@@ -81,6 +89,22 @@ export const searchShow = async (ip: string, search: string, filter: string) => 
     console.log(filter);
 
     return await sendCommand(ip, `remote/searchShow?${params}`);
+}
+
+export const getShowById = async (ip: string, id: string, mediaType: string) => {
+    const params = new URLSearchParams();
+    params.append("id", id);
+    params.append("mediaType", mediaType);
+
+    return await sendCommand(ip, `remote/show?${params}`);
+}
+
+export const getSeasonById = async (ip: string, showId: string, seasonNumber: number) => {
+    const params = new URLSearchParams();
+    params.append("showId", showId);
+    params.append("seasonNumber", seasonNumber.toString());
+    
+    return await sendCommand(ip, `remote/season?${params}`);
 }
 
 export const sendZoom = async (ip: string, zoomValue: number) => await sendCommand(ip, 'extension/zoom', {

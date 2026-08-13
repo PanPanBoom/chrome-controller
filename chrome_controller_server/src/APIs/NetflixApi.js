@@ -41,6 +41,7 @@ export class NetflixApi extends Api
         const shows = await this.apiClient.showsApi.getTopShows(requestParams);
 
         return shows.map(show => ({
+            id: show.tmdbId,
             title: "",
             img: show.imageSet.horizontalPoster.w1440,
             link: show.streamingOptions.fr.filter(streamingOption => streamingOption.service.id.toLowerCase() === this.platform)[0].link,
@@ -57,8 +58,7 @@ export class NetflixApi extends Api
         });
 
         return shows.map(show => ({
-                id: show.id,
-                tmdbId: show.tmdbId,
+                id: show.tmdbId,
                 title: show.title,
                 img: show.imageSet.horizontalPoster.w1440,
                 link: show.streamingOptions?.fr?.filter(streamingOption => streamingOption.service.id.toLowerCase() === this.platform)[0]?.link,

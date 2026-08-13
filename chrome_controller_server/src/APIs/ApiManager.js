@@ -31,4 +31,14 @@ export class ApiManager
     {
         return await this.apis.tmdb.searchShowsByTitle(title, filter);
     }
+
+    static async getShowById(id, mediaType)
+    {
+        return await this.apis.tmdb.getShowById(id, mediaType);
+    }
+
+    static async getSeasonById(showId, seasonNumber)
+    {
+        return await this.apis.tmdb.getSeasonById(showId, seasonNumber);
+    }
 }
