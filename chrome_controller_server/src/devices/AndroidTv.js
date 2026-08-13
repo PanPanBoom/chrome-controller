@@ -79,7 +79,7 @@ export class AndroidTv extends Device {
 
     async openUrl(url)
     {
-        let finalUrl = "";
+        let finalUrl = url;
         if(url.includes("noxpulse"))
         {
             const browser = await puppeteer.launch({ 

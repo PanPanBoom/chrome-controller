@@ -2,12 +2,7 @@ import { Dimensions, FlatList, Pressable, ScrollView, ScrollViewProps, View, Vie
 import { Show } from "./Show";
 import { useContext, useEffect, useState } from "react";
 import { cn } from "@/etc/utils";
-import { getTopShows } from "@/server/socket";
-import { AppContext } from "@/contexts/appContext";
-import { CustomText } from "./ui/CustomText";
 import { ShowDTO } from "@/dtos/show";
-import { ShowCarouselFilter } from "./ShowCarouselFilter";
-import { TextButton } from "./ui/TextButton";
 import { Filter, ShowCarouselFilterGroup } from "./ShowCarouselFilterGroup";
 import { App } from "@/dtos/app";
 
@@ -16,13 +11,11 @@ type ShowCarouselProps = ViewProps & {
     filters?: Filter[];
     selectedFilter?: string;
     onFilterChange?: (filter: string) => void;
+    customInfoPress?: (id: string, mediaType: string) => void;
 }
 
 export const ShowCarousel = ({className, ...props}: ShowCarouselProps) => {
-    // const { server } = useContext(AppContext);
     const [activeIndex, setActiveIndex] = useState(0);
-    // const [shows, setShows] = useState<ShowDTO[]>([]);
-    // const [currentFilter, setCurrentFilter] = useState<string | null>(null);
 
     const { width } = Dimensions.get('screen');
 
@@ -33,16 +26,6 @@ export const ShowCarousel = ({className, ...props}: ShowCarouselProps) => {
     useEffect(() => {
         setActiveIndex(0);
     }, [props.shows]);
-
-    // useEffect(() => {
-    //     if(!props.platform) return;
-
-    //     const activeFilter = currentFilter ?? props.platform.filters?.[0]?.apiValue ?? "";
-
-    //     props.onFetch(activeFilter)
-    //         .then(res => res.json())
-    //         .then(dataFetched => setShows(dataFetched));
-    // }, [props.platform, currentFilter]);
 
 
     const handleNext = () => setActiveIndex(i => {
@@ -56,10 +39,6 @@ export const ShowCarousel = ({className, ...props}: ShowCarouselProps) => {
 
         return i - 1;
     });
-
-    // const handleFilterChange = (filter: string) => {
-    //     setCurrentFilter(filter);
-    // }
 
     return (
         <View className={cn("gap-3", className)} {...props}>
@@ -91,6 +70,7 @@ export const ShowCarousel = ({className, ...props}: ShowCarouselProps) => {
                                     data={show} 
                                     onPrev={position === 0 ? handlePrev : undefined} 
                                     onNext={position === 0 ? handleNext : undefined}
+                                    customInfoPress={props.customInfoPress}
                                 />
                             </View>
                         )

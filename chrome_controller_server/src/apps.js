@@ -17,7 +17,7 @@ export const apps = [
     },
     {
         name: "TMDB",
-        url: "https://noxpulse.cc",
+        url: "chromecontroller://",
         img: "/assets/tmdb.png"
     }
 ]

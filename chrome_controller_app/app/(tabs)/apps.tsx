@@ -10,6 +10,7 @@ import { AppContext } from "@/contexts/appContext";
 import { App } from "@/dtos/app";
 import { ShowDTO } from "@/dtos/show";
 import { getApps, getTopShows, searchShow } from "@/server/socket";
+import { Href, router } from "expo-router";
 import { useContext, useEffect, useState } from "react";
 import { FlatList, ScrollView, TextInput, View } from "react-native";
 
@@ -31,8 +32,7 @@ export default function Apps()
             console.log('Apps received from server:', data);
             setApps(data);
             setTrendsPlatform(data[0]);
-            console.log(data.find((platform: App) => platform.name === "TMDB")?.filters);
-            setCurrentSearchFilter(data.find((platform: App) => platform.name === "TMDB")?.filters[1].apiValue)
+            setCurrentSearchFilter(data.find((platform: App) => platform.name === "TMDB")?.filters[0].apiValue)
         });
     }, []);
 
@@ -45,14 +45,6 @@ export default function Apps()
             .then(res => res.json())
             .then(dataFetched => setTrendingShows(dataFetched));
     }, [trendsPlatform, currentTrendsFilter]);
-
-    useEffect(() => {
-        console.log(trendsPlatform);
-    }, [trendsPlatform]);
-
-    useEffect(() => {
-        console.log(currentSearchFilter);
-    }, [currentSearchFilter]);
 
     const handleSearch = () => {
         searchShow(server.ip, input, currentSearchFilter || "movie")
@@ -90,9 +82,10 @@ export default function Apps()
             </View>
             <ShowCarousel
                 shows={searchedShows}
-                filters={apps?.find(app => app.name === "TMDB")?.filters.filter((_, index) => index > 0) || []}
+                filters={apps?.find(app => app.name === "TMDB")?.filters || []}
                 selectedFilter={currentSearchFilter || ""}
                 onFilterChange={(newFilter) => setCurrentSearchFilter(newFilter)}
+                customInfoPress={(id, mediaType) => router.push(`/show/${id}?mediaType=${mediaType}` as Href)}
             />
             <CustomTitle>Applications</CustomTitle>
             <View className="m-2 gap-2">
@@ -100,12 +93,6 @@ export default function Apps()
                     apps?.map(app => <AppListElement key={app.name} app={app} />)
                 }
             </View>
-            {/* <FlatList
-                data={apps}
-                renderItem={({ item }) => <AppListElement app={item} />} 
-                keyExtractor={item => item.name}
-                contentContainerClassName="m-2 gap-2"
-            /> */}
         </ScrollScreen>
     )
 }

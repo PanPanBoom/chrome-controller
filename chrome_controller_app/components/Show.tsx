@@ -1,12 +1,9 @@
 import { Image, Pressable, ScrollView, View, ViewProps } from "react-native"
 import { CustomText } from "./ui/CustomText"
-import { Button } from "./ui/Button"
-import { BlurView } from "expo-blur"
-import { Cast, Info } from "lucide-react-native"
+import { Cast, Info, Loader } from "lucide-react-native"
 import { colors } from "@/constants/colors"
 import { cn } from "@/etc/utils"
 import { ShowDTO } from "@/dtos/show"
-import Svg, { SvgUri } from "react-native-svg"
 import { CustomTitle } from "./ui/CustomTitle"
 import { sendAppLaunch } from "@/server/socket"
 import { useContext, useState } from "react"
@@ -18,11 +15,25 @@ type ShowProps = ViewProps & {
     data: ShowDTO;
     onPrev?: () => void;
     onNext?: () => void;
+    customInfoPress?: (id: string, mediaType: string) => void;
 }
 
 export const Show = ({className, ...props}: ShowProps) => {
     const { server } = useContext(AppContext);
     const [showInfos, setShowInfos] = useState(false);
+    const [loading, setLoading] = useState(false);
+
+    const handleCast = () => {
+        setLoading(true);
+        sendAppLaunch(server.ip, props.data.link).then(_ => setLoading(false));
+    }
+
+    const handleInfoPress = () => {
+        if(props.customInfoPress)
+            props.customInfoPress(props.data.id, props.data.media_type);
+        else
+            setShowInfos(prev => !prev)
+    }
 
     return (
         <View className={cn("w-full justify-center items-center border border-background-hover bg-background-hover rounded-xl aspect-video overflow-hidden", className)} {...props}>
@@ -47,7 +58,7 @@ export const Show = ({className, ...props}: ShowProps) => {
                 <View className="pt-2 pr-2">
                     {
                         props.data.overview !== "" &&
-                        <BlurredIconButton icon={Info} color={colors.text} iconSize={20} blurViewClassName="p-1" onPress={() => setShowInfos(prev => !prev)}/>
+                        <BlurredIconButton icon={Info} color={colors.text} iconSize={20} blurViewClassName="p-1" onPress={handleInfoPress}/>
                     }
                 </View>
             </View>
@@ -57,7 +68,7 @@ export const Show = ({className, ...props}: ShowProps) => {
             {
                 showInfos == false &&
                 <View className="absolute w-full h-full justify-center items-center">
-                    <BlurredIconButton icon={Cast} color={colors.text} onPress={() => sendAppLaunch(server.ip, props.data.link)}/>
+                    <BlurredIconButton icon={loading ? Loader : Cast} color={colors.text} onPress={handleCast}/>
                 </View>
             }
         </View>
