@@ -85,7 +85,6 @@ export default function Apps()
                 filters={apps?.find(app => app.name === "TMDB")?.filters || []}
                 selectedFilter={currentSearchFilter || ""}
                 onFilterChange={(newFilter) => setCurrentSearchFilter(newFilter)}
-                customInfoPress={(id, mediaType) => router.push(`/show/${id}?mediaType=${mediaType}` as Href)}
             />
             <CustomTitle>Applications</CustomTitle>
             <View className="m-2 gap-2">

@@ -10,12 +10,12 @@ import { useContext, useState } from "react"
 import { AppContext } from "@/contexts/appContext"
 import { BlurredIconButton } from "./ui/BlurredIconButton"
 import { LinearGradient } from 'expo-linear-gradient';
+import { Href, router } from "expo-router"
 
 type ShowProps = ViewProps & {
     data: ShowDTO;
     onPrev?: () => void;
     onNext?: () => void;
-    customInfoPress?: (id: string, mediaType: string) => void;
 }
 
 export const Show = ({className, ...props}: ShowProps) => {
@@ -29,8 +29,11 @@ export const Show = ({className, ...props}: ShowProps) => {
     }
 
     const handleInfoPress = () => {
-        if(props.customInfoPress)
-            props.customInfoPress(props.data.id, props.data.media_type);
+        if(props.data.media_type)
+        {
+            console.log(`/show/${props.data.id}?mediaType=${props.data.media_type}`);
+            router.push(`/show/${props.data.id}?mediaType=${props.data.media_type}` as Href)
+        }
         else
             setShowInfos(prev => !prev)
     }

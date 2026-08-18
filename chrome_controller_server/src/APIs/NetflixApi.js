@@ -41,11 +41,12 @@ export class NetflixApi extends Api
         const shows = await this.apiClient.showsApi.getTopShows(requestParams);
 
         return shows.map(show => ({
-            id: show.tmdbId,
+            id: show.tmdbId.split("/")[1],
             title: "",
             img: show.imageSet.horizontalPoster.w1440,
             link: show.streamingOptions.fr.filter(streamingOption => streamingOption.service.id.toLowerCase() === this.platform)[0].link,
-            overview: show.overview
+            overview: show.overview,
+            media_type: show.showType
         }));
     }
 
@@ -58,11 +59,12 @@ export class NetflixApi extends Api
         });
 
         return shows.map(show => ({
-                id: show.tmdbId,
+                id: show.tmdbId.split("/")[1],
                 title: show.title,
                 img: show.imageSet.horizontalPoster.w1440,
                 link: show.streamingOptions?.fr?.filter(streamingOption => streamingOption.service.id.toLowerCase() === this.platform)[0]?.link,
-                overview: show.overview
+                overview: show.overview,
+                media_type: show.showType
         }));
     }
 
