@@ -32,7 +32,7 @@ export default function Show()
 
     if (!showData) {
         return (
-            <Screen>
+            <Screen className="justify-center items-center gap-4">
                 <ActivityIndicator />
                 <CustomText>Loading...</CustomText>
             </Screen>

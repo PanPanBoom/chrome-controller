@@ -69,7 +69,7 @@ export class TMDBApi extends Api
 
     async getShowById(id, mediaType)
     {
-        return fetch(`https://api.themoviedb.org/3/${mediaType}/${id}?language=fr-FR&append_to_response=credits,watch/providers`, this.fetchOptions)
+        return fetch(`https://api.themoviedb.org/3/${mediaType === "series" ? "tv" : mediaType}/${id}?language=fr-FR&append_to_response=credits,watch/providers`, this.fetchOptions)
                 .then(res => res.json())
                 .then(show => ({
                     id: show.id,

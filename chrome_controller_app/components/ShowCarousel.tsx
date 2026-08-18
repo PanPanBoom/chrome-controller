@@ -11,7 +11,6 @@ type ShowCarouselProps = ViewProps & {
     filters?: Filter[];
     selectedFilter?: string;
     onFilterChange?: (filter: string) => void;
-    customInfoPress?: (id: string, mediaType: string) => void;
 }
 
 export const ShowCarousel = ({className, ...props}: ShowCarouselProps) => {
@@ -70,7 +69,6 @@ export const ShowCarousel = ({className, ...props}: ShowCarouselProps) => {
                                     data={show} 
                                     onPrev={position === 0 ? handlePrev : undefined} 
                                     onNext={position === 0 ? handleNext : undefined}
-                                    customInfoPress={props.customInfoPress}
                                 />
                             </View>
                         )
