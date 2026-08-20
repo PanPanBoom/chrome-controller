@@ -16,23 +16,22 @@ export class TwitchApi extends Api
 
     async sendTopShowsRequest(filter)
     {
-        const now = Date.now();
-
-        if(this.cache.data && (now - this.cache.lastFetch) < this.TTL) return this.cache.data;
-
         const response = await this.apiClient.streams.getStreams({
             language: 'fr',
             limit: 20
         });
 
-        this.cache.data = response.data.map(stream => ({
+        return response.data.map(stream => ({
+            id: stream.userName,
             title: stream.userDisplayName,
             img: stream.getThumbnailUrl(1280, 720),
-            link: `https://www.twitch.tv/${stream.userName}`,
-            overview: stream.title
+            overview: stream.title,
+            platform: this.platform
         }));
-        this.cache.lastFetch = now;
+    }
 
-        return this.cache.data;
+    getShowLink(id)
+    {
+        return `https://www.twitch.tv/${id}`;
     }
 }

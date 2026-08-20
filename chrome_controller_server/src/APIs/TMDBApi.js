@@ -36,6 +36,7 @@ export class TMDBApi extends Api
                 Authorization: `Bearer ${process.env.TMDB_API_KEY}`
             }
         };
+        this.platform = 'tmdb';
     }
 
     async sendTopShowsRequest(filter)
@@ -43,12 +44,13 @@ export class TMDBApi extends Api
         return fetch(`https://api.themoviedb.org/3/trending/${filter}/day?language=fr-FR`, this.fetchOptions)
                 .then(res => res.json())
                 .then(data => data.results.map(show => ({
-                    id: show.id,
+                    id: `${show.media_type}/${show.id}`,
                     title: show.title ?? show.name,
                     img: `https://image.tmdb.org/t/p/original${show.backdrop_path}`,
-                    link: `https://noxpulse.cc/watch/${show.media_type === "tv" ? "series" : "movie"}/${show.id}${show.media_type === "tv" ? "/1/1" : ""}`,
+                    // link: `https://noxpulse.cc/watch/${show.media_type === "tv" ? "series" : "movie"}/${show.id}${show.media_type === "tv" ? "/1/1" : ""}`,
                     overview: show.overview,
-                    media_type: show.media_type
+                    media_type: show.media_type,
+                    platform: this.platform
                 })));
     }
 
@@ -58,21 +60,22 @@ export class TMDBApi extends Api
         return fetch(`https://api.themoviedb.org/3/search/${filter === "all" ? "multi" : filter}?query=${title}&language=fr-FR`, this.fetchOptions)
                 .then(res => res.json())
                 .then(data => data.results.map(show => ({
-                    id: show.id,
+                    id: `${show.media_type}/${show.id}`,
                     title: show.title ?? show.name,
                     img: `https://image.tmdb.org/t/p/original${show.backdrop_path}`,
-                    link: `https://noxpulse.cc/watch/${show.media_type === "tv" ? "series" : "movie"}/${show.id}${show.media_type === "tv" ? "/1/1" : ""}`,
+                    // link: `https://noxpulse.cc/watch/${show.media_type === "tv" ? "series" : "movie"}/${show.id}${show.media_type === "tv" ? "/1/1" : ""}`,
                     overview: show.overview,
-                    media_type: show.media_type ?? filter
+                    media_type: show.media_type ?? filter,
+                    platform: this.platform
                 })));
     }
 
-    async getShowById(id, mediaType)
+    async getShowById(id)
     {
-        return fetch(`https://api.themoviedb.org/3/${mediaType === "series" ? "tv" : mediaType}/${id}?language=fr-FR&append_to_response=credits,watch/providers`, this.fetchOptions)
+        return fetch(`https://api.themoviedb.org/3/${id}?language=fr-FR&append_to_response=credits,watch/providers`, this.fetchOptions)
                 .then(res => res.json())
                 .then(show => ({
-                    id: show.id,
+                    id,
                     title: show.title ?? show.name,
                     img: `https://image.tmdb.org/t/p/original${show.poster_path}`,
                     overview: show.overview,
@@ -90,7 +93,6 @@ export class TMDBApi extends Api
                         name: provider.provider_name,
                         img: `https://image.tmdb.org/t/p/original${provider.logo_path}`
                     })) || [],
-                    media_type: mediaType,
                     number_of_seasons: show.number_of_seasons || null,
                     number_of_episodes: show.number_of_episodes || null,
                     seasons: show.seasons?.map(season => ({
@@ -108,7 +110,7 @@ export class TMDBApi extends Api
 
     async getSeasonById(showId, seasonNumber)
     {
-        return fetch(`https://api.themoviedb.org/3/tv/${showId}/season/${seasonNumber}?language=fr-FR`, this.fetchOptions)
+        return fetch(`https://api.themoviedb.org/3/${showId}/season/${seasonNumber}?language=fr-FR`, this.fetchOptions)
                 .then(res => res.json())
                 .then(season => ({
                     id: season.id,
@@ -130,5 +132,21 @@ export class TMDBApi extends Api
                         season_number: episode.season_number
                     })) || []
                 }));
+    }
+
+    getShowLink(id, episodeInfo = null)
+    {
+        let url = "https://noxpulse.cc/watch/";
+
+        if(id.includes("tv"))
+        {
+            const realId = id.split("/")[1];
+            url += `series/${realId}/${episodeInfo ? `${episodeInfo.season}/${episodeInfo.episode}` : '1/1'}`;
+        }
+
+        else
+            url += id;
+
+        return url;
     }
 }

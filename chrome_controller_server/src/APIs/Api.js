@@ -63,4 +63,9 @@ export class Api
     {
         throw new Error("Must be implemented.");
     }
+
+    getShowLink(id)
+    {
+       throw new Error("Must be implemented.");
+    }
 }

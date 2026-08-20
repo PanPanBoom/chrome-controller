@@ -6,7 +6,7 @@ import { ChevronRight } from "lucide-react-native";
 import { colors } from "@/constants/colors";
 import { cn } from "@/etc/utils";
 import { Button } from "./ui/Button";
-import { sendEpisodeLaunch } from "@/server/socket";
+import { sendShowCast } from "@/server/socket";
 import { AppContext } from "@/contexts/appContext";
 
 type EpisodeProps = {
@@ -74,7 +74,7 @@ export const Episode = (props: EpisodeProps) => {
                         <CustomText className="text-sm text-justify">{props.episode.overview}</CustomText>
                         <Button className="bg-primary flex-row gap-4" disabled={loading} onPress={() => {
                             setLoading(true);
-                            sendEpisodeLaunch(server.ip, props.showId, props.episode.season_number, props.episode.episode_number).finally(() => setLoading(false));
+                            sendShowCast(server.ip, 'tmdb', props.showId, { season: props.episode.season_number, episode: props.episode.episode_number }).finally(() => setLoading(false));
                         }}>
                             {loading && <ActivityIndicator />}
                             <CustomText>Regarder</CustomText>

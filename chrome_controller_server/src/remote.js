@@ -67,7 +67,7 @@ export default function remoteRoutes(io) {
     });
 
     router.get('/show', (req, res) => {
-        ApiManager.getShowById(req.query.id, req.query.mediaType)
+        ApiManager.getShowById(req.query.id)
         .then(data => res.json(data));
     });
 
