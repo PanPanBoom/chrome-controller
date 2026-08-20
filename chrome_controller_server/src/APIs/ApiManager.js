@@ -32,13 +32,18 @@ export class ApiManager
         return await this.apis.tmdb.searchShowsByTitle(title, filter);
     }
 
-    static async getShowById(id, mediaType)
+    static async getShowById(id)
     {
-        return await this.apis.tmdb.getShowById(id, mediaType);
+        return await this.apis.tmdb.getShowById(id);
     }
 
     static async getSeasonById(showId, seasonNumber)
     {
         return await this.apis.tmdb.getSeasonById(showId, seasonNumber);
+    }
+
+    static async getShowLink(platform, id, episodeInfo = null)
+    {
+        return await this.apis[platform].getShowLink(id, episodeInfo);
     }
 }

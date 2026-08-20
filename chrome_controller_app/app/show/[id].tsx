@@ -3,7 +3,7 @@ import { CustomTitle } from "@/components/ui/CustomTitle";
 import { Screen } from "@/components/ui/Screen"
 import { AppContext } from "@/contexts/appContext";
 import { MovieDTO, SeriesDTO, ShowDTO } from "@/dtos/show"
-import { getShowById } from "@/server/socket";
+import { getShowById, sendShowCast } from "@/server/socket";
 import { router, useLocalSearchParams } from "expo-router";
 import { useContext, useEffect, useState } from "react";
 import { ActivityIndicator, Image, ScrollView, View } from "react-native";
@@ -25,10 +25,18 @@ export default function Show()
     const [showData, setShowData] = useState<MovieDTO | SeriesDTO | null>(null);
 
     useEffect(() => {
-        getShowById(server.ip, id, mediaType)
+        console.log(id);
+        getShowById(server.ip, `${mediaType}/${id}`)
         .then(res => res.json())
         .then(data => setShowData(data));
     }, []);
+
+    const handleCast = () => {
+        if(!showData)
+            return;
+
+        sendShowCast(server.ip, 'tmdb', showData.id);
+    }
 
     if (!showData) {
         return (
@@ -49,7 +57,7 @@ export default function Show()
                         <IconButton icon={ChevronLeft} onPress={() => router.back()} />
                         <IconButton icon={Heart} />
                     </View>
-                    <BlurredIconButton icon={Cast} />
+                    <BlurredIconButton icon={Cast} onPress={() => sendShowCast(server.ip, showData.id, 'tmdb')}/>
                     <View className="flex gap-4">
                         <View className="flex-row gap-1 justify-center">
                             {

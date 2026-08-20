@@ -3,6 +3,49 @@ import { AndroidRemote, RemoteDirection, RemoteKeyCode } from "androidtv-remote"
 import { io } from '../../server.js';
 import fs from 'fs';
 import puppeteer from 'puppeteer';
+import { ApiManager } from "../APIs/ApiManager.js";
+
+const intentBuilder = async (url) => {
+    if(url.includes("noxpulse"))
+    {
+        const browser = await puppeteer.launch({ 
+            headless: true
+        })
+
+        const page = await browser.newPage()
+
+        // Masquer les traces de Puppeteer
+        await page.evaluateOnNewDocument(() => {
+            Object.defineProperty(navigator, 'webdriver', { get: () => false })
+        })
+
+        await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36')
+
+        await page.goto(url, { waitUntil: 'networkidle2' })
+
+        // Attendre que la vidéo ait un src valide
+        try
+        {
+            await page.waitForFunction(() => {
+                const video = document.querySelector('video')
+                return video?.currentSrc && !video.currentSrc.includes('blob:') && video.currentSrc.length > 0
+            }, { timeout: 30000 });
+        }
+
+        catch(err)
+        {
+            console.log(err);
+        }
+
+        const videoUrl = await page.evaluate(() => {
+            return document.querySelector('video')?.currentSrc
+        })
+
+        return "chromecontroller://play?url=" + videoUrl;
+    }
+
+    return url;
+}
 
 export class AndroidTv extends Device {
     constructor(ip)
@@ -79,47 +122,7 @@ export class AndroidTv extends Device {
 
     async openUrl(url)
     {
-        let finalUrl = url;
-        if(url.includes("noxpulse"))
-        {
-            const browser = await puppeteer.launch({ 
-                headless: true
-            })
-
-            const page = await browser.newPage()
-
-            // Masquer les traces de Puppeteer
-            await page.evaluateOnNewDocument(() => {
-                Object.defineProperty(navigator, 'webdriver', { get: () => false })
-            })
-
-            await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36')
-
-            await page.goto(url, { waitUntil: 'networkidle2' })
-
-            // Attendre que la vidéo ait un src valide
-            try
-            {
-                await page.waitForFunction(() => {
-                    const video = document.querySelector('video')
-                    return video?.currentSrc && !video.currentSrc.includes('blob:') && video.currentSrc.length > 0
-                }, { timeout: 30000 });
-            }
-
-            catch(err)
-            {
-                console.log(err);
-            }
-
-            const videoUrl = await page.evaluate(() => {
-                return document.querySelector('video')?.currentSrc
-            })
-
-            finalUrl = "chromecontroller://play?url=" + videoUrl;
-        }
-
-        console.log(finalUrl);
-        this.remote.sendAppLink(finalUrl);
+        this.remote.sendAppLink(await intentBuilder(url));
     }
 
     sendInput(input)

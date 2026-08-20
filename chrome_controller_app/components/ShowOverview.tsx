@@ -3,12 +3,18 @@ import { CustomTitle } from "./ui/CustomTitle";
 import { MovieDTO, SeriesDTO } from "@/dtos/show";
 import { CustomText } from "./ui/CustomText";
 import { LinearGradient } from "expo-linear-gradient";
+import { Button } from "./ui/Button";
+import { sendShowCast } from "@/server/socket";
+import { useContext } from "react";
+import { AppContext } from "@/contexts/appContext";
 
 type ShowOverviewProps = {
     showData: MovieDTO | SeriesDTO;
 };
 
 export const ShowOverview = ({ showData }: ShowOverviewProps) => {
+    const { server } = useContext(AppContext);
+
     return (
         <>
             <CustomText className="text-justify">{showData.overview}</CustomText>
@@ -36,12 +42,12 @@ export const ShowOverview = ({ showData }: ShowOverviewProps) => {
                     <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                         {
                             showData?.platforms?.map(platform => (
-                                <View key={platform.name} className="items-center gap-2 w-28 mx-2">
+                                <Button key={platform.name} className="items-center gap-2 w-28 mx-2 p-0 bg-transparent" onPress={() => sendShowCast(server.ip, platform.name.toLowerCase(), showData.id)}>
                                     <View className="w-full aspect-square rounded-xl overflow-hidden">
                                         <Image source={{uri: platform.img}} className="w-full aspect-square" />
                                     </View>
                                     <CustomText className="text-xs text-center">{platform.name}</CustomText>
-                                </View>
+                                </Button>
                             ))
                         }
                     </ScrollView>

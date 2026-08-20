@@ -1,3 +1,5 @@
+import { ApiManager } from "../APIs/ApiManager.js";
+
 export class Device {
     constructor(ip) {
         this.ip = ip;
@@ -12,6 +14,17 @@ export class Device {
     openUrl(url)
     {
         throw new Error("Need to be implemented");
+    }
+
+    async castShow(platform, id, episodeInfo = null)
+    {
+        console.log(`Getting link from ${platform} for ${id}`);
+
+        const link = await ApiManager.getShowLink(platform, id, episodeInfo);
+
+        console.log(`Opening ${link}`);
+
+        await this.openUrl(link);
     }
 
     sendInput(input)

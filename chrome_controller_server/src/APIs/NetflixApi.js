@@ -41,12 +41,13 @@ export class NetflixApi extends Api
         const shows = await this.apiClient.showsApi.getTopShows(requestParams);
 
         return shows.map(show => ({
-            id: show.tmdbId.split("/")[1],
+            id: show.tmdbId,
             title: "",
             img: show.imageSet.horizontalPoster.w1440,
-            link: show.streamingOptions.fr.filter(streamingOption => streamingOption.service.id.toLowerCase() === this.platform)[0].link,
+            // link: show.streamingOptions.fr.filter(streamingOption => streamingOption.service.id.toLowerCase() === this.platform)[0].link,
             overview: show.overview,
-            media_type: show.showType
+            media_type: show.showType,
+            platform: this.platform
         }));
     }
 
@@ -62,9 +63,10 @@ export class NetflixApi extends Api
                 id: show.tmdbId.split("/")[1],
                 title: show.title,
                 img: show.imageSet.horizontalPoster.w1440,
-                link: show.streamingOptions?.fr?.filter(streamingOption => streamingOption.service.id.toLowerCase() === this.platform)[0]?.link,
+                // link: show.streamingOptions?.fr?.filter(streamingOption => streamingOption.service.id.toLowerCase() === this.platform)[0]?.link,
                 overview: show.overview,
-                media_type: show.showType
+                media_type: show.showType,
+                platform: this.platform
         }));
     }
 
@@ -73,5 +75,16 @@ export class NetflixApi extends Api
         const shows = await this.searchShowsByTitle(title);
 
         return shows.find(show => show.title === title) || shows[0];
+    }
+
+    async getShowLink(id)
+    {
+        const show = await this.apiClient.showsApi.getShow({
+            id,
+            outputLanguage: 'fr',
+            country: 'fr'
+       });
+
+       return show.streamingOptions.fr.find(streamingOption => streamingOption.service.id === this.platform).link;
     }
 }

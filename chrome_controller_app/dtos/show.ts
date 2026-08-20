@@ -5,6 +5,7 @@ export type ShowDTO = {
     link: string;
     overview: string;
     media_type: string;
+    platform: string;
 };
 
 export type MovieDTO = ShowDTO & {

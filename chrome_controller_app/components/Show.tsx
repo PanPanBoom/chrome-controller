@@ -5,7 +5,7 @@ import { colors } from "@/constants/colors"
 import { cn } from "@/etc/utils"
 import { ShowDTO } from "@/dtos/show"
 import { CustomTitle } from "./ui/CustomTitle"
-import { sendAppLaunch } from "@/server/socket"
+import { sendAppLaunch, sendShowCast } from "@/server/socket"
 import { useContext, useState } from "react"
 import { AppContext } from "@/contexts/appContext"
 import { BlurredIconButton } from "./ui/BlurredIconButton"
@@ -25,14 +25,16 @@ export const Show = ({className, ...props}: ShowProps) => {
 
     const handleCast = () => {
         setLoading(true);
-        sendAppLaunch(server.ip, props.data.link).then(_ => setLoading(false));
+
+        sendShowCast(server.ip, props.data.platform, props.data.id).then(_ => setLoading(false));
     }
 
     const handleInfoPress = () => {
         if(props.data.media_type)
         {
-            console.log(`/show/${props.data.id}?mediaType=${props.data.media_type}`);
-            router.push(`/show/${props.data.id}?mediaType=${props.data.media_type}` as Href)
+            const realId = props.data.id.split("/")[1];
+            console.log(`/show/${realId}?mediaType=${props.data.media_type}`);
+            router.push(`/show/${realId}?mediaType=${props.data.media_type}` as Href)
         }
         else
             setShowInfos(prev => !prev)
@@ -59,10 +61,7 @@ export const Show = ({className, ...props}: ShowProps) => {
                     <View className="flex-1" pointerEvents="none"/>
                 }
                 <View className="pt-2 pr-2">
-                    {
-                        props.data.overview !== "" &&
-                        <BlurredIconButton icon={Info} color={colors.text} iconSize={20} blurViewClassName="p-1" onPress={handleInfoPress}/>
-                    }
+                    <BlurredIconButton icon={Info} color={colors.text} iconSize={20} blurViewClassName="p-1" onPress={handleInfoPress}/>
                 </View>
             </View>
             <ScrollView horizontal className="grow-0 p-2 w-full" showsHorizontalScrollIndicator={false}>   

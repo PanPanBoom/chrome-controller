@@ -43,13 +43,14 @@ export default function extensionRoutes(io) {
         res.send({ status: 'ok' });
     });
 
-    router.post('/playEpisode', async (req, res) => {
-        const { showId, seasonNumber, episodeNumber } = req.body;
-        console.log(`Play episode ${episodeNumber} of season ${seasonNumber}`);
+    router.post('/castShow', async (req, res) => {
+        const { id, platform, episodeInfo } = req.body;
 
-        await state.currentDevice.openUrl(`https://noxpulse.cc/watch/series/${showId}/${seasonNumber}/${episodeNumber}`);
+        console.log(`Casting ${id} from ${platform} ${episodeInfo && `(Episode ${episodeInfo.episode} from Season ${episodeInfo.season})`}`);
+
+        await state.currentDevice.castShow(platform, id, episodeInfo);
         res.send({ status: 'ok' });
-    })
+    });
 
     router.post('/keypress', (req, res) => {
         const { key } = req.body;
