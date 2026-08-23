@@ -41,8 +41,8 @@ export class TMDBApi extends Api
         };
         this.platform = 'tmdb';
         this.sources = [
-            new NoxpulseSource(),
             new NakastreamSource(),
+            new NoxpulseSource(),
         ]
     }
 
@@ -143,13 +143,30 @@ export class TMDBApi extends Api
 
     async getShowLink(id, episodeInfo = null)
     {
-        return await this.sources[0].getShowUrl(id, episodeInfo);
+        for (const source of this.sources)
+        {
+            if (await source.checkShowAvailability(id, episodeInfo))
+            {
+                console.log("Show available on " + source.baseUrl);
+                return await source.getShowUrl(id, episodeInfo);
+            }
+        }
+
+        return null;
     }
 
     async getShowIntent(id, episodeInfo = null)
     {
-        const videoInfo = await this.sources[0].getShowVideoInfo(id, episodeInfo);
+        for (const source of this.sources)
+        {
+            if (await source.checkShowAvailability(id, episodeInfo))
+            {
+                console.log("Show available on " + source.baseUrl);
+                const videoInfo = await source.getShowVideoInfo(id, episodeInfo);
+                return `chromecontroller://play?url=${encodeURIComponent(videoInfo.url)}&referer=${encodeURIComponent(videoInfo.referer)}`;
+            }
+        }
 
-        return `chromecontroller://play?url=${encodeURIComponent(videoInfo.url)}&referer=${encodeURIComponent(videoInfo.referer)}`;
+        return null;
     }
 }

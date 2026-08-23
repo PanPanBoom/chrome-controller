@@ -6,12 +6,17 @@ export class Source
         this.watchUrl = baseUrl + endWatchUrl;
     }
 
-    getShowUrl(id, episodeInfo = null)
+    async getShowUrl(id, episodeInfo = null)
     {
         throw new Error("Need to be implemented");
     }
 
     async getShowVideoInfo(id, episodeInfo = null)
+    {
+        throw new Error("Need to be implemented");
+    }
+
+    async checkShowAvailability(id, episodeInfo = null)
     {
         throw new Error("Need to be implemented");
     }

@@ -1,4 +1,5 @@
 import { Source } from "./Source.js";
+import 'dotenv/config'
 
 export class NakastreamSource extends Source
 {
@@ -18,7 +19,7 @@ export class NakastreamSource extends Source
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ email: "kajoxof693@copawoke.com", password: "/PanPanB00m\\"})
+                body: JSON.stringify({ email: process.env.NAKASTREAM_MAIL, password: process.env.NAKASTREAM_PASSWORD})
             });
 
             if(res.status !== 200)
@@ -96,5 +97,23 @@ export class NakastreamSource extends Source
             url: videoUrl,
             referer: ""
         }
+    }
+
+    async checkShowAvailability(id, episodeInfo = null)
+    {
+        await this.login();
+
+        const [ mediaType, realId ] = id.split("/");
+
+        const res = await fetch(`${this.baseUrl}/api/v1/streaming/check/${realId}?type=${mediaType}`, {
+            method: 'GET',
+            headers: this.headers
+        });
+        
+        const availabilty = await res.json();
+
+        console.log(availabilty);
+
+        return availabilty.available;
     }
 }
