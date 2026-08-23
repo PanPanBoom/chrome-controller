@@ -41,8 +41,8 @@ export class TMDBApi extends Api
         };
         this.platform = 'tmdb';
         this.sources = [
-            new NakastreamSource(),
             new NoxpulseSource(),
+            new NakastreamSource(),
         ]
     }
 

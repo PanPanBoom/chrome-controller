@@ -25,7 +25,6 @@ export class NoxpulseSource extends Source
     async getShowVideoInfo(id, episodeInfo = null)
     {
         const [ mediaType, realId ] = id.split("/");
-
         const res = await fetch(`https://api.noxpulse.cc/watch/${mediaType === "tv" ? "series" : mediaType}/${realId}${mediaType === "tv" ? `/${episodeInfo?.season ?? 1}/${episodeInfo?.episode ?? 1}` : ""}`);
         
         if(res.status !== 200)
