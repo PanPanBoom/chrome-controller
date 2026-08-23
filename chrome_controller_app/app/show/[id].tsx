@@ -57,7 +57,7 @@ export default function Show()
                         <IconButton icon={ChevronLeft} onPress={() => router.back()} />
                         <IconButton icon={Heart} />
                     </View>
-                    <BlurredIconButton icon={Cast} onPress={() => sendShowCast(server.ip, showData.id, 'tmdb')}/>
+                    <BlurredIconButton icon={Cast} onPress={() => sendShowCast(server.ip, 'tmdb', showData.id)}/>
                     <View className="flex gap-4">
                         <View className="flex-row gap-1 justify-center">
                             {

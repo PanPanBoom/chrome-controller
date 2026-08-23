@@ -1,5 +1,8 @@
 import { Api } from "./Api.js";
-import 'dotenv/config'
+import { Source } from "../source/Source.js";
+import 'dotenv/config';
+import { NakastreamSource } from "../source/NakastreamSource.js";
+import { NoxpulseSource } from "../source/NoxpulseSource.js";
 
 const dateParser = (dateString) => {
     if (!dateString) return null;
@@ -37,6 +40,10 @@ export class TMDBApi extends Api
             }
         };
         this.platform = 'tmdb';
+        this.sources = [
+            new NoxpulseSource(),
+            new NakastreamSource(),
+        ]
     }
 
     async sendTopShowsRequest(filter)
@@ -134,19 +141,15 @@ export class TMDBApi extends Api
                 }));
     }
 
-    getShowLink(id, episodeInfo = null)
+    async getShowLink(id, episodeInfo = null)
     {
-        let url = "https://noxpulse.cc/watch/";
+        return await this.sources[0].getShowUrl(id, episodeInfo);
+    }
 
-        if(id.includes("tv"))
-        {
-            const realId = id.split("/")[1];
-            url += `series/${realId}/${episodeInfo ? `${episodeInfo.season}/${episodeInfo.episode}` : '1/1'}`;
-        }
+    async getShowIntent(id, episodeInfo = null)
+    {
+        const videoInfo = await this.sources[0].getShowVideoInfo(id, episodeInfo);
 
-        else
-            url += id;
-
-        return url;
+        return `chromecontroller://play?url=${encodeURIComponent(videoInfo.url)}&referer=${encodeURIComponent(videoInfo.referer)}`;
     }
 }

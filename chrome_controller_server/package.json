@@ -20,7 +20,14 @@
     "express": "^5.2.1",
     "googleapis": "^171.4.0",
     "loudness": "^0.4.2",
-    "puppeteer": "^25.4.0",
+    "patchright": "^1.62.1",
+    "playwright": "^1.62.1",
+    "playwright-extra": "^4.3.6",
+    "playwright-extra-plugin-stealth": "^0.0.1",
+    "puppeteer": "22.15.0",
+    "puppeteer-core": "22.15.0",
+    "puppeteer-extra": "^3.3.6",
+    "puppeteer-extra-plugin-adblocker": "^2.13.6",
     "socket.io": "^4.8.3",
     "streaming-availability": "^4.4.0"
   }

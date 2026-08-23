@@ -27,42 +27,75 @@ function App() {
   );
 }
 
+type VideoInfo = {
+  url: string;
+  referer: string;
+}
+
 function AppContent() {
   const safeAreaInsets = useSafeAreaInsets();
-  const [videoUrl, setVideoUrl] = useState("");
+  const [videoInfo, setVideoInfo] = useState<VideoInfo | null>(null);
 
   useEffect(() => {
     Linking.addEventListener('url', ({ url }) => {
       const params = new URL(url);
 
-      setVideoUrl(params.searchParams.get('url') ?? "");
+      setVideoInfo({
+        url: params.searchParams.get('url') ?? "",
+        referer: params.searchParams.get('referer') ?? ""
+      });
     })
   }, []);
 
-  return videoUrl == "" ?
-        <View className='flex bg-background flex-1 justify-center items-center gap-2'>
-          <CustomTitle>Bienvenue sur Chrome Controller TV !</CustomTitle>
-          <CustomText>Castez un film depuis l'application mobile pour le lancer !</CustomText>
-        </View> :
-        <Video
-          source={{
-            uri: videoUrl,
-            headers: {
-              Referer: 'https://noxpulse.cc/'
-            },
-            bufferConfig: {
-              minBufferMs: 30000,
-              maxBufferMs: 60000,
-              bufferForPlaybackMs: 5000,
-              bufferForPlaybackAfterRebufferMs: 8000,
-            }
-          }}
-          style={{width: '100%', height: '100%'}}
-          controls={true}
-          resizeMode='contain'
-          reportBandwidth={true}
-          fullscreen={true}
-        />
+  useEffect(() => {
+    console.log(videoInfo);
+  }, [videoInfo]);
+
+  if(videoInfo?.url && videoInfo.url.length > 0)
+    return (
+      <Video
+        source={{
+          uri: videoInfo.url,
+          headers: {
+            Referer: videoInfo.referer
+          },
+          bufferConfig: {
+            minBufferMs: 30000,
+            maxBufferMs: 60000,
+            bufferForPlaybackMs: 5000,
+            bufferForPlaybackAfterRebufferMs: 8000,
+          }
+        }}
+        onLoad={(data) => {
+          console.log("✅ VIDÉO CHARGÉE !", data);
+        }}
+        onError={(error) => {
+          console.log("❌ ERREUR EXOPLAYER :", error.error);
+          // error.error contient généralement un code d'erreur réseau très utile (ex: 403)
+        }}
+        onBuffer={({ isBuffering }) => {
+          console.log(isBuffering ? "⏳ Mise en cache..." : "▶️ Lecture");
+        }}
+        style={{width: '100%', height: '100%'}}
+        controls={true}
+        resizeMode='contain'
+        reportBandwidth={true}
+        fullscreen={true}
+      />
+      // <View className='flex bg-background flex-1 justify-center items-center gap-2'>
+      //   <CustomText>URL : {videoInfo.url}</CustomText>
+      //   <CustomText>Referer : {videoInfo.referer}</CustomText>
+      //   <CustomText>User-Agent : {videoInfo.userAgent}</CustomText>
+      //   <CustomText>Cookies : {videoInfo.cookies}</CustomText>
+      // </View>
+    )
+
+  return (
+    <View className='flex bg-background flex-1 justify-center items-center gap-2'>
+      <CustomTitle>Bienvenue sur Chrome Controller TV !</CustomTitle>
+      <CustomText>Castez un film depuis l'application mobile pour le lancer !</CustomText>
+    </View>
+  )
 }
 
 export default App;
