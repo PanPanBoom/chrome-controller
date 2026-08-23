@@ -46,7 +46,7 @@ export default function extensionRoutes(io) {
     router.post('/castShow', async (req, res) => {
         const { id, platform, episodeInfo } = req.body;
 
-        console.log(`Casting ${id} from ${platform} ${episodeInfo && `(Episode ${episodeInfo.episode} from Season ${episodeInfo.season})`}`);
+        console.log(`Casting ${id} from ${platform} ${episodeInfo ? `(Episode ${episodeInfo.episode} from Season ${episodeInfo.season})` : ""}`);
 
         await state.currentDevice.castShow(platform, id, episodeInfo);
         res.send({ status: 'ok' });

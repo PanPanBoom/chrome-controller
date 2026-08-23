@@ -1,6 +1,7 @@
 import { Device } from "./Device.js";
 import loudness from 'loudness';
 import { io } from '../../server.js';
+import { ApiManager } from "../APIs/ApiManager.js";
 
 export class Extension extends Device
 {
@@ -12,6 +13,13 @@ export class Extension extends Device
     keyPress(key)
     {
         io.emit('command', { action: "HANDLE", key});
+    }
+
+    async castShow(platform, id, episodeInfo)
+    {
+        const link = await ApiManager.getShowLink(platform, id, episodeInfo);
+
+        await this.openUrl(link);
     }
 
     openUrl(url)
