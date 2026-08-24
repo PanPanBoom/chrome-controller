@@ -10,6 +10,7 @@ export class NoxpulseSource extends Source
 
     getShowUrl(id, episodeInfo = null)
     {
+        super.getShowUrl(id, episodeInfo);
         if(id.includes("tv"))
         {
             const realId = id.split("/")[1];
@@ -24,6 +25,7 @@ export class NoxpulseSource extends Source
 
     async getShowVideoInfo(id, episodeInfo = null)
     {
+        super.getShowVideoInfo(id, episodeInfo);
         const [ mediaType, realId ] = id.split("/");
         const res = await fetch(`https://api.noxpulse.cc/watch/${mediaType === "tv" ? "series" : mediaType}/${realId}${mediaType === "tv" ? `/${episodeInfo?.season ?? 1}/${episodeInfo?.episode ?? 1}` : ""}`);
         
@@ -43,6 +45,7 @@ export class NoxpulseSource extends Source
 
     async checkShowAvailability(id, episodeInfo = null)
     {
+        super.checkShowAvailability(id, episodeInfo);
         const [ mediaType, realId ] = id.split("/");
 
         const res = await fetch(`https://api.noxpulse.cc/watch/${mediaType === "tv" ? "series" : mediaType}/${realId}${mediaType === "tv" ? `/${episodeInfo?.season ?? 1}/${episodeInfo?.episode ?? 1}` : ""}`);

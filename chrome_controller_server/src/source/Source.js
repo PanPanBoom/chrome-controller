@@ -8,16 +8,16 @@ export class Source
 
     async getShowUrl(id, episodeInfo = null)
     {
-        throw new Error("Need to be implemented");
+        console.log(`Getting ${id} ${id.includes("tv") ? `(Episode ${episodeInfo?.episode ?? 1} from season ${episodeInfo?.season ?? 1}) ` : ""}URL from ${this.baseUrl}...`);
     }
 
     async getShowVideoInfo(id, episodeInfo = null)
     {
-        throw new Error("Need to be implemented");
+        console.log(`Getting ${id} ${id.includes("tv") ? `(Episode ${episodeInfo?.episode ?? 1} from season ${episodeInfo?.season ?? 1}) ` : ""}source video from ${this.baseUrl}...`);
     }
 
     async checkShowAvailability(id, episodeInfo = null)
     {
-        throw new Error("Need to be implemented");
+        console.log(`Checking if ${id} ${id.includes("tv") ? `(Episode ${episodeInfo?.episode ?? 1} from season ${episodeInfo?.season ?? 1}) ` : ""}is available on ${this.baseUrl}...`);
     }
 }

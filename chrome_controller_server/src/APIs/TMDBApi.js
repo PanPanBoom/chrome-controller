@@ -3,6 +3,7 @@ import { Source } from "../source/Source.js";
 import 'dotenv/config';
 import { NakastreamSource } from "../source/NakastreamSource.js";
 import { NoxpulseSource } from "../source/NoxpulseSource.js";
+import { MappleTVSource } from "../source/MappleTVSource.js";
 
 const dateParser = (dateString) => {
     if (!dateString) return null;
@@ -43,6 +44,7 @@ export class TMDBApi extends Api
         this.sources = [
             new NoxpulseSource(),
             new NakastreamSource(),
+            new MappleTVSource(),
         ]
     }
 
@@ -67,7 +69,7 @@ export class TMDBApi extends Api
         return fetch(`https://api.themoviedb.org/3/search/${filter === "all" ? "multi" : filter}?query=${title}&language=fr-FR`, this.fetchOptions)
                 .then(res => res.json())
                 .then(data => data.results.map(show => ({
-                    id: `${show.media_type}/${show.id}`,
+                    id: `${show.media_type ?? filter}/${show.id}`,
                     title: show.title ?? show.name,
                     img: `https://image.tmdb.org/t/p/original${show.backdrop_path}`,
                     // link: `https://noxpulse.cc/watch/${show.media_type === "tv" ? "series" : "movie"}/${show.id}${show.media_type === "tv" ? "/1/1" : ""}`,
@@ -163,7 +165,7 @@ export class TMDBApi extends Api
             {
                 console.log("Show available on " + source.baseUrl);
                 const videoInfo = await source.getShowVideoInfo(id, episodeInfo);
-                return `chromecontroller://play?url=${encodeURIComponent(videoInfo.url)}&referer=${encodeURIComponent(videoInfo.referer)}`;
+                return `chromecontrollerdebug://play?url=${encodeURIComponent(videoInfo.url)}&referer=${encodeURIComponent(videoInfo.referer)}`;
             }
         }
 

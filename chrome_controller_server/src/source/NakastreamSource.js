@@ -1,5 +1,5 @@
 import { Source } from "./Source.js";
-import 'dotenv/config'
+import 'dotenv/config';
 
 export class NakastreamSource extends Source
 {
@@ -65,13 +65,15 @@ export class NakastreamSource extends Source
         return showData.id;
     }
 
-    async getShowUrl(id, episodeInfo)
+    async getShowUrl(id, episodeInfo = null)
     {
+        super.getShowUrl(id, episodeInfo);
         return `${this.watchUrl}${await this.getNakaId(id)}${id.includes('tv') ? `&season=${episodeInfo?.season ?? 1}&episode=${episodeInfo?.episode}` : ""}`;
     }
 
     async getShowVideoInfo(id, episodeInfo)
     {
+        super.getShowVideoInfo(id, episodeInfo);
         const nakaId = await this.getNakaId(id);
 
         console.log("Fetching nakastream source...");
@@ -101,6 +103,7 @@ export class NakastreamSource extends Source
 
     async checkShowAvailability(id, episodeInfo = null)
     {
+        super.checkShowAvailability(id, episodeInfo);
         await this.login();
 
         const [ mediaType, realId ] = id.split("/");

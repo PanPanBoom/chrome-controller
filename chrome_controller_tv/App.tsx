@@ -30,6 +30,7 @@ function App() {
 type VideoInfo = {
   url: string;
   referer: string;
+  extension: string;
 }
 
 function AppContent() {
@@ -40,9 +41,13 @@ function AppContent() {
     Linking.addEventListener('url', ({ url }) => {
       const params = new URL(url);
 
+      const videoUrl = params.searchParams.get('url');
+      const extension = videoUrl?.match(/\.(mp4|webm|mkv|mov|avi|flv|wmv|m4v|mpg|mpeg|3gp|ogv|m3u8|mpd)(\?|$)/i);
+
       setVideoInfo({
-        url: params.searchParams.get('url') ?? "",
-        referer: params.searchParams.get('referer') ?? ""
+        url: videoUrl ?? "",
+        referer: params.searchParams.get('referer') ?? "",
+        extension: extension ? extension[1] : "m3u8"
       });
     })
   }, []);
@@ -56,8 +61,9 @@ function AppContent() {
       <Video
         source={{
           uri: videoInfo.url,
+          type: videoInfo.extension,
           headers: {
-            Referer: videoInfo.referer
+            Referer: videoInfo.referer,
           },
           bufferConfig: {
             minBufferMs: 30000,
@@ -71,7 +77,6 @@ function AppContent() {
         }}
         onError={(error) => {
           console.log("❌ ERREUR EXOPLAYER :", error.error);
-          // error.error contient généralement un code d'erreur réseau très utile (ex: 403)
         }}
         onBuffer={({ isBuffering }) => {
           console.log(isBuffering ? "⏳ Mise en cache..." : "▶️ Lecture");
@@ -83,10 +88,8 @@ function AppContent() {
         fullscreen={true}
       />
       // <View className='flex bg-background flex-1 justify-center items-center gap-2'>
-      //   <CustomText>URL : {videoInfo.url}</CustomText>
-      //   <CustomText>Referer : {videoInfo.referer}</CustomText>
-      //   <CustomText>User-Agent : {videoInfo.userAgent}</CustomText>
-      //   <CustomText>Cookies : {videoInfo.cookies}</CustomText>
+      //   <CustomText>URL: {videoInfo.url}</CustomText>
+      //   <CustomText>Extension: {videoInfo.extension}</CustomText>
       // </View>
     )
 
