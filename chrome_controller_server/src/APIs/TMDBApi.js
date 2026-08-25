@@ -1,5 +1,5 @@
 import { Api } from "./Api.js";
-import { Source } from "../source/Source.js";
+import { ApiManager } from "./ApiManager.js";
 import 'dotenv/config';
 import { NakastreamSource } from "../source/NakastreamSource.js";
 import { NoxpulseSource } from "../source/NoxpulseSource.js";
@@ -82,40 +82,45 @@ export class TMDBApi extends Api
 
     async getShowById(id)
     {
-        return fetch(`https://api.themoviedb.org/3/${id}?language=fr-FR&append_to_response=credits,watch/providers`, this.fetchOptions)
+        return fetch(`https://api.themoviedb.org/3/${id}?language=fr-FR&append_to_response=credits,watch/providers,videos`, this.fetchOptions)
                 .then(res => res.json())
-                .then(show => ({
-                    id,
-                    title: show.title ?? show.name,
-                    img: `https://image.tmdb.org/t/p/original${show.poster_path}`,
-                    overview: show.overview,
-                    genres: show?.genres?.map(genre => genre.name),
-                    release_date: show.release_date ? dateParser(show.release_date) : dateParser(show.first_air_date),
-                    runtime: show.runtime,
-                    vote_average: Math.round(show.vote_average * 100) / 100,
-                    cast: show.credits.cast.map(castMember => ({
-                        name: castMember.name,
-                        character: castMember.character,
-                        img: castMember.profile_path ? `https://image.tmdb.org/t/p/original${castMember.profile_path}` : null
-                    })),
-                    director: show.credits.crew.find(crewMember => crewMember.job === "Director")?.name || null,
-                    platforms: show["watch/providers"].results.FR?.flatrate?.map(provider => ({
-                        name: provider.provider_name,
-                        img: `https://image.tmdb.org/t/p/original${provider.logo_path}`
-                    })) || [],
-                    number_of_seasons: show.number_of_seasons || null,
-                    number_of_episodes: show.number_of_episodes || null,
-                    seasons: show.seasons?.map(season => ({
-                        id: season.id,
-                        season_number: season.season_number,
-                        episode_count: season.episode_count,
-                        air_date: season.air_date,
-                        poster_path: season.poster_path ? `https://image.tmdb.org/t/p/original${season.poster_path}` : null,
-                        vote_average: season.vote_average,
-                        overview: season.overview,
-                        name: season.name
-                    })) || undefined
-                }));
+                .then(async (show) => {
+                    const trailerYtKey = show?.videos?.results?.find(video => video.type.toLowerCase() === "trailer" && video.site.toLowerCase() === "youtube" && video.iso_639_1 === "fr" && video.iso_3166_1 === "FR").key;
+                    
+                    return ({
+                        id,
+                        title: show.title ?? show.name,
+                        img: `https://image.tmdb.org/t/p/original${show.poster_path}`,
+                        overview: show.overview,
+                        genres: show?.genres?.map(genre => genre.name),
+                        release_date: show.release_date ? dateParser(show.release_date) : dateParser(show.first_air_date),
+                        runtime: show.runtime,
+                        vote_average: Math.round(show.vote_average * 100) / 100,
+                        cast: show.credits.cast.map(castMember => ({
+                            name: castMember.name,
+                            character: castMember.character,
+                            img: castMember.profile_path ? `https://image.tmdb.org/t/p/original${castMember.profile_path}` : null
+                        })),
+                        director: show.credits.crew.find(crewMember => crewMember.job === "Director")?.name || null,
+                        platforms: show["watch/providers"].results.FR?.flatrate?.map(provider => ({
+                            name: provider.provider_name,
+                            img: `https://image.tmdb.org/t/p/original${provider.logo_path}`
+                        })) || [],
+                        number_of_seasons: show.number_of_seasons || null,
+                        number_of_episodes: show.number_of_episodes || null,
+                        seasons: show.seasons?.map(season => ({
+                            id: season.id,
+                            season_number: season.season_number,
+                            episode_count: season.episode_count,
+                            air_date: season.air_date,
+                            poster_path: season.poster_path ? `https://image.tmdb.org/t/p/original${season.poster_path}` : null,
+                            vote_average: season.vote_average,
+                            overview: season.overview,
+                            name: season.name
+                        })) || undefined,
+                        trailer: trailerYtKey && await ApiManager.getShowLink("youtube", trailerYtKey)
+                    })
+                });
     }
 
     async getSeasonById(showId, seasonNumber)

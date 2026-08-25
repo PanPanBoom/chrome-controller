@@ -23,6 +23,7 @@ export type MovieDTO = ShowDTO & {
         name: string;
         img: string;
     }[];
+    trailer: string;
 };
 
 export type SeriesDTO = MovieDTO & {

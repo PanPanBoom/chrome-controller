@@ -3,19 +3,20 @@ import { CustomTitle } from "@/components/ui/CustomTitle";
 import { Screen } from "@/components/ui/Screen"
 import { AppContext } from "@/contexts/appContext";
 import { MovieDTO, SeriesDTO, ShowDTO } from "@/dtos/show"
-import { getShowById, sendShowCast } from "@/server/socket";
+import { getShowById, sendAppLaunch, sendShowCast } from "@/server/socket";
 import { router, useLocalSearchParams } from "expo-router";
 import { useContext, useEffect, useState } from "react";
-import { ActivityIndicator, Image, ScrollView, View } from "react-native";
+import { ActivityIndicator, FlatList, Image, ScrollView, View } from "react-native";
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors } from "@/constants/colors";
-import { Calendar, Cast, ChevronLeft, Clapperboard, Clock, Heart } from "lucide-react-native";
+import { Calendar, Cast, ChevronLeft, Clapperboard, Clock, Heart, Play } from "lucide-react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { IconButton } from "@/components/ui/IconButton";
 import { BlurredIconButton } from "@/components/ui/BlurredIconButton";
 import { Tabs } from "@/components/ui/Tabs";
 import { ShowOverview } from "@/components/ShowOverview";
 import { SeriesSeasons } from "@/components/SeriesSeasons";
+import { Button } from "@/components/ui/Button";
 
 export default function Show()
 {
@@ -57,26 +58,15 @@ export default function Show()
                         <IconButton icon={ChevronLeft} onPress={() => router.back()} />
                         <IconButton icon={Heart} />
                     </View>
-                    <BlurredIconButton icon={Cast} onPress={() => sendShowCast(server.ip, 'tmdb', showData.id)}/>
-                    <View className="flex gap-4">
-                        <View className="flex-row gap-1 justify-center">
-                            {
-                                showData?.genres?.map(genre => 
-                                    <View key={genre} className="flex-row gap-1 bg-background-light rounded-full p-2 items-center">
-                                        <Clapperboard color={colors.text} size={14} />
-                                        <CustomText className="text-sm text-center">{genre}</CustomText>
-                                    </View>
-                                )
-                            }
-                        </View>
-                        <View className="flex">
-                            <CustomTitle className="text-3xl text-center">{showData.title}</CustomTitle>
-                            <CustomText className="text-center text-sm text-secondary">Réalisé par {showData.director}</CustomText>
-                        </View>
+                    {/* <BlurredIconButton icon={Cast} onPress={() => sendShowCast(server.ip, 'tmdb', showData.id)}/> */}
+                    <View className="flex gap-4 items-start p-4">
+                        <CustomTitle className="text-3xl text-center">{showData.title}</CustomTitle>
+                        {/* <CustomText>{showData.release_date}</CustomText>
+                        <CustomText>{showData.vote_average}/10</CustomText> */}
                         <View className="flex-row gap-2 justify-center">
-                            <View className="flex-row gap-2 bg-primary rounded-full p-2">
-                                <CustomTitle className="text-background text-md">TMDB</CustomTitle>
-                                <CustomText className="text-background">{showData.vote_average}</CustomText>
+                            <View className="flex-row gap-2 bg-primary rounded-full py-1 px-2 items-center">
+                                <CustomTitle className="text-background text-sm">TMDB</CustomTitle>
+                                <CustomText className="text-background text-xs">{showData.vote_average}</CustomText>
                             </View>
                             {
                                 showData.runtime &&
@@ -89,6 +79,37 @@ export default function Show()
                                 <Calendar color={colors.text} size={14}/>
                                 <CustomText>{showData.release_date}</CustomText>
                             </View>
+                        </View>
+                        {/* <FlatList 
+                            data={showData?.genres}
+                            renderItem={({item}) => (
+                                <View className="flex-row gap-1 rounded-md py-1 px-2 items-center border border-text">
+                                    <Clapperboard color={colors.text} size={14} />
+                                    <CustomText className="text-xs text-center">{item}</CustomText>
+                                </View>
+                            )}
+                        /> */}
+                        <ScrollView horizontal className="grow-0" contentContainerClassName="flex-row gap-1 items-center" showsHorizontalScrollIndicator={false}>
+                            {
+                                showData?.genres?.map(genre => 
+                                    <View key={genre} className="flex-row gap-1 rounded-md py-1 px-2 items-center border border-text">
+                                        <Clapperboard color={colors.text} size={14} />
+                                        <CustomText className="text-xs text-center">{genre}</CustomText>
+                                    </View>
+                                )
+                            }
+                        </ScrollView>
+                        <View className="flex-row gap-2">
+                            <Button className="bg-primary flex-1 flex-row gap-2 rounded-full" onPress={() => sendShowCast(server.ip, 'tmdb', showData.id)}>
+                                <Play color={colors.background} fill={colors.background} size={20}/>
+                                <CustomText className="text-background text-lg">Regarder</CustomText>
+                            </Button>
+                            {
+                                showData.trailer &&
+                                <Button className="bg-transparent" onPress={() => sendAppLaunch(server.ip, showData.trailer)}>
+                                    <CustomText className="text-primary">Trailer</CustomText>
+                                </Button>
+                            }
                         </View>
                     </View>
                 </View>
