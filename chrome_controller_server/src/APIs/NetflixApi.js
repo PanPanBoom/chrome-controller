@@ -85,6 +85,11 @@ export class NetflixApi extends Api
             country: 'fr'
        });
 
-       return show.streamingOptions.fr.find(streamingOption => streamingOption.service.id === this.platform).link;
+       return show.streamingOptions.fr.find(streamingOption => streamingOption.service.id === this.platform).videoLink;
+    }
+
+    async getShowIntent(id)
+    {
+        return await this.getShowLink(id);
     }
 }

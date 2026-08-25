@@ -42,8 +42,9 @@ export class TMDBApi extends Api
         };
         this.platform = 'tmdb';
         this.sources = [
-            new NoxpulseSource(),
+            // new StreamoSource(),
             new NakastreamSource(),
+            new NoxpulseSource(),
             new MappleTVSource(),
         ]
     }
@@ -165,7 +166,7 @@ export class TMDBApi extends Api
             {
                 console.log("Show available on " + source.baseUrl);
                 const videoInfo = await source.getShowVideoInfo(id, episodeInfo);
-                return `chromecontrollerdebug://play?url=${encodeURIComponent(videoInfo.url)}&referer=${encodeURIComponent(videoInfo.referer)}`;
+                return `chromecontroller://play?url=${encodeURIComponent(videoInfo.url)}&referer=${encodeURIComponent(videoInfo.referer)}`;
             }
         }
 

@@ -37,4 +37,9 @@ export class YoutubeApi extends Api
     {
         return `https://www.youtube.com/watch?v=${id}`;
     }
+
+    getShowIntent(id)
+    {
+        return this.getShowLink(id);
+    }
 }

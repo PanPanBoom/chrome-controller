@@ -34,4 +34,9 @@ export class TwitchApi extends Api
     {
         return `https://www.twitch.tv/${id}`;
     }
+
+    getShowIntent(id)
+    {
+        return `smarttvtwitch://data/LIVE/${id}`;
+    }
 }
