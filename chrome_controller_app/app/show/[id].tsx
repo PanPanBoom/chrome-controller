@@ -80,15 +80,6 @@ export default function Show()
                                 <CustomText>{showData.release_date}</CustomText>
                             </View>
                         </View>
-                        {/* <FlatList 
-                            data={showData?.genres}
-                            renderItem={({item}) => (
-                                <View className="flex-row gap-1 rounded-md py-1 px-2 items-center border border-text">
-                                    <Clapperboard color={colors.text} size={14} />
-                                    <CustomText className="text-xs text-center">{item}</CustomText>
-                                </View>
-                            )}
-                        /> */}
                         <ScrollView horizontal className="grow-0" contentContainerClassName="flex-row gap-1 items-center" showsHorizontalScrollIndicator={false}>
                             {
                                 showData?.genres?.map(genre => 
@@ -106,7 +97,7 @@ export default function Show()
                             </Button>
                             {
                                 showData.trailer &&
-                                <Button className="bg-transparent" onPress={() => sendAppLaunch(server.ip, showData.trailer)}>
+                                <Button className="bg-transparent" onPress={() => sendShowCast(server.ip, 'youtube', showData.trailer)}>
                                     <CustomText className="text-primary">Trailer</CustomText>
                                 </Button>
                             }

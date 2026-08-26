@@ -84,10 +84,7 @@ export class TMDBApi extends Api
     {
         return fetch(`https://api.themoviedb.org/3/${id}?language=fr-FR&append_to_response=credits,watch/providers,videos`, this.fetchOptions)
                 .then(res => res.json())
-                .then(async (show) => {
-                    const trailerYtKey = show?.videos?.results?.find(video => video.type.toLowerCase() === "trailer" && video.site.toLowerCase() === "youtube" && video.iso_639_1 === "fr" && video.iso_3166_1 === "FR").key;
-                    
-                    return ({
+                .then(async (show) => ({
                         id,
                         title: show.title ?? show.name,
                         img: `https://image.tmdb.org/t/p/original${show.poster_path}`,
@@ -118,9 +115,8 @@ export class TMDBApi extends Api
                             overview: season.overview,
                             name: season.name
                         })) || undefined,
-                        trailer: trailerYtKey && await ApiManager.getShowLink("youtube", trailerYtKey)
-                    })
-                });
+                        trailer: show?.videos?.results?.find(video => video.type.toLowerCase() === "trailer" && video.site.toLowerCase() === "youtube" && video.iso_639_1 === "fr" && video.iso_3166_1 === "FR" && !video.name.toLowerCase().includes("vost"))?.key
+                    }));
     }
 
     async getSeasonById(showId, seasonNumber)
