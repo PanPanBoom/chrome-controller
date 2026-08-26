@@ -68,7 +68,7 @@ export class NakastreamSource extends Source
     async getShowUrl(id, episodeInfo = null)
     {
         super.getShowUrl(id, episodeInfo);
-        return `${this.watchUrl}${await this.getNakaId(id)}${id.includes('tv') ? `&season=${episodeInfo?.season ?? 1}&episode=${episodeInfo?.episode}` : ""}`;
+        return `${this.watchUrl}${await this.getNakaId(id)}${id.includes('tv') ? `&season=${episodeInfo?.season ?? 1}&episode=${episodeInfo?.episode ?? 1}` : ""}`;
     }
 
     async getShowVideoInfo(id, episodeInfo)

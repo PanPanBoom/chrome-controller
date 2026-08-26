@@ -54,4 +54,15 @@ export type SeasonDTO = ShowDTO & {
         runtime: number;
         season_number: number;
     }[]
-}
+};
+
+export type ShowReview = {
+    author: {
+        name: string;
+        username: string;
+        avatar: string;
+    };
+    content: string;
+    date: string;
+    rating: number;
+} 

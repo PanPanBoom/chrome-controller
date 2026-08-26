@@ -17,6 +17,8 @@ import { Tabs } from "@/components/ui/Tabs";
 import { ShowOverview } from "@/components/ShowOverview";
 import { SeriesSeasons } from "@/components/SeriesSeasons";
 import { Button } from "@/components/ui/Button";
+import { ShowReviews } from "@/components/ShowReviews";
+import { RatingBox } from "@/components/RatingBox";
 
 export default function Show()
 {
@@ -64,10 +66,7 @@ export default function Show()
                         {/* <CustomText>{showData.release_date}</CustomText>
                         <CustomText>{showData.vote_average}/10</CustomText> */}
                         <View className="flex-row gap-2 justify-center">
-                            <View className="flex-row gap-2 bg-primary rounded-full py-1 px-2 items-center">
-                                <CustomTitle className="text-background text-sm">TMDB</CustomTitle>
-                                <CustomText className="text-background text-xs">{showData.vote_average}</CustomText>
-                            </View>
+                            <RatingBox platform="TMDB" rating={showData.vote_average} />
                             {
                                 showData.runtime &&
                                 <View className="flex-row items-center gap-1">
@@ -108,7 +107,7 @@ export default function Show()
             <Tabs tabs={{
                 "Aperçu": <ShowOverview showData={showData} />,
                 ...('seasons' in showData && {"Saisons": <SeriesSeasons seasons={showData.seasons} showId={showData.id} />}),
-                "Commentaires": <></>
+                "Commentaires": <ShowReviews showId={showData.id} />
             }}/>
         </ScrollView>
     )

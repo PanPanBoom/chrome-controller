@@ -76,6 +76,11 @@ export default function remoteRoutes(io) {
         .then(data => res.json(data));
     });
 
+    router.get('/reviews', (req, res) => {
+        ApiManager.apis.tmdb.getShowReview(req.query.showId)
+        .then(data => res.json(data));
+    });
+
     router.post('/videoUpdate', (req, res) => {
         const { onVideoPage } = req.body;
         console.log('update video : ' + onVideoPage);

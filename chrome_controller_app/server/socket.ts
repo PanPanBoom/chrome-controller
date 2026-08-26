@@ -108,6 +108,13 @@ export const getSeasonById = async (ip: string, showId: string, seasonNumber: nu
     return await sendCommand(ip, `remote/season?${params}`);
 }
 
+export const getShowReviews = async (ip: string, showId: string) => {
+    const params = new URLSearchParams();
+    params.append("showId", showId);
+
+    return await sendCommand(ip, `remote/reviews?${params}`);
+}
+
 export const sendZoom = async (ip: string, zoomValue: number) => await sendCommand(ip, 'extension/zoom', {
     method: 'POST',
     headers: {

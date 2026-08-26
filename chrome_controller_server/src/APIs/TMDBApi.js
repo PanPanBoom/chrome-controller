@@ -33,13 +33,7 @@ export class TMDBApi extends Api
                 apiValue: "movie"
             }
         ];
-        this.fetchOptions = {
-            method: 'GET',
-            headers: {
-                accept: 'application/json',
-                Authorization: `Bearer ${process.env.TMDB_API_KEY}`
-            }
-        };
+        this.imageBaseUrl = "https://image.tmdb.org/t/p/original";
         this.platform = 'tmdb';
         this.sources = [
             // new StreamoSource(),
@@ -49,15 +43,25 @@ export class TMDBApi extends Api
         ]
     }
 
+    async fetchApi(endpoint)
+    {
+        return fetch(`https://api.themoviedb.org/3/${endpoint}`, {
+            method: 'GET',
+            headers: {
+                accept: 'application/json',
+                Authorization: `Bearer ${process.env.TMDB_API_KEY}`
+            }
+        });
+    }
+
     async sendTopShowsRequest(filter)
     {
-        return fetch(`https://api.themoviedb.org/3/trending/${filter}/day?language=fr-FR`, this.fetchOptions)
+        return this.fetchApi(`trending/${filter}/day?language=fr-FR`)
                 .then(res => res.json())
-                .then(data => data.results.map(show => ({
+                .then(data => data?.results?.map(show => ({
                     id: `${show.media_type}/${show.id}`,
                     title: show.title ?? show.name,
-                    img: `https://image.tmdb.org/t/p/original${show.backdrop_path}`,
-                    // link: `https://noxpulse.cc/watch/${show.media_type === "tv" ? "series" : "movie"}/${show.id}${show.media_type === "tv" ? "/1/1" : ""}`,
+                    img: this.imageBaseUrl + show.backdrop_path,
                     overview: show.overview,
                     media_type: show.media_type,
                     platform: this.platform
@@ -67,13 +71,12 @@ export class TMDBApi extends Api
     async searchShowsByTitle(title, filter)
     {
         console.log(title, filter);
-        return fetch(`https://api.themoviedb.org/3/search/${filter === "all" ? "multi" : filter}?query=${title}&language=fr-FR`, this.fetchOptions)
+        return this.fetchApi(`search/${filter === "all" ? "multi" : filter}?query=${title}&language=fr-FR`)
                 .then(res => res.json())
                 .then(data => data.results.map(show => ({
                     id: `${show.media_type ?? filter}/${show.id}`,
                     title: show.title ?? show.name,
-                    img: `https://image.tmdb.org/t/p/original${show.backdrop_path}`,
-                    // link: `https://noxpulse.cc/watch/${show.media_type === "tv" ? "series" : "movie"}/${show.id}${show.media_type === "tv" ? "/1/1" : ""}`,
+                    img: this.imageBaseUrl + show.backdrop_path,
                     overview: show.overview,
                     media_type: show.media_type ?? filter,
                     platform: this.platform
@@ -82,12 +85,12 @@ export class TMDBApi extends Api
 
     async getShowById(id)
     {
-        return fetch(`https://api.themoviedb.org/3/${id}?language=fr-FR&append_to_response=credits,watch/providers,videos`, this.fetchOptions)
+        return this.fetchApi(`${id}?language=fr-FR&append_to_response=credits,watch/providers,videos`)
                 .then(res => res.json())
                 .then(async (show) => ({
                         id,
                         title: show.title ?? show.name,
-                        img: `https://image.tmdb.org/t/p/original${show.poster_path}`,
+                        img: this.imageBaseUrl + show.poster_path,
                         overview: show.overview,
                         genres: show?.genres?.map(genre => genre.name),
                         release_date: show.release_date ? dateParser(show.release_date) : dateParser(show.first_air_date),
@@ -96,12 +99,12 @@ export class TMDBApi extends Api
                         cast: show.credits.cast.map(castMember => ({
                             name: castMember.name,
                             character: castMember.character,
-                            img: castMember.profile_path ? `https://image.tmdb.org/t/p/original${castMember.profile_path}` : null
+                            img: castMember.profile_path ? this.imageBaseUrl + castMember.profile_path : null
                         })),
                         director: show.credits.crew.find(crewMember => crewMember.job === "Director")?.name || null,
                         platforms: show["watch/providers"].results.FR?.flatrate?.map(provider => ({
                             name: provider.provider_name,
-                            img: `https://image.tmdb.org/t/p/original${provider.logo_path}`
+                            img: this.imageBaseUrl + provider.logo_path
                         })) || [],
                         number_of_seasons: show.number_of_seasons || null,
                         number_of_episodes: show.number_of_episodes || null,
@@ -110,7 +113,7 @@ export class TMDBApi extends Api
                             season_number: season.season_number,
                             episode_count: season.episode_count,
                             air_date: season.air_date,
-                            poster_path: season.poster_path ? `https://image.tmdb.org/t/p/original${season.poster_path}` : null,
+                            poster_path: season.poster_path ? this.imageBaseUrl + season.poster_path : null,
                             vote_average: season.vote_average,
                             overview: season.overview,
                             name: season.name
@@ -121,14 +124,14 @@ export class TMDBApi extends Api
 
     async getSeasonById(showId, seasonNumber)
     {
-        return fetch(`https://api.themoviedb.org/3/${showId}/season/${seasonNumber}?language=fr-FR`, this.fetchOptions)
+        return this.fetchApi(`${showId}/season/${seasonNumber}?language=fr-FR`)
                 .then(res => res.json())
                 .then(season => ({
                     id: season.id,
                     season_number: season.season_number,
                     episode_count: season.episode_count,
                     air_date: season.air_date,
-                    poster_path: season.poster_path ? `https://image.tmdb.org/t/p/original${season.poster_path}` : null,
+                    poster_path: season.poster_path ? this.imageBaseUrl + season.poster_path : null,
                     vote_average: season.vote_average,
                     overview: season.overview,
                     name: season.name,
@@ -136,13 +139,29 @@ export class TMDBApi extends Api
                         id: episode.id,
                         title: episode.name,
                         overview: episode.overview,
-                        img: episode.still_path ? `https://image.tmdb.org/t/p/original${episode.still_path}` : null,
+                        img: episode.still_path ? this.imageBaseUrl + episode.still_path : null,
                         air_date: episode.air_date,
                         episode_number: episode.episode_number,
                         runtime: episode.runtime,
                         season_number: episode.season_number
                     })) || []
                 }));
+    }
+
+    async getShowReview(id)
+    {
+        return this.fetchApi(`${id}/reviews`)
+                .then(res => res.json())
+                .then(data => data?.results?.map(comment => ({
+                    author: {
+                        name: comment.author,
+                        username: comment.author_details.username,
+                        avatar: comment.author_details.avatar_path && this.imageBaseUrl + comment.author_details.avatar_path
+                    },
+                    content: comment.content,
+                    date: comment.created_at,
+                    rating: comment.author_details.rating
+                })));
     }
 
     async getShowLink(id, episodeInfo = null)
