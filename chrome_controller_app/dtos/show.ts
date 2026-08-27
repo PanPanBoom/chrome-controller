@@ -14,12 +14,14 @@ export type MovieDTO = ShowDTO & {
     runtime: number;
     vote_average: number;
     cast: {
+        id: number;
         name: string;
         character: string;
         img: string;
     }[];
     director: string;
     platforms: {
+        id: number;
         name: string;
         img: string;
     }[];
@@ -57,6 +59,7 @@ export type SeasonDTO = ShowDTO & {
 };
 
 export type ShowReview = {
+    id: number;
     author: {
         name: string;
         username: string;

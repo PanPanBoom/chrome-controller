@@ -8,6 +8,7 @@ import { cn } from "@/etc/utils";
 import { Button } from "./ui/Button";
 import { sendShowCast } from "@/server/socket";
 import { AppContext } from "@/contexts/appContext";
+import { WatchButton } from "./WatchButton";
 
 type EpisodeProps = {
     episode: {
@@ -26,10 +27,8 @@ type EpisodeProps = {
 const AnimatedChevron = Animated.createAnimatedComponent(ChevronRight);
 
 export const Episode = (props: EpisodeProps) => {
-    const { server } = useContext(AppContext);
     const [expanded, setExpanded] = useState(false);
     const [contentHeight, setContentHeight] = useState(0);
-    const [loading, setLoading] = useState(false);
     const expandAnimation = useRef(new Animated.Value(0)).current;
     const rotateAnimation = useRef(new Animated.Value(0)).current;
 
@@ -72,13 +71,7 @@ export const Episode = (props: EpisodeProps) => {
                     }}>
                         <CustomText className="text-xs text-secondary">{props.episode.runtime}min</CustomText>
                         <CustomText className="text-sm text-justify">{props.episode.overview}</CustomText>
-                        <Button className="bg-primary flex-row gap-4" disabled={loading} onPress={() => {
-                            setLoading(true);
-                            sendShowCast(server.ip, 'tmdb', props.showId, { season: props.episode.season_number, episode: props.episode.episode_number }).finally(() => setLoading(false));
-                        }}>
-                            {loading && <ActivityIndicator />}
-                            <CustomText>Regarder</CustomText>
-                        </Button>
+                        <WatchButton showId={props.showId} episodeInfo={{ season: props.episode.season_number, episode: props.episode.episode_number }} shouldCheck={expanded}/>
                     </View>
                 </Animated.View>
             </View>

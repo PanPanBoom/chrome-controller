@@ -9,7 +9,7 @@ import { useContext, useEffect, useState } from "react";
 import { ActivityIndicator, FlatList, Image, ScrollView, View } from "react-native";
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors } from "@/constants/colors";
-import { Calendar, Cast, ChevronLeft, Clapperboard, Clock, Heart, Play } from "lucide-react-native";
+import { Calendar, Cast, ChevronLeft, Clapperboard, Clock, Heart, Play, Tv } from "lucide-react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { IconButton } from "@/components/ui/IconButton";
 import { BlurredIconButton } from "@/components/ui/BlurredIconButton";
@@ -19,6 +19,7 @@ import { SeriesSeasons } from "@/components/SeriesSeasons";
 import { Button } from "@/components/ui/Button";
 import { ShowReviews } from "@/components/ShowReviews";
 import { RatingBox } from "@/components/RatingBox";
+import { WatchButton } from "@/components/WatchButton";
 
 export default function Show()
 {
@@ -34,13 +35,6 @@ export default function Show()
         .then(data => setShowData(data));
     }, []);
 
-    const handleCast = () => {
-        if(!showData)
-            return;
-
-        sendShowCast(server.ip, 'tmdb', showData.id);
-    }
-
     if (!showData) {
         return (
             <Screen className="justify-center items-center gap-4">
@@ -55,23 +49,34 @@ export default function Show()
             <View className="items-center justify-center">
                 <Image source={{uri: showData.img}} className="w-full aspect-[2/3]"/>
                 <LinearGradient colors={['rgba(0, 0, 0, 0)', colors.background]} style={{position: "absolute", bottom: 0, left: 0, width: '100%', height: '100%'}} />
-                <View className="w-full h-full absolute justify-between items-center p-4" style={{paddingTop: insets.top}}>
+                <View className="w-full h-full absolute justify-between p-4" style={{paddingTop: insets.top}}>
                     <View className="flex-row w-full px-4 justify-between">
                         <IconButton icon={ChevronLeft} onPress={() => router.back()} />
                         <IconButton icon={Heart} />
                     </View>
                     {/* <BlurredIconButton icon={Cast} onPress={() => sendShowCast(server.ip, 'tmdb', showData.id)}/> */}
                     <View className="flex gap-4 items-start p-4">
-                        <CustomTitle className="text-3xl text-center">{showData.title}</CustomTitle>
+                        <View>
+                            <CustomTitle className="text-3xl" numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.5}>{showData.title}</CustomTitle>
+                            {
+                                showData.director &&
+                                <CustomText className="text-xs text-secondary">De {showData.director}</CustomText>
+                            }
+                        </View>
                         {/* <CustomText>{showData.release_date}</CustomText>
                         <CustomText>{showData.vote_average}/10</CustomText> */}
                         <View className="flex-row gap-2 justify-center">
                             <RatingBox platform="TMDB" rating={showData.vote_average} />
                             {
-                                showData.runtime &&
+                                showData.runtime ?
                                 <View className="flex-row items-center gap-1">
                                     <Clock color={colors.text} size={14}/>
                                     <CustomText>{showData.runtime >= 60 ? `${Math.floor(showData.runtime / 60)}h ${showData.runtime % 60}min` : `${showData.runtime}min`}</CustomText>
+                                </View>
+                                :
+                                <View className="flex-row items-center gap-1">
+                                    <Tv color={colors.text} size={14}/>
+                                    <CustomText>{(showData as SeriesDTO).number_of_seasons} saisons ({(showData as SeriesDTO).number_of_episodes} épisodes)</CustomText>
                                 </View>
                             }
                             <View className="flex-row items-center gap-1">
@@ -90,10 +95,7 @@ export default function Show()
                             }
                         </ScrollView>
                         <View className="flex-row gap-2">
-                            <Button className="bg-primary flex-1 flex-row gap-2 rounded-full" onPress={() => sendShowCast(server.ip, 'tmdb', showData.id)}>
-                                <Play color={colors.background} fill={colors.background} size={20}/>
-                                <CustomText className="text-background text-lg">Regarder</CustomText>
-                            </Button>
+                            <WatchButton showId={showData.id} className="flex-1"/>
                             {
                                 showData.trailer &&
                                 <Button className="bg-transparent" onPress={() => sendShowCast(server.ip, 'youtube', showData.trailer)}>

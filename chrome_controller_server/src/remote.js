@@ -81,6 +81,13 @@ export default function remoteRoutes(io) {
         .then(data => res.json(data));
     });
 
+    router.get('/isShowAvailable', (req, res) => {
+        const episodeInfo = req.query.episodeInfo;
+
+        ApiManager.apis.tmdb.checkShowAvailability(req.query.showId, episodeInfo && JSON.parse(decodeURIComponent(episodeInfo)))
+        .then(data => res.json(data));
+    })
+
     router.post('/videoUpdate', (req, res) => {
         const { onVideoPage } = req.body;
         console.log('update video : ' + onVideoPage);

@@ -47,6 +47,9 @@ export class MappleTVSource extends Source
     {
         super("https://mapple.tv", "/watch");
         this.baseHeaders = {};
+        this.lastIdFetched = null;
+        this.lastEpisodeFetched = null;
+        this.lastIntentFetched = null;
     }
 
     getShowUrl(id, episodeInfo = null)
@@ -54,21 +57,22 @@ export class MappleTVSource extends Source
         return `${this.watchUrl}/${id}${id.includes('tv') ? `-${episodeInfo?.season ?? 1}-${episodeInfo?.episode ?? 1}` : ''}`;
     }
 
-    async getVideoToken(mediaId, mediaType, requestToken, challengeId, challenge, difficulty)
+    async getVideoToken(mediaId, episodeInfo, mediaType, requestToken, challengeId, challenge, difficulty)
     {
         const nonce = solvePoW(challenge, difficulty);
         const challengeRes = await fetch("https://mapple.tv/api/playback-init", {
             headers: this.baseHeaders,
-            "body": JSON.stringify({
+            body: JSON.stringify({
                 mediaId,
                 mediaType,
                 requestToken,
+                "tv_slug": mediaType === "tv" ? `${episodeInfo?.season ?? 1}-${episodeInfo?.episode ?? 1}` : undefined,
                 pow: {
                     challengeId,
                     nonce
                 }
             }),
-            "method": "POST"
+            method: "POST"
         });
         
         if(challengeRes.status !== 200)
@@ -92,7 +96,7 @@ export class MappleTVSource extends Source
                 data: {
                     mediaId,
                     mediaType,
-                    "tv_slug": `${mediaType === "tv" ? `${episodeInfo?.season ?? 1}-${episodeInfo?.episode ?? 1}` : ""}`,
+                    "tv_slug": mediaType === "tv" ? `${episodeInfo?.season ?? 1}-${episodeInfo?.episode ?? 1}` : "",
                     source
                 },
                 endpoint: 'stream-encrypted',
@@ -118,7 +122,7 @@ export class MappleTVSource extends Source
 
         if(!url.success)
         {
-            console.log(`Source ${source} does bot have content`);
+            console.log(`Source ${source} does not have content`);
             return "";
         }
 
@@ -127,6 +131,9 @@ export class MappleTVSource extends Source
 
     async getShowVideoInfo(id, episodeInfo = null)
     {
+        if(id === this.lastIdFetched && episodeInfo === this.lastEpisodeFetched)
+            return { url: this.lastIntentFetched };
+
         const resToken = await fetch(this.getShowUrl(id, episodeInfo));
         const html = await resToken.text();
 
@@ -154,7 +161,8 @@ export class MappleTVSource extends Source
                 "body": JSON.stringify({
                     "mediaId": realId,
                     "mediaType": mediaType,
-                    "requestToken": token
+                    "requestToken": token,
+                    "tv_slug": mediaType === "tv" ? `${episodeInfo?.season ?? 1}-${episodeInfo?.episode ?? 1}` : undefined
                 }),
                 "method": "POST"
             });
@@ -167,9 +175,9 @@ export class MappleTVSource extends Source
 
             const init = await initRes.json();
 
-            const videoToken = await this.getVideoToken(realId, mediaType, token, init.pow.challengeId, init.pow.challenge, init.pow.difficulty)
+            const videoToken = await this.getVideoToken(realId, episodeInfo, mediaType, token, init.pow.challengeId, init.pow.challenge, init.pow.difficulty)
 
-            for(const source of ['mapple', 's25', 's2'])
+            for(const source of ['mapple', 's25', 's2', 's19', 's13'])
             {
                 const videoUrl = await this.getVideoUrlFromSource(realId, episodeInfo, mediaType, token, videoToken, source);
 
@@ -188,6 +196,8 @@ export class MappleTVSource extends Source
 
     async checkShowAvailability(id, episodeInfo = null)
     {
-        return true;
+        const videoInfo = await this.getShowVideoInfo(id, episodeInfo);
+
+        return videoInfo.url !== "";
     }
 }

@@ -37,7 +37,7 @@ export const ShowReviews = (props: ShowReviewsProps) => {
         <View className="flex gap-4">
             {
                 reviews.map(review => (
-                    <View key={review.author.username} className="flex-row gap-4"> 
+                    <View key={review.id} className="flex-row gap-4"> 
                         <View className="w-[10%]">
                             {
                                 review.author.avatar ?

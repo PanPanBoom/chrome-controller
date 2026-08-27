@@ -73,7 +73,7 @@ export class TMDBApi extends Api
         console.log(title, filter);
         return this.fetchApi(`search/${filter === "all" ? "multi" : filter}?query=${title}&language=fr-FR`)
                 .then(res => res.json())
-                .then(data => data.results.map(show => ({
+                .then(data => data.results.filter(show => show.media_type !== "person").map(show => ({
                     id: `${show.media_type ?? filter}/${show.id}`,
                     title: show.title ?? show.name,
                     img: this.imageBaseUrl + show.backdrop_path,
@@ -97,14 +97,16 @@ export class TMDBApi extends Api
                         runtime: show.runtime,
                         vote_average: Math.round(show.vote_average * 100) / 100,
                         cast: show.credits.cast.map(castMember => ({
+                            id: castMember.id,
                             name: castMember.name,
                             character: castMember.character,
                             img: castMember.profile_path ? this.imageBaseUrl + castMember.profile_path : null
                         })),
-                        director: show.credits.crew.find(crewMember => crewMember.job === "Director")?.name || null,
+                        director: show.credits.crew.find(crewMember => crewMember.job === "Director")?.name || show.created_by.map(creator => creator.name).join(', '),
                         platforms: show["watch/providers"].results.FR?.flatrate?.map(provider => ({
+                            id: provider.provider_id,
                             name: provider.provider_name,
-                            img: this.imageBaseUrl + provider.logo_path
+                            img: this.imageBaseUrl + provider.logo_path,
                         })) || [],
                         number_of_seasons: show.number_of_seasons || null,
                         number_of_episodes: show.number_of_episodes || null,
@@ -153,6 +155,7 @@ export class TMDBApi extends Api
         return this.fetchApi(`${id}/reviews`)
                 .then(res => res.json())
                 .then(data => data?.results?.map(comment => ({
+                    id: comment.id,
                     author: {
                         name: comment.author,
                         username: comment.author_details.username,
@@ -162,6 +165,15 @@ export class TMDBApi extends Api
                     date: comment.created_at,
                     rating: comment.author_details.rating
                 })));
+    }
+
+    async checkShowAvailability(id, episodeInfo)
+    {
+        for (const source of this.sources)
+            if (await source.checkShowAvailability(id, episodeInfo))
+                return true;
+
+        return false;
     }
 
     async getShowLink(id, episodeInfo = null)

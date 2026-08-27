@@ -22,7 +22,7 @@ export const ShowOverview = ({ showData }: ShowOverviewProps) => {
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                 {
                     showData?.cast?.map(actor => (
-                        <View key={actor.name} className="items-center gap-2 w-28 mx-2">
+                        <View key={actor.id} className="items-center gap-2 w-28 mx-2">
                             <View className="w-full aspect-square rounded-xl overflow-hidden">
                                 <Image source={{uri: actor.img}} className="w-full aspect-square" />
                                 <LinearGradient colors={['rgba(0, 0, 0, 0)', "rgba(0, 0, 0, 0.8)"]} style={{position: "absolute", bottom: 0, left: 0, width: '100%', height: '100%'}} />
@@ -42,7 +42,7 @@ export const ShowOverview = ({ showData }: ShowOverviewProps) => {
                     <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                         {
                             showData?.platforms?.map(platform => (
-                                <Button key={platform.name} className="items-center gap-2 w-28 mx-2 p-0 bg-transparent" onPress={() => sendShowCast(server.ip, platform.name.toLowerCase(), showData.id)}>
+                                <Button key={platform.id} className="items-center gap-2 w-28 mx-2 p-0 bg-transparent" onPress={() => sendShowCast(server.ip, platform.name.toLowerCase(), showData.id)}>
                                     <View className="w-full aspect-square rounded-xl overflow-hidden">
                                         <Image source={{uri: platform.img}} className="w-full aspect-square" />
                                     </View>

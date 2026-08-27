@@ -115,6 +115,16 @@ export const getShowReviews = async (ip: string, showId: string) => {
     return await sendCommand(ip, `remote/reviews?${params}`);
 }
 
+export const isShowAvailable = async (ip: string, showId: string, episodeInfo: {season: number, episode: number} | null = null) => {
+    const params = new URLSearchParams();
+    
+    params.append("showId", showId);
+    if(episodeInfo)
+        params.append("episodeInfo", encodeURIComponent(JSON.stringify(episodeInfo)));
+    
+    return await sendCommand(ip, `remote/isShowAvailable?${params}`);
+}
+
 export const sendZoom = async (ip: string, zoomValue: number) => await sendCommand(ip, 'extension/zoom', {
     method: 'POST',
     headers: {
