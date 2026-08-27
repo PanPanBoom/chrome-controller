@@ -57,11 +57,11 @@ export const Episode = (props: EpisodeProps) => {
             className={cn("flex-row gap-4 rounded-xl items-center p-2", expanded && "bg-background-light")} 
             onPress={handlePress}
         >
-            <View className="w-1/3 aspect-[16/9] rounded-xl overflow-hidden">
+            <View className="w-1/3 aspect-[16/9] rounded-xl overflow-hidden self-stretch">
                 <Image source={{uri: props.episode.img}} className="w-full aspect-[16/9]" />
             </View>
             <View className="flex-1">
-                <CustomTitle className="text-lg">{props.episode.episode_number}. {props.episode.title}</CustomTitle>
+                <CustomTitle className="text-lg" numberOfLines={expanded ? 2 : 1}>{props.episode.episode_number}. {props.episode.title}</CustomTitle>
                 <Animated.View style={{ height: contentHeight === 0 ? undefined : expandAnimation, overflow: 'hidden' }}>
                     <View className="flex gap-2" onLayout={e => {
                         if (contentHeight === 0) {

@@ -105,6 +105,12 @@ export class MappleTVSource extends Source
             "method": "POST"
         });
 
+        if(encryptRes.status !== 200)
+        {
+            console.log(`Source ${source} not available, error ${encryptRes.status} while encrypting: ${encryptRes.statusText}`);
+            return "";
+        }
+
         const encrypt = await encryptRes.json();
 
         const urlRes = await fetch(`${this.baseUrl}${encrypt.url}&requestToken=${requestToken}&token=${videoToken}`, {
@@ -114,7 +120,7 @@ export class MappleTVSource extends Source
 
         if(urlRes.status !== 200)
         {
-            console.log(`Source ${source} not available`);
+            console.log(`Source ${source} not available, error ${urlRes.status} while getting url: ${urlRes.statusText}`);
             return "";
         }
 
