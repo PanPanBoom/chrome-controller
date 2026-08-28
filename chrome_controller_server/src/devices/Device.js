@@ -14,6 +14,11 @@ export class Device {
         throw new Error("Need to be implemented");
     }
 
+    async castShow(platform, id, episodeInfo = null)
+    {
+        throw new Error("Need to be implemented");
+    }
+
     sendInput(input)
     {
         throw new Error("Need to be implemented");

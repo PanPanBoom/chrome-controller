@@ -1,6 +1,5 @@
 import { colors } from "@/constants/colors";
 import { cn } from "@/etc/utils";
-import { BlurView } from "expo-blur";
 import { Dimensions, View, ViewProps } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 

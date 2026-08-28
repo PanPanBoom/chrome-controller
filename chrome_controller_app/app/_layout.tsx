@@ -20,6 +20,7 @@ export default function RootLayout() {
           <Stack.Screen name="index"/>
           <Stack.Screen name="(tabs)"/>
           <Stack.Screen name="scanNetwork" />
+          <Stack.Screen name="show/[id]" />
           <Stack.Screen 
             name="modal"
             options={{

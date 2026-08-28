@@ -27,7 +27,7 @@ export default function extensionRoutes(io) {
         res.send({status: 'ok'});
     });
 
-    router.post('/open', (req, res) => {
+    router.post('/open', async (req, res) => {
         const { url } = req.body;
         console.log(`Demande d'ouverture : ${url}`);
 
@@ -39,7 +39,16 @@ export default function extensionRoutes(io) {
         //     });
         // }
 
-        state.currentDevice.openUrl(url);
+        await state.currentDevice.openUrl(url);
+        res.send({ status: 'ok' });
+    });
+
+    router.post('/castShow', async (req, res) => {
+        const { id, platform, episodeInfo } = req.body;
+
+        console.log(`Casting ${id} from ${platform} ${episodeInfo ? `(Episode ${episodeInfo.episode} from Season ${episodeInfo.season})` : ""}`);
+
+        await state.currentDevice.castShow(platform, id, episodeInfo);
         res.send({ status: 'ok' });
     });
 

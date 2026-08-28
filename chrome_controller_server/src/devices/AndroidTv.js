@@ -2,6 +2,7 @@ import { Device } from "./Device.js";
 import { AndroidRemote, RemoteDirection, RemoteKeyCode } from "androidtv-remote";
 import { io } from '../../server.js';
 import fs from 'fs';
+import { ApiManager } from "../APIs/ApiManager.js";
 
 export class AndroidTv extends Device {
     constructor(ip)
@@ -76,9 +77,16 @@ export class AndroidTv extends Device {
         this.remote.sendKey(key, RemoteDirection.SHORT);
     }
 
-    openUrl(url)
+    async openUrl(url)
     {
         this.remote.sendAppLink(url);
+    }
+
+    async castShow(platform, id, episodeInfo)
+    {
+        const intent = await ApiManager.getShowIntent(platform, id, episodeInfo);
+
+        await this.openUrl(intent);
     }
 
     sendInput(input)

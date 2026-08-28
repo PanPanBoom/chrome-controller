@@ -16,10 +16,6 @@ export class YoutubeApi extends Api
 
     async sendTopShowsRequest(filter)
     {
-        const now = Date.now();
-
-        if(this.cache.data && (now - this.cache.lastFetch) < this.TTL) return this.cache.data;
-
         const response = await this.apiClient.videos.list({
             chart: 'mostPopular',
             hl:'fr_FR',
@@ -28,14 +24,22 @@ export class YoutubeApi extends Api
             maxResults: 20
         });
 
-        this.cache.data = response.data.items.map(video => ({
+        return response.data.items.map(video => ({
+            id: video.id,
             title: video.snippet.title,
             img: video.snippet.thumbnails.high.url,
-            link: `https://www.youtube.com/tv/watch?v=${video.id}`,
-            overview: video.snippet.description
+            overview: video.snippet.description,
+            platform: this.platform
         }));
-        this.cache.lastFetch = now;
+    }
 
-        return this.cache.data;
+    getShowLink(id)
+    {
+        return `https://www.youtube.com/watch?v=${id}`;
+    }
+
+    getShowIntent(id)
+    {
+        return this.getShowLink(id);
     }
 }

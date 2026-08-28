@@ -17,7 +17,7 @@ export const scanNetwork = async () => {
       const targetIp = `${baseIp}.${i}`;
 
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 2000);
+      const timeoutId = setTimeout(() => controller.abort(), 5000);
 
       promises.push(
         sendPing(targetIp, controller.signal)

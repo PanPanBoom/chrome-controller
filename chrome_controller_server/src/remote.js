@@ -56,8 +56,37 @@ export default function remoteRoutes(io) {
 
     router.get('/topShows', (req, res) => {
         console.log('Shows demandés');
-        ApiManager.getTopShows(req.query.platform.toLowerCase(), req.query.showType).then(data => res.json(data));
+        ApiManager.getTopShows(req.query.platform.toLowerCase(), req.query.showType)
+        .then(data => res.json(data));
     });
+
+    router.get('/searchShow', (req, res) => {
+        console.log('Recherche de show: ' + req.query.search);
+        ApiManager.searchShowsByTitle(req.query.search, req.query.filter)
+        .then(data => res.json(data));
+    });
+
+    router.get('/show', (req, res) => {
+        ApiManager.getShowById(req.query.id)
+        .then(data => res.json(data));
+    });
+
+    router.get('/season', (req, res) => {
+        ApiManager.getSeasonById(req.query.showId, req.query.seasonNumber)
+        .then(data => res.json(data));
+    });
+
+    router.get('/reviews', (req, res) => {
+        ApiManager.apis.tmdb.getShowReview(req.query.showId)
+        .then(data => res.json(data));
+    });
+
+    router.get('/isShowAvailable', (req, res) => {
+        const episodeInfo = req.query.episodeInfo;
+
+        ApiManager.apis.tmdb.checkShowAvailability(req.query.showId, episodeInfo && JSON.parse(decodeURIComponent(episodeInfo)))
+        .then(data => res.json(data));
+    })
 
     router.post('/videoUpdate', (req, res) => {
         const { onVideoPage } = req.body;

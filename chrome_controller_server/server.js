@@ -9,6 +9,7 @@ import { state } from './src/state.js';
 import fs from 'fs';
 import { Extension } from './src/devices/Extension.js';
 import { AndroidTv } from './src/devices/AndroidTv.js';
+import { Readable } from 'stream';
 
 const app = express();
 const server = http.createServer(app);
@@ -113,7 +114,7 @@ app.post('/tvCode', async (req, res) => {
     await state.currentDevice.sendCode(code);
 
     res.send({ status: 'ok' });
-})
+});
 
 server.listen(3000, '0.0.0.0', () => {
     console.log('Serveur actif sur localhost:3000');

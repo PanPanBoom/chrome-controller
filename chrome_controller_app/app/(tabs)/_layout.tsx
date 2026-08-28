@@ -1,5 +1,5 @@
 import { Tabs } from "expo-router";
-import { Banknote, Cast, LucideIcon, LucideProps, TvMinimalPlay } from "lucide-react-native";
+import { Banknote, Cast, Clapperboard, LucideIcon, LucideProps, TvMinimalPlay } from "lucide-react-native";
 import { JSX, useContext } from "react";
 import { colors } from "@/constants/colors";
 import { AppContext } from "@/contexts/appContext";
