@@ -22,71 +22,95 @@ export default function Apps()
     const [historyShows, setHistoryShows] = useState<ShowDTO[]>([]);
     const [searchedShows, setSearchedShows] = useState<ShowDTO[]>([]);
     const [input, setInput] = useState("");
-    const [currentTrendsFilter, setCurrentTrendsFilter] = useState<string | null>(null);
-    const [currentSearchFilter, setCurrentSearchFilter] = useState<string | null>(null);
+    const [activeFilters, setActiveFilters] = useState<Record<string, string>>({});
+    // const [currentTrendsFilter, setCurrentTrendsFilter] = useState<string | null>(null);
+    // const [currentSearchFilter, setCurrentSearchFilter] = useState<string | null>(null);
     const { server } = useContext(AppContext);
+
+    const handleFilterChange = (carouselId: string, filterValue: string) => setActiveFilters(prev => ({
+        ...prev,
+        [carouselId]: filterValue
+    }));
 
     useEffect(() => {
         getApps(server.ip)
-        .then(res => res.json())
-        .then(data => {
-            console.log('Apps received from server:', data);
-            setApps(data);
-            setTrendsPlatform(data[0]);
-            setCurrentSearchFilter(data.find((platform: App) => platform.name === "TMDB")?.filters[0].apiValue)
-        });
+            .then(res => res.json())
+            .then(data => {
+                console.log('Apps received from server:', data);
+                setApps(data);
+
+                const initialPlatform = data[0];
+                setTrendsPlatform(initialPlatform);
+
+                const tmdbApp = data.find((platform: App) => platform.name === "TMDB");
+
+                setActiveFilters({
+                    "trends": initialPlatform?.filters?.[0]?.apiValue || "",
+                    "search": tmdbApp?.filters?.[0]?.apiValue || ""
+                });
+            });
 
         getHistoryShows(server.ip)
-        .then(res => res.json())
-        .then(data => setHistoryShows(data));
+            .then(res => res.json())
+            .then(data => setHistoryShows(data));
     }, []);
 
-    const updateTopShows = (filter: string) => {
-        if(!trendsPlatform) return;
+    const handlePlatformChange = (newPlatformIndex: number) => {
+        if(!apps)
+            return;
 
-        getTopShows(server.ip, trendsPlatform.name, filter)
-            .then(res => res.json())
-            .then(dataFetched => setTrendingShows(dataFetched));
+        const newPlatform = apps[newPlatformIndex];
+        setTrendsPlatform(newPlatform);
+        handleFilterChange('trends', newPlatform?.filters?.[0]?.apiValue);
     }
 
     useEffect(() => {
-        updateTopShows(currentTrendsFilter ?? "");
-    }, [currentTrendsFilter]);
+        if(!trendsPlatform) return;
 
-    useEffect(() => {
-        setCurrentTrendsFilter(trendsPlatform?.filters?.[0]?.apiValue ?? "");
-        updateTopShows(trendsPlatform?.filters?.[0]?.apiValue ?? "");
-    }, [trendsPlatform]);
+        console.log(trendsPlatform);
+
+        getTopShows(server.ip, trendsPlatform.name, activeFilters['trends'])
+            .then(res => res.json())
+            .then(dataFetched => setTrendingShows(dataFetched));
+    }, [trendsPlatform, activeFilters["trends"]]);
 
     const handleSearch = () => {
-        searchShow(server.ip, input, currentSearchFilter || "movie")
+        if(!input)
+            return;
+
+        searchShow(server.ip, input, activeFilters['search'] || "movie")
             .then(res => res.json())
             .then(dataFetched => setSearchedShows(dataFetched));
     } 
+
+    useEffect(() => {
+        if(input)
+            handleSearch();
+    }, [activeFilters["search"]])
         
     return (
         <ScrollScreen className="gap-3">
             <View className="flex-row w-full justify-between">
                 <CustomTitle>Tendances</CustomTitle>
-                <ContextMenu context={apps?.map(app => app.name)} onChange={(newPlatformIndex: number) => apps && setTrendsPlatform(apps[newPlatformIndex])}/>
+                <ContextMenu context={apps?.map(app => app.name)} onChange={handlePlatformChange}/>
             </View>
             {
                 trendsPlatform &&
                 <ShowCarousel
                     shows={trendingShows}
                     filters={trendsPlatform.filters}
-                    selectedFilter={currentTrendsFilter || ""}
-                    onFilterChange={(newFilter) => setCurrentTrendsFilter(newFilter)}
+                    selectedFilter={activeFilters['trends'] || ""}
+                    onFilterChange={(newFilter) => handleFilterChange('trends', newFilter)}
                 />
             }
             {
                 historyShows?.length > 0 && 
-                <View>
+                <>
                     <CustomTitle>Reprendre</CustomTitle>
                     <ShowCarousel 
                         shows={historyShows}
                     />
-                </View>
+                </>
             }
             <CustomTitle>Rechercher</CustomTitle>
             <View className="flex-row gap-2">
@@ -104,8 +128,8 @@ export default function Apps()
             <ShowCarousel
                 shows={searchedShows}
                 filters={apps?.find(app => app.name === "TMDB")?.filters || []}
-                selectedFilter={currentSearchFilter || ""}
-                onFilterChange={(newFilter) => setCurrentSearchFilter(newFilter)}
+                selectedFilter={activeFilters['search'] || ""}
+                onFilterChange={(newFilter) => handleFilterChange('search', newFilter)}
             />
             <CustomTitle>Applications</CustomTitle>
             <View className="m-2 gap-2">

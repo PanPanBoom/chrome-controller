@@ -40,8 +40,6 @@ export const Show = ({className, ...props}: ShowProps) => {
             setShowInfos(prev => !prev)
     }
 
-    console.log(props.data);
-
     return (
         <View className={cn("w-full border border-background-hover bg-background-hover rounded-xl aspect-video overflow-hidden", className)} {...props}>
             {

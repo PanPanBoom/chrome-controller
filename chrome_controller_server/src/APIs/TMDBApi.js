@@ -110,7 +110,7 @@ export class TMDBApi extends Api
                             img: castMember.profile_path ? this.imageBaseUrl + castMember.profile_path : null
                         })),
                         director: show?.credits?.crew?.find(crewMember => crewMember.job === "Director")?.name || show.created_by?.map(creator => creator.name).join(', '),
-                        platforms: show["watch/providers"].results.FR?.flatrate?.map(provider => ({
+                        platforms: show["watch/providers"]?.results?.FR?.flatrate?.map(provider => ({
                             id: provider.provider_id,
                             name: provider.provider_name,
                             img: this.imageBaseUrl + provider.logo_path,
