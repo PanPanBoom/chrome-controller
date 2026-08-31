@@ -2,10 +2,15 @@ export type ShowDTO = {
     id: string;
     title: string;
     img: string;
-    link: string;
     overview: string;
     media_type: string;
     platform: string;
+    nextStartTime?: number;
+    currentEpisodeInfo?: {
+        season: number;
+        episode: number; 
+    },
+    percentageWatched?: number;
 };
 
 export type MovieDTO = ShowDTO & {

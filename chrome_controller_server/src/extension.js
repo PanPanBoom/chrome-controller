@@ -44,11 +44,13 @@ export default function extensionRoutes(io) {
     });
 
     router.post('/castShow', async (req, res) => {
-        const { id, platform, episodeInfo } = req.body;
+        const { id, platform, episodeInfo, startTime } = req.body;
+        state.serverIp = `http://${req.socket.localAddress?.replace(/^::ffff:/, '')}:${req.socket.localPort}`;
 
         console.log(`Casting ${id} from ${platform} ${episodeInfo ? `(Episode ${episodeInfo.episode} from Season ${episodeInfo.season})` : ""}`);
+        console.log(startTime);
 
-        await state.currentDevice.castShow(platform, id, episodeInfo);
+        await state.currentDevice.castShow(platform, id, episodeInfo, startTime);
         res.send({ status: 'ok' });
     });
 

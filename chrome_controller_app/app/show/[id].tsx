@@ -54,7 +54,6 @@ export default function Show()
                         <IconButton icon={ChevronLeft} onPress={() => router.back()} />
                         <IconButton icon={Heart} />
                     </View>
-                    {/* <BlurredIconButton icon={Cast} onPress={() => sendShowCast(server.ip, 'tmdb', showData.id)}/> */}
                     <View className="flex gap-4 items-start p-4">
                         <View>
                             <CustomTitle className="text-3xl" numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.5}>{showData.title}</CustomTitle>
@@ -63,8 +62,6 @@ export default function Show()
                                 <CustomText className="text-xs text-secondary">De {showData.director}</CustomText>
                             }
                         </View>
-                        {/* <CustomText>{showData.release_date}</CustomText>
-                        <CustomText>{showData.vote_average}/10</CustomText> */}
                         <View className="flex-row gap-2 justify-center">
                             <RatingBox platform="TMDB" rating={showData.vote_average} />
                             {
@@ -95,7 +92,7 @@ export default function Show()
                             }
                         </ScrollView>
                         <View className="flex-row gap-2">
-                            <WatchButton showId={showData.id} className="flex-1"/>
+                            <WatchButton showId={showData.id} nextStartTime={showData.nextStartTime} episodeInfo={showData.currentEpisodeInfo} className="flex-1"/>
                             {
                                 showData.trailer &&
                                 <Button className="bg-transparent" onPress={() => sendShowCast(server.ip, 'youtube', showData.trailer)}>

@@ -9,7 +9,7 @@ import { ScrollScreen } from "@/components/ui/ScrollScreen";
 import { AppContext } from "@/contexts/appContext";
 import { App } from "@/dtos/app";
 import { ShowDTO } from "@/dtos/show";
-import { getApps, getTopShows, searchShow } from "@/server/socket";
+import { getApps, getHistoryShows, getTopShows, searchShow } from "@/server/socket";
 import { Href, router } from "expo-router";
 import { useContext, useEffect, useState } from "react";
 import { FlatList, ScrollView, TextInput, View } from "react-native";
@@ -19,6 +19,7 @@ export default function Apps()
     const [apps, setApps] = useState<App[] | null>(null);
     const [trendsPlatform, setTrendsPlatform] = useState<App | null>(null);
     const [trendingShows, setTrendingShows] = useState<ShowDTO[]>([]);
+    const [historyShows, setHistoryShows] = useState<ShowDTO[]>([]);
     const [searchedShows, setSearchedShows] = useState<ShowDTO[]>([]);
     const [input, setInput] = useState("");
     const [currentTrendsFilter, setCurrentTrendsFilter] = useState<string | null>(null);
@@ -34,17 +35,28 @@ export default function Apps()
             setTrendsPlatform(data[0]);
             setCurrentSearchFilter(data.find((platform: App) => platform.name === "TMDB")?.filters[0].apiValue)
         });
+
+        getHistoryShows(server.ip)
+        .then(res => res.json())
+        .then(data => setHistoryShows(data));
     }, []);
 
-    useEffect(() => {
+    const updateTopShows = (filter: string) => {
         if(!trendsPlatform) return;
 
-        const activeFilter = currentTrendsFilter ?? trendsPlatform.filters?.[0]?.apiValue ?? "";
-
-        getTopShows(server.ip, trendsPlatform.name, activeFilter)
+        getTopShows(server.ip, trendsPlatform.name, filter)
             .then(res => res.json())
             .then(dataFetched => setTrendingShows(dataFetched));
-    }, [trendsPlatform, currentTrendsFilter]);
+    }
+
+    useEffect(() => {
+        updateTopShows(currentTrendsFilter ?? "");
+    }, [currentTrendsFilter]);
+
+    useEffect(() => {
+        setCurrentTrendsFilter(trendsPlatform?.filters?.[0]?.apiValue ?? "");
+        updateTopShows(trendsPlatform?.filters?.[0]?.apiValue ?? "");
+    }, [trendsPlatform]);
 
     const handleSearch = () => {
         searchShow(server.ip, input, currentSearchFilter || "movie")
@@ -66,6 +78,15 @@ export default function Apps()
                     selectedFilter={currentTrendsFilter || ""}
                     onFilterChange={(newFilter) => setCurrentTrendsFilter(newFilter)}
                 />
+            }
+            {
+                historyShows?.length > 0 && 
+                <View>
+                    <CustomTitle>Reprendre</CustomTitle>
+                    <ShowCarousel 
+                        shows={historyShows}
+                    />
+                </View>
             }
             <CustomTitle>Rechercher</CustomTitle>
             <View className="flex-row gap-2">

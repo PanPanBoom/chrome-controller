@@ -4,7 +4,7 @@ import { Server } from 'socket.io';
 import remoteRoutes from './src/remote.js';
 import extensionRoutes from './src/extension.js';
 import { ApiManager } from './src/APIs/ApiManager.js';
-import { getShowByTitle, removeShowByTitle, saveShow } from './src/db.js';
+import { getShowByTitle, removeShowByTitle, saveShow, upsertNextStartTime } from './src/db.js';
 import { state } from './src/state.js';
 import fs from 'fs';
 import { Extension } from './src/devices/Extension.js';
@@ -112,6 +112,16 @@ app.post('/tvCode', async (req, res) => {
         return res.status(400).send({ status: 'error', message: 'No device connected' });
 
     await state.currentDevice.sendCode(code);
+
+    res.send({ status: 'ok' });
+});
+
+app.put('/updateStartTime', (req, res) => {
+    console.log(req.headers['content-type']);
+    console.log(req.body);
+    const { showId, nextStartTime, episodeInfo, percentageWatched } = req.body;
+
+    upsertNextStartTime(showId, episodeInfo, nextStartTime, percentageWatched);
 
     res.send({ status: 'ok' });
 });

@@ -95,11 +95,17 @@ android {
     }
     buildTypes {
         debug {
-            manifestPlaceholders = [appScheme: "chromecontrollerdebug"]
+            manifestPlaceholders = [
+                appScheme: "chromecontrollerdebug",
+                usesCleartextTraffic: "true"    
+            ]
             signingConfig signingConfigs.debug
         }
         release {
-            manifestPlaceholders = [appScheme: "chromecontroller"]
+            manifestPlaceholders = [
+                appScheme: "chromecontroller",
+                usesCleartextTraffic: "true"    
+            ]
             // Caution! In production, you need to generate your own keystore file.
             // see https://reactnative.dev/docs/signed-apk-android.
             signingConfig signingConfigs.debug

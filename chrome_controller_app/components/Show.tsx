@@ -26,7 +26,7 @@ export const Show = ({className, ...props}: ShowProps) => {
     const handleCast = () => {
         setLoading(true);
 
-        sendShowCast(server.ip, props.data.platform, props.data.id).then(_ => setLoading(false));
+        sendShowCast(server.ip, props.data.platform, props.data.id, props.data.currentEpisodeInfo, props.data.nextStartTime).then(_ => setLoading(false));
     }
 
     const handleInfoPress = () => {
@@ -40,8 +40,10 @@ export const Show = ({className, ...props}: ShowProps) => {
             setShowInfos(prev => !prev)
     }
 
+    console.log(props.data);
+
     return (
-        <View className={cn("w-full justify-center items-center border border-background-hover bg-background-hover rounded-xl aspect-video overflow-hidden", className)} {...props}>
+        <View className={cn("w-full border border-background-hover bg-background-hover rounded-xl aspect-video overflow-hidden", className)} {...props}>
             {
                 props.data.img.includes('svg') == false &&
                 <Image source={{uri: props.data.img}} className="w-full aspect-video absolute" style={{opacity: showInfos ? 0.25 : 1}}/>
@@ -58,7 +60,12 @@ export const Show = ({className, ...props}: ShowProps) => {
                     <ScrollView showsVerticalScrollIndicator={false}>
                         <CustomText className="p-2 text-justify">{props.data.overview}</CustomText>
                     </ScrollView> :
-                    <View className="flex-1" pointerEvents="none"/>
+                    <View className="flex-1" pointerEvents="none">
+                        {
+                            props.data.currentEpisodeInfo &&
+                            <CustomText className="pt-2 px-2">S{props.data.currentEpisodeInfo.season}:E{props.data.currentEpisodeInfo.episode}</CustomText>
+                        }    
+                    </View>
                 }
                 <View className="pt-2 pr-2">
                     <BlurredIconButton icon={Info} color={colors.text} iconSize={20} blurViewClassName="p-1" onPress={handleInfoPress}/>
@@ -67,6 +74,7 @@ export const Show = ({className, ...props}: ShowProps) => {
             <ScrollView horizontal className="grow-0 p-2 w-full" showsHorizontalScrollIndicator={false}>   
                 <CustomTitle>{props.data.title}</CustomTitle>
             </ScrollView>
+            <View className="bg-primary border border-primary" style={{ width: `${props.data.percentageWatched ?? 0}%`}}/>
             {
                 showInfos == false &&
                 <View className="absolute w-full h-full justify-center items-center">

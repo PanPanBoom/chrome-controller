@@ -10,6 +10,7 @@ import { google } from 'googleapis';
 import { youtube } from "googleapis/build/src/apis/youtube/index.js";
 import { ApiManager } from "./APIs/ApiManager.js";
 import Bonjour from 'bonjour';
+import { getAllShows } from "./db.js";
 
 const bonjour = new Bonjour();
 
@@ -59,6 +60,14 @@ export default function remoteRoutes(io) {
         ApiManager.getTopShows(req.query.platform.toLowerCase(), req.query.showType)
         .then(data => res.json(data));
     });
+
+    router.get('/showHistory', async (req, res) => {
+        const shows = await Promise.all(getAllShows().map((show) => ApiManager.apis.tmdb.getShowMinimalById(show.id)));
+
+        console.log(shows);
+
+        res.json(shows);
+    })
 
     router.get('/searchShow', (req, res) => {
         console.log('Recherche de show: ' + req.query.search);
