@@ -16,7 +16,7 @@ export const getShowByTitle = (title) => db.prepare('SELECT * FROM shows WHERE t
 
 export const updateNextStartTime = (id, nextStartTime) => db.prepare('UPDATE shows SET nextStartTime = ? WHERE id = ?').run(nextStartTime, id);
 
-export const upsertNextStartTime = (showId, episodeInfo = null, nextStartTime, percentageWatched) => db.prepare('INSERT INTO shows (id, currentSeason, currentEpisode, nextStartTime, percentageWatched) VALUES (?, ?, ?, ?, ?) ON CONFLICT (id) DO UPDATE SET nextStartTime = ?, percentageWatched = ? WHERE id = ?').run(showId, episodeInfo?.season, episodeInfo?.episode, nextStartTime, percentageWatched, nextStartTime, percentageWatched, showId);
+export const upsertNextStartTime = (showId, episodeInfo = null, nextStartTime, percentageWatched) => db.prepare('INSERT INTO shows (id, currentSeason, currentEpisode, nextStartTime, percentageWatched) VALUES (?, ?, ?, ?, ?) ON CONFLICT (id) DO UPDATE SET currentSeason = ?, currentEpisode = ?, nextStartTime = ?, percentageWatched = ? WHERE id = ?').run(showId, episodeInfo?.season, episodeInfo?.episode, nextStartTime, percentageWatched, episodeInfo?.season, episodeInfo?.episode, nextStartTime, percentageWatched, showId);
 
 // export const getLaunchInfo
 

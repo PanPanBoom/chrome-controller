@@ -4,7 +4,7 @@ import { Server } from 'socket.io';
 import remoteRoutes from './src/remote.js';
 import extensionRoutes from './src/extension.js';
 import { ApiManager } from './src/APIs/ApiManager.js';
-import { getShowByTitle, removeShowByTitle, saveShow, upsertNextStartTime } from './src/db.js';
+import { getShowByTitle, removeShowById, removeShowByTitle, saveShow, upsertNextStartTime } from './src/db.js';
 import { state } from './src/state.js';
 import fs from 'fs';
 import { Extension } from './src/devices/Extension.js';
@@ -117,7 +117,6 @@ app.post('/tvCode', async (req, res) => {
 });
 
 app.put('/updateStartTime', (req, res) => {
-    console.log(req.headers['content-type']);
     console.log(req.body);
     const { showId, nextStartTime, episodeInfo, percentageWatched } = req.body;
 
@@ -125,6 +124,25 @@ app.put('/updateStartTime', (req, res) => {
 
     res.send({ status: 'ok' });
 });
+
+app.post('/showEnd', async (req, res) => {
+    state.serverIp = `http://${req.socket.localAddress?.replace(/^::ffff:/, '')}:${req.socket.localPort}`;
+    const { showId, episodeInfo } = req.body;
+    if(episodeInfo)
+    {
+        const nextEpisodeInfo = await ApiManager.apis.tmdb.getNextEpisodeInfo(showId, episodeInfo);
+        if(nextEpisodeInfo)
+        {
+            state.currentDevice.castShow('tmdb', showId, nextEpisodeInfo);
+            res.send({ status: 'ok' });
+            return;
+        }
+    }
+
+    removeShowById(showId);
+
+    res.send({ status: 'ok' });
+})
 
 server.listen(3000, '0.0.0.0', () => {
     console.log('Serveur actif sur localhost:3000');

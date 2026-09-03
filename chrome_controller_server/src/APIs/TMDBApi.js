@@ -205,6 +205,29 @@ export class TMDBApi extends Api
                 })));
     }
 
+    async getNextEpisodeInfo(showId, episodeInfo)
+    {
+        const endpoints = [
+            `${showId}/season/${episodeInfo.season}/episode/${episodeInfo.episode + 1}`,
+            `${showId}/season/${episodeInfo.season + 1}/episode/${1}`
+        ]
+        
+        for(const endpoint of endpoints)
+        {
+            const res = await this.fetchApi(endpoint);
+            if(res.status === 404)
+                continue;
+
+            const data = await res.json();
+            return {
+                season: data.season_number,
+                episode: data.episode_number
+            }
+        }
+
+        return null;
+    }
+
     async checkShowAvailability(id, episodeInfo)
     {
         for (const source of this.sources)

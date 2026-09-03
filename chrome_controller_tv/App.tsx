@@ -71,67 +71,68 @@ function AppContent() {
 
   if(videoInfo?.url && videoInfo.url.length > 0)
     return (
-      <Video
-        source={{
-          uri: videoInfo.url,
-          type: videoInfo.extension,
-          startPosition: videoInfo.startTime,
-          headers: {
-            Referer: videoInfo.referer,
-          },
-          bufferConfig: {
-            minBufferMs: 30000,
-            maxBufferMs: 60000,
-            bufferForPlaybackMs: 5000,
-            bufferForPlaybackAfterRebufferMs: 8000,
-          }
-        }}
-        onLoad={(data) => {
-          console.log("✅ VIDÉO CHARGÉE !", data);
-          setVideoDuration(data.duration);
-        }}
-        onError={(error) => {
-          console.log("❌ ERREUR EXOPLAYER :", error.error);
-        }}
-        onBuffer={({ isBuffering }) => {
-          console.log(isBuffering ? "⏳ Mise en cache..." : "▶️ Lecture");
-        }}
-        progressUpdateInterval={10 * 1000}
-        onProgress={(progress) => {
-          console.log(`${videoInfo.serverIp}/updateStartTime`);
-          fetch(`${videoInfo.serverIp}/updateStartTime`, {
-            method: 'PUT',
+      <View className='bg-black'>
+        <Video
+          source={{
+            uri: videoInfo.url,
+            type: videoInfo.extension,
+            startPosition: videoInfo.startTime,
             headers: {
-              'Content-Type': 'application/json'
+              Referer: videoInfo.referer,
             },
-            body: JSON.stringify({
-              showId: videoInfo.showId,
-              nextStartTime: progress.currentTime * 1000,
-              episodeInfo: videoInfo.episodeInfo,
-              percentageWatched: progress.currentTime / videoDuration * 100
+            bufferConfig: {
+              minBufferMs: 30000,
+              maxBufferMs: 60000,
+              bufferForPlaybackMs: 5000,
+              bufferForPlaybackAfterRebufferMs: 8000,
+            }
+          }}
+          onLoad={(data) => {
+            console.log("✅ VIDÉO CHARGÉE !", data);
+            setVideoDuration(data.duration);
+          }}
+          onError={(error) => {
+            console.log("❌ ERREUR EXOPLAYER :", error.error);
+          }}
+          onBuffer={({ isBuffering }) => {
+            console.log(isBuffering ? "⏳ Mise en cache..." : "▶️ Lecture");
+          }}
+          progressUpdateInterval={10 * 1000}
+          onProgress={(progress) => {
+            console.log(`${videoInfo.serverIp}/updateStartTime`);
+            fetch(`${videoInfo.serverIp}/updateStartTime`, {
+              method: 'PUT',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                showId: videoInfo.showId,
+                nextStartTime: progress.currentTime * 1000,
+                episodeInfo: videoInfo.episodeInfo,
+                percentageWatched: progress.currentTime / videoDuration * 100
+              })
             })
-          })
-        }}
-        onEnd={() => {
-          fetch(`${videoInfo.serverIp}/updateStartTime`, {
-            method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              showId: videoInfo.showId,
-              nextStartTime: 0,
-              episodeInfo: videoInfo.episodeInfo,
-              percentageWatched: 0
+          }}
+          onEnd={() => {
+            setVideoInfo(null);
+            setVideoDuration(0);
+            fetch(`${videoInfo.serverIp}/showEnd`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                showId: videoInfo.showId,
+                episodeInfo: videoInfo.episodeInfo
+              })
             })
-          })
-        }}
-        style={{width: '100%', height: '100%'}}
-        controls={true}
-        resizeMode='contain'
-        reportBandwidth={true}
-        fullscreen={true}
-      />
+          }}
+          style={{width: '100%', height: '100%'}}
+          controls={true}
+          resizeMode='contain'
+          reportBandwidth={true}
+        />
+      </View>
       // <View className='flex bg-background flex-1 justify-center items-center gap-2'>
       //   <CustomText>URL: {videoInfo.url}</CustomText>
       //   <CustomText>Extension: {videoInfo.extension}</CustomText>
