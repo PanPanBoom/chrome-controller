@@ -46,7 +46,7 @@ export class NetflixApi extends Api
             img: show.imageSet.horizontalPoster.w1440,
             // link: show.streamingOptions.fr.filter(streamingOption => streamingOption.service.id.toLowerCase() === this.platform)[0].link,
             overview: show.overview,
-            media_type: show.showType,
+            media_type: show.tmdbId.split('/')[0],
             platform: this.platform
         }));
     }

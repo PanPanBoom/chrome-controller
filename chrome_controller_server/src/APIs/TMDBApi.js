@@ -4,6 +4,9 @@ import 'dotenv/config';
 import { NakastreamSource } from "../source/NakastreamSource.js";
 import { NoxpulseSource } from "../source/NoxpulseSource.js";
 import { MappleTVSource } from "../source/MappleTVSource.js";
+import os from 'os';
+import { state } from "../state.js";
+import { getNextStartTime, getShowById } from "../db.js";
 
 const dateParser = (dateString) => {
     if (!dateString) return null;
@@ -64,7 +67,8 @@ export class TMDBApi extends Api
                     img: this.imageBaseUrl + show.backdrop_path,
                     overview: show.overview,
                     media_type: show.media_type,
-                    platform: this.platform
+                    platform: this.platform,
+                    nextStartTime: getNextStartTime(`${show.media_type}/${show.id}`)
                 })));
     }
 
@@ -79,7 +83,8 @@ export class TMDBApi extends Api
                     img: this.imageBaseUrl + show.backdrop_path,
                     overview: show.overview,
                     media_type: show.media_type ?? filter,
-                    platform: this.platform
+                    platform: this.platform,
+                    nextStartTime: getNextStartTime(`${show.media_type ?? filter}/${show.id}`)
                 })));
     }
 
@@ -87,7 +92,9 @@ export class TMDBApi extends Api
     {
         return this.fetchApi(`${id}?language=fr-FR&append_to_response=credits,watch/providers,videos`)
                 .then(res => res.json())
-                .then(async (show) => ({
+                .then(async (show) => {
+                    const showInDB = getShowById(id);
+                    return {
                         id,
                         title: show.title ?? show.name,
                         img: this.imageBaseUrl + show.poster_path,
@@ -96,14 +103,14 @@ export class TMDBApi extends Api
                         release_date: show.release_date ? dateParser(show.release_date) : dateParser(show.first_air_date),
                         runtime: show.runtime,
                         vote_average: Math.round(show.vote_average * 100) / 100,
-                        cast: show.credits.cast.map(castMember => ({
+                        cast: show?.credits?.cast?.map(castMember => ({
                             id: castMember.id,
                             name: castMember.name,
                             character: castMember.character,
                             img: castMember.profile_path ? this.imageBaseUrl + castMember.profile_path : null
                         })),
-                        director: show.credits.crew.find(crewMember => crewMember.job === "Director")?.name || show.created_by?.map(creator => creator.name).join(', '),
-                        platforms: show["watch/providers"].results.FR?.flatrate?.map(provider => ({
+                        director: show?.credits?.crew?.find(crewMember => crewMember.job === "Director")?.name || show.created_by?.map(creator => creator.name).join(', '),
+                        platforms: show["watch/providers"]?.results?.FR?.flatrate?.map(provider => ({
                             id: provider.provider_id,
                             name: provider.provider_name,
                             img: this.imageBaseUrl + provider.logo_path,
@@ -120,8 +127,39 @@ export class TMDBApi extends Api
                             overview: season.overview,
                             name: season.name
                         })) || undefined,
-                        trailer: show?.videos?.results?.find(video => video.type.toLowerCase() === "trailer" && video.site.toLowerCase() === "youtube" && video.iso_639_1 === "fr" && video.iso_3166_1 === "FR" && !video.name.toLowerCase().includes("vost"))?.key
-                    }));
+                        trailer: show?.videos?.results?.find(video => video.type.toLowerCase() === "trailer" && video.site.toLowerCase() === "youtube" && video.iso_639_1 === "fr" && video.iso_3166_1 === "FR" && !video.name.toLowerCase().includes("vost"))?.key,
+                        nextStartTime: showInDB?.nextStartTime,
+                        currentEpisodeInfo: showInDB && {
+                            season: showInDB?.currentSeason,
+                            episode: showInDB?.currentEpisode
+                        }
+                    }
+                });
+    }
+
+    async getShowMinimalById(id)
+    {
+        const [mediaType, realId] = id.split('/');
+
+        return this.fetchApi(`${id}?language=fr-FR`)
+                .then(res => res.json())
+                .then(show => {
+                    const showFromDB = getShowById(id);
+                    return {
+                        id,
+                        title: show.title ?? show.name,
+                        img: this.imageBaseUrl + show.backdrop_path,
+                        overview: show.overview,
+                        media_type: mediaType,
+                        platform: this.platform,
+                        nextStartTime: showFromDB?.nextStartTime,
+                        currentEpisodeInfo: showFromDB.currentSeason && {
+                            season: showFromDB?.currentSeason,
+                            episode: showFromDB?.currentEpisode
+                        },
+                        percentageWatched: showFromDB?.percentageWatched
+                    }
+                })
     }
 
     async getSeasonById(showId, seasonNumber)
@@ -167,6 +205,29 @@ export class TMDBApi extends Api
                 })));
     }
 
+    async getNextEpisodeInfo(showId, episodeInfo)
+    {
+        const endpoints = [
+            `${showId}/season/${episodeInfo.season}/episode/${episodeInfo.episode + 1}`,
+            `${showId}/season/${episodeInfo.season + 1}/episode/${1}`
+        ]
+        
+        for(const endpoint of endpoints)
+        {
+            const res = await this.fetchApi(endpoint);
+            if(res.status === 404)
+                continue;
+
+            const data = await res.json();
+            return {
+                season: data.season_number,
+                episode: data.episode_number
+            }
+        }
+
+        return null;
+    }
+
     async checkShowAvailability(id, episodeInfo)
     {
         for (const source of this.sources)
@@ -190,7 +251,7 @@ export class TMDBApi extends Api
         return null;
     }
 
-    async getShowIntent(id, episodeInfo = null)
+    async getShowIntent(id, episodeInfo = null, startTime = 0)
     {
         for (const source of this.sources)
         {
@@ -198,7 +259,19 @@ export class TMDBApi extends Api
             {
                 console.log("Show available on " + source.baseUrl);
                 const videoInfo = await source.getShowVideoInfo(id, episodeInfo);
-                return `chromecontroller://play?url=${encodeURIComponent(videoInfo.url)}&referer=${encodeURIComponent(videoInfo.referer)}`;
+                console.log(videoInfo);
+                const params = new URLSearchParams();
+                params.append('showId', id);
+                if(episodeInfo)
+                    params.append('episodeInfo', encodeURIComponent(JSON.stringify(episodeInfo)));
+
+                params.append('url', encodeURIComponent(videoInfo.url));
+                params.append('referer', encodeURIComponent(videoInfo.referer));
+                params.append('serverIp', encodeURIComponent(state.serverIp));
+                params.append('startTime', startTime);
+                console.log(`Starting show at ${startTime / 1000}s`);
+
+                return `chromecontroller://play?${params}`;
             }
         }
 

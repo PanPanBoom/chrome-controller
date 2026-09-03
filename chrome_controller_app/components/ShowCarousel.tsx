@@ -41,7 +41,10 @@ export const ShowCarousel = ({className, ...props}: ShowCarouselProps) => {
 
     return (
         <View className={cn("gap-3", className)} {...props}>
-            <ShowCarouselFilterGroup filters={props.filters || []} onFilterChange={props.onFilterChange}/>
+            {
+                props.filters && props.onFilterChange &&
+                <ShowCarouselFilterGroup filters={props.filters || []} onSelect={props.onFilterChange} activeFilterValue={props.selectedFilter || ""}/>
+            }
             <View className="flex-row">
                 {
                     props.shows &&

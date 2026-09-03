@@ -62,13 +62,13 @@ export const sendAppLaunch = async (ip: string, url: string) => await sendComman
     body: JSON.stringify({ url })
 });
 
-export const sendShowCast = async (ip: string, platform: string, id: string, episodeInfo: {season: number, episode: number} | null = null) => {
+export const sendShowCast = async (ip: string, platform: string, id: string, episodeInfo: {season: number, episode: number} | null = null, startTime: number = 0) => {
     return await sendCommand(ip, 'extension/castShow', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ id, platform, episodeInfo })
+        body: JSON.stringify({ id, platform, episodeInfo, startTime })
     });
 }
 
@@ -82,6 +82,8 @@ export const getTopShows = async (ip: string, platform: string, filter: string) 
 
     return await sendCommand(ip, `remote/topShows?${params}`);
 }
+
+export const getHistoryShows = async (ip: string) => await sendCommand(ip, 'remote/showHistory');
 
 export const searchShow = async (ip: string, search: string, filter: string) => {
     const params = new URLSearchParams();

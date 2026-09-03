@@ -47,8 +47,8 @@ export class ApiManager
         return await this.apis[platform].getShowLink(id, episodeInfo);
     }
 
-    static async getShowIntent(platform, id, episodeInfo = null)
+    static async getShowIntent(platform, id, episodeInfo = null, startTime = 0)
     {
-        return await this.apis[platform].getShowIntent(id, episodeInfo);
+        return await this.apis[platform].getShowIntent(id, episodeInfo, startTime);
     }
 }

@@ -45,7 +45,8 @@ export class MappleTVSource extends Source
 {
     constructor()
     {
-        super("https://mapple.tv", "/watch");
+        super("https://mapple.rip", "/watch");
+        this.apiUrl = this.baseUrl + '/api/'
         this.baseHeaders = {};
         this.lastIdFetched = null;
         this.lastEpisodeFetched = null;
@@ -54,13 +55,14 @@ export class MappleTVSource extends Source
 
     getShowUrl(id, episodeInfo = null)
     {
+        super.getShowUrl(id, episodeInfo);
         return `${this.watchUrl}/${id}${id.includes('tv') ? `-${episodeInfo?.season ?? 1}-${episodeInfo?.episode ?? 1}` : ''}`;
     }
 
     async getVideoToken(mediaId, episodeInfo, mediaType, requestToken, challengeId, challenge, difficulty)
     {
         const nonce = solvePoW(challenge, difficulty);
-        const challengeRes = await fetch("https://mapple.tv/api/playback-init", {
+        const challengeRes = await fetch(`${this.apiUrl}/playback-init`, {
             headers: this.baseHeaders,
             body: JSON.stringify({
                 mediaId,
@@ -90,7 +92,7 @@ export class MappleTVSource extends Source
     {
         console.log('Fetching for source ' + source);
     
-        const encryptRes = await fetch("https://mapple.tv/api/encrypt", {
+        const encryptRes = await fetch(`${this.apiUrl}/encrypt`, {
             headers: this.baseHeaders,
             "body": JSON.stringify({
                 data: {
@@ -137,6 +139,7 @@ export class MappleTVSource extends Source
 
     async getShowVideoInfo(id, episodeInfo = null)
     {
+        super.getShowVideoInfo(id, episodeInfo);
         if(id === this.lastIdFetched && episodeInfo === this.lastEpisodeFetched)
             return { url: this.lastIntentFetched };
 
@@ -162,7 +165,7 @@ export class MappleTVSource extends Source
                 "cookie": dynamicCookie
             };
 
-            const initRes = await fetch("https://mapple.tv/api/playback-init", {
+            const initRes = await fetch(`${this.apiUrl}/playback-init`, {
                 headers: this.baseHeaders,
                 "body": JSON.stringify({
                     "mediaId": realId,
@@ -202,6 +205,7 @@ export class MappleTVSource extends Source
 
     async checkShowAvailability(id, episodeInfo = null)
     {
+        super.checkShowAvailability(id, episodeInfo);
         const videoInfo = await this.getShowVideoInfo(id, episodeInfo);
 
         return videoInfo.url !== "";

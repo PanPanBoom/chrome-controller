@@ -14,10 +14,11 @@ type WatchButtonProps = ViewProps & {
         season: number;
         episode: number;
     };
+    nextStartTime?: number;
     shouldCheck?: boolean;
 }
 
-export const WatchButton = ({ showId, episodeInfo, shouldCheck = true, className, ...props }: WatchButtonProps) => {
+export const WatchButton = ({ showId, episodeInfo, nextStartTime = 0, shouldCheck = true, className, ...props }: WatchButtonProps) => {
     const { server } = useContext(AppContext);
     const [isAvailable, setIsAvailable] = useState<boolean | null>(null);
 
@@ -28,8 +29,10 @@ export const WatchButton = ({ showId, episodeInfo, shouldCheck = true, className
             .then(data => setIsAvailable(data));
     }, [shouldCheck]);
 
+    console.log(nextStartTime);
+
     return (
-        <Button disabled={isAvailable === null || isAvailable === false} className={cn("bg-primary flex-row gap-2 rounded-full", className)} onPress={() => sendShowCast(server.ip, 'tmdb', showId, episodeInfo)} {...props}>
+        <Button disabled={isAvailable === null || isAvailable === false} className={cn("bg-primary flex-row gap-2 rounded-full", className)} onPress={() => sendShowCast(server.ip, 'tmdb', showId, episodeInfo, nextStartTime ?? 0)} {...props}>
             {
                 isAvailable === null ?
                 <ActivityIndicator /> :
@@ -39,7 +42,15 @@ export const WatchButton = ({ showId, episodeInfo, shouldCheck = true, className
                     <Play color={colors.background} fill={colors.background} size={20}/>
                 )
             }
-            <CustomText className="text-background text-lg">{isAvailable === false ? "Indisponible" : "Regarder"}</CustomText>
+            <CustomText className="text-background text-lg">
+                {
+                    isAvailable === false ?
+                    "Indisponible" :
+                    `${nextStartTime ?
+                    "Reprendre" :
+                    "Regarder"} ${showId.includes('tv') ? `S${episodeInfo?.season ?? 1}:E${episodeInfo?.episode ?? 1}` : ''}`
+                }
+            </CustomText>
         </Button>
     )
 }

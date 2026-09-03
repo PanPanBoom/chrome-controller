@@ -8,26 +8,20 @@ export type Filter = {
 }
 
 type ShowCarouselFilterGroupProps = {
-    onFilterChange?: (activeFilter: string) => void;
+    activeFilterValue: string;
+    onSelect: (apiValue: string) => void;
     filters: Filter[];
 }
 
 export const ShowCarouselFilterGroup = (props: ShowCarouselFilterGroupProps) => {
-    const [activeFilterIndex, setActiveFilterIndex] = useState(0);
-    
-    useEffect(() => {
-        if(props.filters.length > 0)
-            props.onFilterChange?.(props.filters[activeFilterIndex].apiValue);
-    }, [activeFilterIndex]);
-
     return (
         <FlatList 
             data={props.filters}
-            renderItem={({ item, index }) => 
-                <ShowCarouselFilter active={index == activeFilterIndex} onPress={() => setActiveFilterIndex(index)}>
+            renderItem={({ item }) => 
+                <ShowCarouselFilter active={item.apiValue == props.activeFilterValue} onPress={() => props.onSelect(item.apiValue)}>
                     {item.displayText}
                 </ShowCarouselFilter>}
-            keyExtractor={item => item.displayText}
+            keyExtractor={item => item.apiValue}
             horizontal
             contentContainerClassName="gap-2"
         />

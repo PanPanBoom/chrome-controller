@@ -28,14 +28,22 @@ function App() {
 }
 
 type VideoInfo = {
+  showId: string;
+  episodeInfo: {
+    season: number;
+    episode: number;
+  } | null;
   url: string;
   referer: string;
   extension: string;
+  serverIp: string;
+  startTime: number;
 }
 
 function AppContent() {
-  const safeAreaInsets = useSafeAreaInsets();
+  // const safeAreaInsets = useSafeAreaInsets();
   const [videoInfo, setVideoInfo] = useState<VideoInfo | null>(null);
+  const [videoDuration, setVideoDuration] = useState(0);
 
   useEffect(() => {
     Linking.addEventListener('url', ({ url }) => {
@@ -43,11 +51,16 @@ function AppContent() {
 
       const videoUrl = params.searchParams.get('url');
       const extension = videoUrl?.match(/\.(mp4|webm|mkv|mov|avi|flv|wmv|m4v|mpg|mpeg|3gp|ogv|m3u8|mpd)(\?|$)/i);
+      const episodeInfo = params.searchParams.get('episodeInfo');
 
       setVideoInfo({
-        url: videoUrl ?? "",
-        referer: params.searchParams.get('referer') ?? "",
-        extension: extension ? extension[1] : "m3u8"
+        showId: params.searchParams.get('showId') ?? "",
+        episodeInfo: episodeInfo ? JSON.parse(decodeURIComponent(episodeInfo)) : null,
+        url: decodeURIComponent(params.searchParams.get('url') ?? ""),
+        referer: decodeURIComponent(params.searchParams.get('referer') ?? ""),
+        extension: extension ? extension[1] : "m3u8",
+        serverIp: decodeURIComponent(params.searchParams.get('serverIp') ?? ""),
+        startTime: Number(params.searchParams.get('startTime') ?? 0)
       });
     })
   }, []);
@@ -58,35 +71,68 @@ function AppContent() {
 
   if(videoInfo?.url && videoInfo.url.length > 0)
     return (
-      <Video
-        source={{
-          uri: videoInfo.url,
-          type: videoInfo.extension,
-          headers: {
-            Referer: videoInfo.referer,
-          },
-          bufferConfig: {
-            minBufferMs: 30000,
-            maxBufferMs: 60000,
-            bufferForPlaybackMs: 5000,
-            bufferForPlaybackAfterRebufferMs: 8000,
-          }
-        }}
-        onLoad={(data) => {
-          console.log("✅ VIDÉO CHARGÉE !", data);
-        }}
-        onError={(error) => {
-          console.log("❌ ERREUR EXOPLAYER :", error.error);
-        }}
-        onBuffer={({ isBuffering }) => {
-          console.log(isBuffering ? "⏳ Mise en cache..." : "▶️ Lecture");
-        }}
-        style={{width: '100%', height: '100%'}}
-        controls={true}
-        resizeMode='contain'
-        reportBandwidth={true}
-        fullscreen={true}
-      />
+      <View className='bg-black'>
+        <Video
+          source={{
+            uri: videoInfo.url,
+            type: videoInfo.extension,
+            startPosition: videoInfo.startTime,
+            headers: {
+              Referer: videoInfo.referer,
+            },
+            bufferConfig: {
+              minBufferMs: 30000,
+              maxBufferMs: 60000,
+              bufferForPlaybackMs: 5000,
+              bufferForPlaybackAfterRebufferMs: 8000,
+            }
+          }}
+          onLoad={(data) => {
+            console.log("✅ VIDÉO CHARGÉE !", data);
+            setVideoDuration(data.duration);
+          }}
+          onError={(error) => {
+            console.log("❌ ERREUR EXOPLAYER :", error.error);
+          }}
+          onBuffer={({ isBuffering }) => {
+            console.log(isBuffering ? "⏳ Mise en cache..." : "▶️ Lecture");
+          }}
+          progressUpdateInterval={10 * 1000}
+          onProgress={(progress) => {
+            console.log(`${videoInfo.serverIp}/updateStartTime`);
+            fetch(`${videoInfo.serverIp}/updateStartTime`, {
+              method: 'PUT',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                showId: videoInfo.showId,
+                nextStartTime: progress.currentTime * 1000,
+                episodeInfo: videoInfo.episodeInfo,
+                percentageWatched: progress.currentTime / videoDuration * 100
+              })
+            })
+          }}
+          onEnd={() => {
+            setVideoInfo(null);
+            setVideoDuration(0);
+            fetch(`${videoInfo.serverIp}/showEnd`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                showId: videoInfo.showId,
+                episodeInfo: videoInfo.episodeInfo
+              })
+            })
+          }}
+          style={{width: '100%', height: '100%'}}
+          controls={true}
+          resizeMode='contain'
+          reportBandwidth={true}
+        />
+      </View>
       // <View className='flex bg-background flex-1 justify-center items-center gap-2'>
       //   <CustomText>URL: {videoInfo.url}</CustomText>
       //   <CustomText>Extension: {videoInfo.extension}</CustomText>
