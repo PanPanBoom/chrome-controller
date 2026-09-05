@@ -40,7 +40,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: chrome_controller_app/ios/Pods
-          key: ${{ runner.os }}-pods-${{ hashFiles('chrome_controller_app/ios/Podfile.lock') }}
+          key: ${{ runner.os }}-pods-${{ hashFiles('chrome_controller_app/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-pods-
 
