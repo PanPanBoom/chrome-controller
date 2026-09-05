@@ -3,11 +3,15 @@ import { Banknote, Cast, Clapperboard, LucideIcon, LucideProps, TvMinimalPlay } 
 import { JSX, useContext } from "react";
 import { colors } from "@/constants/colors";
 import { AppContext } from "@/contexts/appContext";
-import { View } from "react-native";
+import { ColorValue, View, ViewProps } from "react-native";
 
 export default function TabLayout()
 {
-    const TabIcon = (Element: LucideIcon, color: string, props?: (JSX.IntrinsicAttributes & LucideProps)) => <Element size={35} strokeWidth={1} color={color} {...props} />;
+    const TabIcon = (Element: LucideIcon, color: ColorValue, props?: ViewProps) => (
+        <View {...props}>
+            <Element size={35} strokeWidth={1} color={color} />
+        </View>
+    )
     const { server } = useContext(AppContext);
 
     return (

@@ -55,10 +55,10 @@ export default function extensionRoutes(io) {
     });
 
     router.post('/keypress', (req, res) => {
-        const { key } = req.body;
+        const { key, direction } = req.body;
         console.log(`Entrée : ${key}`);
 
-        state.currentDevice.keyPress(key);
+        state.currentDevice.keyPress(key, direction);
         
         res.send({ status: 'ok' });
     });

@@ -7,6 +7,7 @@ import { useContext, useEffect, useState } from "react";
 import { getIsVideoEnabled, sendKeyPress, socket } from "@/server/socket";
 import { AppContext } from "@/contexts/appContext";
 import { RemoteContext } from "@/contexts/remoteContext";
+import { useRemoteButton } from "@/hooks/useRemoteButton";
 
 export const VideoControlsPanel = ({className, ...props}: ViewProps) => {
     const { server } = useContext(AppContext);
@@ -28,14 +29,17 @@ export const VideoControlsPanel = ({className, ...props}: ViewProps) => {
     }, []);
 
     const handlePlayPauseClick = () => {
-        sendKeyPress(server.ip, commands.videoControls.playPause).then(() => setIsPaused(prev => !prev));
+        sendKeyPress(server.ip, commands.videoControls.playPause, commands?.directions?.shortPress).then(() => setIsPaused(prev => !prev));
     }
+
+    const rewindButton = useRemoteButton(server.ip, commands.videoControls.rewind, commands.directions);
+    const forwardButton = useRemoteButton(server.ip, commands.videoControls.forward, commands.directions);
     
     return (
         <View className={cn("flex-row justify-center items-center", className)}>
-            <IconButton icon={Rewind} color={iconColor} className={cn(buttonsStyle, "rounded-l-full")} onPress={() => sendKeyPress(server.ip, commands.videoControls.rewind)} disabled={isDisabled} />
+            <IconButton icon={Rewind} color={iconColor} className={cn(buttonsStyle, "rounded-l-full")} {...rewindButton} disabled={isDisabled} />
             <IconButton icon={isPaused ? Play : Pause} color={iconColor} className={buttonsStyle} onPress={handlePlayPauseClick} disabled={isDisabled} />
-            <IconButton icon={FastForward} color={iconColor} className={cn(buttonsStyle, "rounded-r-full")} onPress={() => sendKeyPress(server.ip, commands.videoControls.forward)} disabled={isDisabled} />
+            <IconButton icon={FastForward} color={iconColor} className={cn(buttonsStyle, "rounded-r-full")} {...forwardButton} disabled={isDisabled} />
         </View>
     )
 }

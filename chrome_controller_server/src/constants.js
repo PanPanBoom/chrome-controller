@@ -1,4 +1,4 @@
-import { RemoteKeyCode } from "androidtv-remote";
+import { RemoteDirection, RemoteKeyCode } from "androidtv-remote";
 
 export const remoteConstants = {
     power: RemoteKeyCode.KEYCODE_POWER,
@@ -25,5 +25,10 @@ export const remoteConstants = {
         rewind: RemoteKeyCode.KEYCODE_MEDIA_REWIND,
         playPause: RemoteKeyCode.KEYCODE_MEDIA_PLAY_PAUSE,
         forward: RemoteKeyCode.KEYCODE_MEDIA_FAST_FORWARD
+    },
+    directions: {
+        shortPress: RemoteDirection.SHORT,
+        longPressStart: RemoteDirection.START_LONG,
+        longPressEnd: RemoteDirection.END_LONG
     }
 }

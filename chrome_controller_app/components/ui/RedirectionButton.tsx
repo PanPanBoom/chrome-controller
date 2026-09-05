@@ -16,8 +16,6 @@ type RedirectionButtonProps = PressableProps &
         | {icon: LucideIcon; img?: never}
     )
 
-const AnimatedChevron = Animated.createAnimatedComponent(ChevronRight);
-
 export const RedirectionButton = ({className, style, children, ...props}: RedirectionButtonProps) => {
     const [expanded, setExpanded] = useState(false);
     const [listHeight, setListHeight] = useState(0);
@@ -64,7 +62,9 @@ export const RedirectionButton = ({className, style, children, ...props}: Redire
                     <ActivityIndicator /> :
                     <CustomText className="text-lg">{props.label}</CustomText>
                 }
-                <AnimatedChevron color={colors.secondary} size={iconSize} style={{ transform: [{ rotate: spin }]}} />
+                <Animated.View style={{ transform: [{ rotate: spin }]}}>
+                    <ChevronRight color={colors.secondary} size={iconSize} />
+                </Animated.View>
             </Button>
             <View className="mx-4" onLayout={(e) => setListHeight(e.nativeEvent.layout.height)}>
                 {children}

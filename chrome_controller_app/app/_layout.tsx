@@ -3,6 +3,10 @@ import "../global.css";
 import { AppProvider } from "@/contexts/appContext";
 import { useFonts } from 'expo-font';
 import { ModalProvider } from "@/contexts/modalProvider";
+import { cssInterop } from 'nativewind';
+import { BlurView } from "expo-blur";
+
+cssInterop(BlurView, { className: 'style' })
 
 export default function RootLayout() {
   const [loaded, error] = useFonts({

@@ -14,12 +14,12 @@ export const sendPing = async (ip: string, signal: AbortController["signal"]) =>
 
 export const getCommands = async (ip: string) => await sendCommand(ip, 'remote/config/commands');
 
-export const sendKeyPress = async (ip: string, key: number) => await sendCommand(ip, 'extension/keypress', {
+export const sendKeyPress = async (ip: string, key: number, direction: number) => await sendCommand(ip, 'extension/keypress', {
     method: 'POST',
     headers: {
         'Content-Type': 'application/json'
     },
-    body: JSON.stringify({ key })
+    body: JSON.stringify({ key, direction })
 });
 
 export const sendVolume = async (ip: string, volumeValue: number) => await sendCommand(ip, 'volume', {

@@ -75,7 +75,9 @@ export const Episode = (props: EpisodeProps) => {
                     </View>
                 </Animated.View>
             </View>
-            <AnimatedChevron style={{ transform: [{ rotate: spin }] }} color={colors.text} />
+            <Animated.View style={{ transform: [{ rotate: spin }] }}>
+                <ChevronRight color={colors.text} />
+            </Animated.View>
         </Pressable>
     )
 }

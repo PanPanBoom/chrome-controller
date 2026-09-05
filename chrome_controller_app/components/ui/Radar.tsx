@@ -37,8 +37,8 @@ export const Radar = ({className, ...props}: RadarProps) => {
       <View className={`w-[85%] ${lineStyle}`}>
         <View className={`w-[75%] ${lineStyle}`}>
           <View className={`w-[65%] ${lineStyle}`}>
-            <View className="bg-primary z-50 aspect-square w-[55%] rounded-full justify-center items-center" onLayout={e => props.setCenterRadius(e.nativeEvent.layout.width/2)}>
-              <Banknote fill={colors.secondary} color={colors.text} strokeWidth={1} size={40} style={{transform: [{rotate: "90deg"}]}}/>
+            <View className="bg-primary z-50 aspect-square w-[55%] rounded-full justify-center items-center" onLayout={e => props.setCenterRadius(e.nativeEvent.layout.width/2)} style={{transform: [{rotate: "90deg"}]}}>
+              <Banknote fill={colors.secondary} color={colors.text} strokeWidth={1} size={40} />
             </View>
           </View>
         </View>

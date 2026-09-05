@@ -16,12 +16,12 @@ import { RemoteContext, RemoteProvider } from "@/contexts/remoteContext";
 import { DeviceSelectionWidget } from "@/components/DeviceSelectionWidget";
 import { ModalContext } from "@/contexts/modalProvider";
 import { PairingCodeWidget } from "@/components/PairingCodeWidget";
+import { useRemoteButton } from "@/hooks/useRemoteButton";
 
 export default function Remote() {
     const { server, device, setDevice } = useContext(AppContext);
     const { commands, setCommands } = useContext(RemoteContext);
     const { showModal } = useContext(ModalContext);
-    // const [commands, setCommands] = useState<remoteConstantsDTO | null>(null);
     const [input, setInput] = useState("");
     const [devices, setDevices] = useState([]);
     const inputRef = useRef<TextInput>(null);
@@ -32,7 +32,6 @@ export default function Remote() {
         .then(data => {
             console.log('Commands received from server:', data);
             setCommands(data);
-            // console.log(data);
         });
 
         getDevices(server.ip)
@@ -61,7 +60,13 @@ export default function Remote() {
         sendInput(server.ip, newInput);
     }
 
-    const handleKeyPress = (key: number) => sendKeyPress(server.ip, key || -1)
+    useEffect(() => {
+        console.log('commands updated');
+    }, [commands]);
+
+    const powerButton = useRemoteButton(server.ip, commands.power, commands?.directions);
+    const backButton = useRemoteButton(server.ip, commands.back, commands?.directions);
+    const homeButton = useRemoteButton(server.ip, commands.home, commands?.directions);
 
     return (
         <Screen>
@@ -69,7 +74,7 @@ export default function Remote() {
             commands.DPad &&
             <View className="flex-1 flex items-center justify-between">
                 <View className="h-[5%] w-full flex-row justify-between items-center z-20">
-                    <IconButton icon={Power} onPressOut={() => handleKeyPress(commands?.power)}/>
+                    <IconButton icon={Power} {...powerButton} />
                     <CustomText className="text-text text-2xl">Télécommande</CustomText>
                     <IconButton icon={Cast} />
                 </View>
@@ -78,8 +83,8 @@ export default function Remote() {
                 </RedirectionButton>
                 <DPad className="z-0" style={{marginVertical: 30}}/>
                 <View className="flex-row w-[85%] justify-between">
-                    <TextButton onPressOut={() => handleKeyPress(commands?.back)}>BACK</TextButton>
-                    <TextButton onPressOut={() => handleKeyPress(commands?.home)}>HOME</TextButton>
+                    <TextButton {...backButton}>BACK</TextButton>
+                    <TextButton {...homeButton}>HOME</TextButton>
                     <TextButton disabled>EXIT</TextButton>
                 </View>
                 <View className="flex-row gap-5 h-[8%]">

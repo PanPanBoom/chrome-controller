@@ -24,7 +24,9 @@ export const ContextMenu = (props: ContextMenuProps) => {
         <View className="justify-center items-center">
             <Pressable className="flex-row justify-center items-center" onPress={() => setShowMenu(prev => !prev)}>
                 <CustomText className="text-secondary">{props.context ? props.context[activeIndex] : ""}</CustomText>
-                <ChevronDown color={colors.secondary} size={20} style={{transform: [{rotate: `${(showMenu ? 180 : 0)}deg`}]}}/>
+                <View style={{transform: [{rotate: `${(showMenu ? 180 : 0)}deg`}]}}>
+                    <ChevronDown color={colors.secondary} size={20} />
+                </View>
             </Pressable>
             {
                 showMenu &&

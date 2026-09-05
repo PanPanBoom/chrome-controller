@@ -72,9 +72,9 @@ export class AndroidTv extends Device {
         return await this.remote.start();
     }
 
-    keyPress(key)
+    keyPress(key, direction)
     {
-        this.remote.sendKey(key, RemoteDirection.SHORT);
+        this.remote.sendKey(key, direction);
     }
 
     async openUrl(url)

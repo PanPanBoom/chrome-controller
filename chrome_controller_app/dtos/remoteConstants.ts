@@ -23,5 +23,10 @@ export type remoteConstantsDTO = {
         rewind: number,
         playPause: number,
         forward: number
+    },
+    directions: {
+        shortPress: number,
+        longPressStart: number,
+        longPressEnd: number
     }
 }

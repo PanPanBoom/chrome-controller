@@ -12,10 +12,13 @@ import { CustomText } from "../ui/CustomText"
 import { DPadSides } from "./DPadSides"
 import { cn } from "@/etc/utils"
 import { RemoteContext } from "@/contexts/remoteContext"
+import { useRemoteButton } from "@/hooks/useRemoteButton"
 
 export const DPad = ({className, style, ...props}: ViewProps) => {
     const { server } = useContext(AppContext);
     const { commands } = useContext(RemoteContext);
+
+    const validateButton = useRemoteButton(server.ip, commands.DPad.validate, commands.directions);
 
     return (
         <View className={cn("w-[66%] aspect-square border-primary border border-[7px] bg-background rounded-full", className)} style={[{ shadowColor: colors.primary, shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0.8, shadowRadius: 12 }, style]}>
@@ -28,7 +31,7 @@ export const DPad = ({className, style, ...props}: ViewProps) => {
                     <DPadButton keySimulated={commands.DPad.down} />
                     <Button
                         className={`bg-primary rounded-full m-auto w-[40%] aspect-square`}
-                        onPressOut={() => sendKeyPress(server.ip, commands.DPad.validate)}
+                        {...validateButton}
                         style={{transform: [{rotate: '-45deg'}]}}
                     >
                         <CustomText style={{color: colors.text}}>OK</CustomText>
@@ -73,10 +76,14 @@ const DPadButton = (props: DPadArrowProps) => {
 
     const Component = arrowsMapping[props.keySimulated].component;
 
+    const button = useRemoteButton(server.ip, props.keySimulated, commands.directions);
+
     return (
-        <Button className={`${arrowsMapping[props.keySimulated].className} w-[50%] h-[50%] absolute bg-background-light`} onPressOut={() => sendKeyPress(server.ip, props.keySimulated)}>
+        <Button className={`${arrowsMapping[props.keySimulated].className} w-[50%] h-[50%] absolute bg-background-light`} {...button}>
             <View className="bg-background-hover rounded-full p-1">
-                <Component style={{transform: [{ rotate: '-45deg' }]}} color={colors.text}/>
+                <View style={{transform: [{ rotate: '-45deg' }]}}>
+                    <Component color={colors.text}/>
+                </View>
             </View>
         </Button>
     )
