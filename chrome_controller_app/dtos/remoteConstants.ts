@@ -9,7 +9,8 @@ export type remoteConstantsDTO = {
     },
     volume: {
         up: number,
-        down: number
+        down: number,
+        mute: number
     },
     zoom: {
         in: string,

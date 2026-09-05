@@ -19,13 +19,26 @@ export const getDPadSections = (startAngle: number, endAngle: number) => {
 type DPadSideProps = {
     startAngle: number;
     endAngle: number;
-    onPressArray: (() => void)[];
+    onPressArray: {
+        onPressIn: () => void;
+        onPressOut: () => void;
+    }[];
 }
 
 export const DPadSide = (props: DPadSideProps) => {
     const [activeIndex, setActiveIndex] = useState(-1);
 
     const sections = getDPadSections(props.startAngle, props.endAngle);
+
+    const handlePressIn = (index: number) => {
+        setActiveIndex(index);
+        props.onPressArray[index].onPressIn();
+    }
+
+    const handlePressOut = (index: number) => {
+        setActiveIndex(-1);
+        props.onPressArray[index].onPressOut();
+    }
 
     return (
         <>
@@ -37,10 +50,9 @@ export const DPadSide = (props: DPadSideProps) => {
                                                     endAngle={section.endAngle}
                                                     innerR={INNER_R}
                                                     outerR={OUTER_R}
-                                                    onPressIn={() => setActiveIndex(index)}
-                                                    onPressOut={() => setActiveIndex(-1)}
+                                                    onPressIn={() => handlePressIn(index)}
+                                                    onPressOut={() => handlePressOut(index)}
                                                     fill={activeIndex === index ? colors.backgroundHover : colors.backgroundLight}
-                                                    onPress={props.onPressArray[index]}
                                                     stroke={colors.backgroundLight}
                                                     strokeWidth={5}
                                                     strokeLinejoin="round"

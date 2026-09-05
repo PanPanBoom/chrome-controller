@@ -3,6 +3,7 @@ import { AndroidRemote, RemoteDirection, RemoteKeyCode } from "androidtv-remote"
 import { io } from '../../server.js';
 import fs from 'fs';
 import { ApiManager } from "../APIs/ApiManager.js";
+import { remoteConstants } from "../constants.js";
 
 export class AndroidTv extends Device {
     constructor(ip)
@@ -66,7 +67,12 @@ export class AndroidTv extends Device {
 
         this.remote.on('volume', (volume) => {
             console.log(volume);
-            this.isMuted = volume.muted;
+            if(this.isMuted !== volume.muted)
+            {
+                console.log("muteChanged");
+                io.emit('muteChanged', { muted: volume.muted });
+                this.isMuted = volume.muted;
+            }
         });
 
         return await this.remote.start();
@@ -74,7 +80,14 @@ export class AndroidTv extends Device {
 
     keyPress(key, direction)
     {
-        this.remote.sendKey(key, direction);
+        if(key === remoteConstants.volume.mute)
+        {
+            this.isMuted = !this.isMuted;
+            io.emit('muteChanged', { muted: this.isMuted });
+        }
+
+        else
+            this.remote.sendKey(key, direction);
     }
 
     async openUrl(url)
@@ -103,17 +116,6 @@ export class AndroidTv extends Device {
     submitInput(input)
     {
         this.keyPress(RemoteKeyCode.KEYCODE_ENTER);
-    }
-
-    handleVolume(volumeValue)
-    {
-        this.keyPress(volumeValue > 0 ? RemoteKeyCode.KEYCODE_VOLUME_UP : RemoteKeyCode.KEYCODE_VOLUME_DOWN, RemoteDirection.SHORT);
-    }
-
-    toggleMute()
-    {
-        super.toggleMute();
-        this.keyPress(RemoteKeyCode.KEYCODE_MUTE);
     }
 
     sendCode(code)

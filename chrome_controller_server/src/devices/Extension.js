@@ -2,6 +2,7 @@ import { Device } from "./Device.js";
 import loudness from 'loudness';
 import { io } from '../../server.js';
 import { ApiManager } from "../APIs/ApiManager.js";
+import { remoteConstants } from "../constants.js";
 
 export class Extension extends Device
 {
@@ -12,7 +13,22 @@ export class Extension extends Device
 
     keyPress(key)
     {
-        io.emit('command', { action: "HANDLE", key});
+        switch(key)
+        {
+            case remoteConstants.volume.up:
+                this.handleVolume(5);
+                break;
+            case remoteConstants.volume.down:
+                this.handleVolume(-5);
+                break;
+            case remoteConstants.volume.mute:
+                this.toggleMute();
+                break;
+
+            default:
+                io.emit('command', { action: "HANDLE", key});
+                break;
+        }
     }
 
     async castShow(platform, id, episodeInfo)
@@ -43,10 +59,13 @@ export class Extension extends Device
 
         console.log(isMuted ? "Demute" : "Mute");
         await loudness.setMuted(!isMuted);
+        io.emit('muteChanged', { muted: !isMuted });
+        
     }
 
     async handleVolume(volumeValue)
     {
+        console.log("volume");
         const vol = await loudness.getVolume();
         await loudness.setVolume(vol + volumeValue);
     }
