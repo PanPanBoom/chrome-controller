@@ -105,7 +105,7 @@ export class AndroidTv extends Device {
     sendInput(input)
     {
         if(this.lastInputSent.length > input.length)
-            this.keyPress(RemoteKeyCode.KEYCODE_DEL);
+            this.keyPress(RemoteKeyCode.KEYCODE_DEL, RemoteDirection.SHORT);
 
         else
             this.remote.sendText(input[input.length - 1]);
@@ -115,7 +115,7 @@ export class AndroidTv extends Device {
 
     submitInput(input)
     {
-        this.keyPress(RemoteKeyCode.KEYCODE_ENTER);
+        this.keyPress(RemoteKeyCode.KEYCODE_ENTER, RemoteDirection.SHORT);
     }
 
     sendCode(code)
