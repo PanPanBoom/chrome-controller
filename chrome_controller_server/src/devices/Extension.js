@@ -69,4 +69,9 @@ export class Extension extends Device
         const vol = await loudness.getVolume();
         await loudness.setVolume(vol + volumeValue);
     }
+
+    closeConnection()
+    {
+        
+    }
 }

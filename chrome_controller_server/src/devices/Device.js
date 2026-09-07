@@ -38,4 +38,9 @@ export class Device {
     {
         this.isMuted = !this.isMuted;
     }
+
+    closeConnection()
+    {
+        throw new Error("Need to be implemented");
+    }
 }

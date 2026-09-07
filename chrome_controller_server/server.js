@@ -88,7 +88,9 @@ app.post('/showUpdate', async (req, res) => {
 app.post('/connectTv', async (req, res) => {
     const { ip } = req.body;
 
-    if(ip != "")
+    state?.currentDevice?.closeConnection();
+
+    if(ip !== "")
     {
         state.currentDevice = new AndroidTv(ip);
         const isStarted = await state.currentDevice.init();

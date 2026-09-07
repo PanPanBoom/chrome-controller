@@ -122,4 +122,9 @@ export class AndroidTv extends Device {
     {
         return this.remote.sendCode(code);
     }
+
+    closeConnection()
+    {
+        this.remote.stop();
+    }
 }
