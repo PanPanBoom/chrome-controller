@@ -6,15 +6,23 @@ export class ScrappingBrowser {
     static async getContext() {
         if (!this.#contextPromise) {
             console.log("Creating ScrappingBrowser...");
-            this.#contextPromise = patchright.chromium.launchPersistentContext(
-                'C:\\Users\\mehdi\\AppData\\Roaming\\Opera Software\\Opera GX Stable', {
-                    executablePath: 'C:\\Users\\mehdi\\AppData\\Local\\Programs\\Opera GX\\opera.exe',
+            this.#contextPromise = (async () => {
+                const browser = await patchright.chromium.launch({
+                    channel: 'chrome',
                     headless: false,
-                    args: ['--profile-directory=Default'],
-                    ignoreDefaultArgs: ['--disable-extensions'],
-                    viewport: null
-                }
-            );
+                    args: [
+                        '--headless=new',
+                        '--disable-blink-features=AutomationControlled'
+                    ]
+                });
+
+                const context = await browser.newContext({
+                    viewport: { width: 1920, height: 1080 },
+                    userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36'
+                });
+
+                return context;
+            })();
         }
         return await this.#contextPromise;
     }
@@ -33,5 +41,17 @@ export class ScrappingBrowser {
         
         // On formate les cookies pour pouvoir les envoyer directement dans un header
         return cookies.map(c => `${c.name}=${c.value}`).join('; ');
+    }
+
+    static async close()
+    {
+        if(this.#contextPromise)
+        {
+            const context = await this.#contextPromise;
+
+            await context.browser().close();
+
+            this.#contextPromise = null;
+        }
     }
 }

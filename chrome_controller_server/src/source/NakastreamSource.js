@@ -1,3 +1,4 @@
+import { ScrappingBrowser } from "../ScrappingBrowser.js";
 import { Source } from "./Source.js";
 import 'dotenv/config';
 
@@ -12,6 +13,17 @@ export class NakastreamSource extends Source
     {
         if(!this.headers)
         {
+            const page = await ScrappingBrowser.getNewPage();
+
+            const tokenPromise = page.waitForResponse(this.baseUrl + "/api/v1/captcha/login/redeem");
+            await page.goto(this.baseUrl + '/login')
+            const tokenRes = await tokenPromise;
+            const token = await tokenRes.json();
+
+            page.close();
+
+            console.log(token);
+
             console.log("Logging in...");
 
             const res = await fetch(`${this.baseUrl}/api/v1/auth/login`, {
@@ -19,7 +31,11 @@ export class NakastreamSource extends Source
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ email: process.env.NAKASTREAM_MAIL, password: process.env.NAKASTREAM_PASSWORD})
+                body: JSON.stringify({
+                    email: process.env.NAKASTREAM_MAIL,
+                    password: process.env.NAKASTREAM_PASSWORD,
+                    captchaToken: token.token                    
+                })
             });
 
             if(res.status !== 200)
