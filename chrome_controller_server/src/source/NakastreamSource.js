@@ -20,9 +20,7 @@ export class NakastreamSource extends Source
             const tokenRes = await tokenPromise;
             const token = await tokenRes.json();
 
-            page.close();
-
-            console.log(token);
+            ScrappingBrowser.close();
 
             console.log("Logging in...");
 
