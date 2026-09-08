@@ -30,6 +30,11 @@ export class TwitchApi extends Api
         }));
     }
 
+    async getLists(filter)
+    {
+        return {}
+    }
+
     getShowLink(id)
     {
         return `https://www.twitch.tv/${id}`;

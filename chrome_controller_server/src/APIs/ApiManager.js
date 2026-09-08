@@ -17,6 +17,11 @@ export class ApiManager
         return await this.apis[platform].getTopShows(filter);
     }
 
+    static async getLists(platform, filter)
+    {
+        return await this.apis[platform].getLists(filter);
+    }
+
     static getFilters(platform)
     {
         return this.apis[platform].filters;

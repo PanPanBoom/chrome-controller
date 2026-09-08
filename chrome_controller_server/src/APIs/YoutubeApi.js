@@ -33,6 +33,11 @@ export class YoutubeApi extends Api
         }));
     }
 
+    async getLists(filter)
+    {
+        return {}
+    }
+
     getShowLink(id)
     {
         return `https://www.youtube.com/watch?v=${id}`;

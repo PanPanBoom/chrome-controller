@@ -51,6 +51,11 @@ export class NetflixApi extends Api
         }));
     }
 
+    async getLists(filter)
+    {
+        return {}
+    }
+
     async searchShowsByTitle(title)
     {
         const shows = await this.apiClient.showsApi.searchShowsByTitle({

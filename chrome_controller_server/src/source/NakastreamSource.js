@@ -7,6 +7,7 @@ export class NakastreamSource extends Source
     constructor()
     {
         super("https://nakastream.tv", "/player?id=");
+        this.clearanceCookie = "";
     }
 
     async login()
@@ -20,7 +21,12 @@ export class NakastreamSource extends Source
             const tokenRes = await tokenPromise;
             const token = await tokenRes.json();
 
-            ScrappingBrowser.close();
+            const context = await ScrappingBrowser.getContext();
+            const cookies = await context.cookies();
+            this.clearanceCookie = 'cf_clearance=' + cookies.find(c => c.name === 'cf_clearance')?.value;
+            this.userAgent = await page.evaluate(() => navigator.userAgent);
+
+            await ScrappingBrowser.close();
 
             console.log("Logging in...");
 
@@ -111,7 +117,9 @@ export class NakastreamSource extends Source
 
         return {
             url: videoUrl,
-            referer: ""
+            referer: await this.getShowUrl(id, episodeInfo),
+            cookies: this.clearanceCookie,
+            userAgent: this.userAgent
         }
     }
 

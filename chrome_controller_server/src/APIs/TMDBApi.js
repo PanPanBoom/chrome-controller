@@ -6,7 +6,7 @@ import { NoxpulseSource } from "../source/NoxpulseSource.js";
 import { MappleTVSource } from "../source/MappleTVSource.js";
 import os from 'os';
 import { state } from "../state.js";
-import { getNextStartTime, getShowById } from "../db.js";
+import { getAllShows, getNextStartTime, getShowById } from "../db.js";
 
 const dateParser = (dateString) => {
     if (!dateString) return null;
@@ -70,6 +70,13 @@ export class TMDBApi extends Api
                     platform: this.platform,
                     nextStartTime: getNextStartTime(`${show.media_type}/${show.id}`)
                 })));
+    }
+
+    async getLists(filter)
+    {
+        return {
+            "Reprendre": await Promise.all(getAllShows().map((show) => this.getShowMinimalById(show.id)))
+        }
     }
 
     async searchShowsByTitle(title, filter)
@@ -267,6 +274,8 @@ export class TMDBApi extends Api
 
                 params.append('url', encodeURIComponent(videoInfo.url));
                 params.append('referer', encodeURIComponent(videoInfo.referer));
+                params.append('cookies', encodeURIComponent(videoInfo.cookies));
+                params.append('userAgent', encodeURIComponent(videoInfo.userAgent));
                 params.append('serverIp', encodeURIComponent(state.serverIp));
                 params.append('startTime', startTime);
                 console.log(`Starting show at ${startTime / 1000}s`);
