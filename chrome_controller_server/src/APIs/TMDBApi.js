@@ -40,7 +40,7 @@ export class TMDBApi extends Api
         this.platform = 'tmdb';
         this.sources = [
             // new StreamoSource(),
-            new NakastreamSource(),
+            // new NakastreamSource(),
             new NoxpulseSource(),
             new MappleTVSource(),
         ]
@@ -61,15 +61,13 @@ export class TMDBApi extends Api
     {
         return this.fetchApi(`trending/${filter}/day?language=fr-FR`)
                 .then(res => res.json())
-                .then(data => data?.results?.map(show => ({
-                    id: `${show.media_type}/${show.id}`,
-                    title: show.title ?? show.name,
-                    img: this.imageBaseUrl + show.backdrop_path,
-                    overview: show.overview,
-                    media_type: show.media_type,
-                    platform: this.platform,
-                    nextStartTime: getNextStartTime(`${show.media_type}/${show.id}`)
-                })));
+                .then(data => data?.results?.map(show => this.formatForCarousel(
+                    `${show.media_type}/${show.id}`,
+                    show.title ?? show.name,
+                    this.imageBaseUrl + show.backdrop_path,
+                    show.overview,
+                    show.media_type
+                )));
     }
 
     async getLists(filter)
@@ -84,15 +82,13 @@ export class TMDBApi extends Api
         console.log(title, filter);
         return this.fetchApi(`search/${filter === "all" ? "multi" : filter}?query=${title}&language=fr-FR`)
                 .then(res => res.json())
-                .then(data => data.results.filter(show => show.media_type !== "person").map(show => ({
-                    id: `${show.media_type ?? filter}/${show.id}`,
-                    title: show.title ?? show.name,
-                    img: this.imageBaseUrl + show.backdrop_path,
-                    overview: show.overview,
-                    media_type: show.media_type ?? filter,
-                    platform: this.platform,
-                    nextStartTime: getNextStartTime(`${show.media_type ?? filter}/${show.id}`)
-                })));
+                .then(data => data.results.filter(show => show.media_type !== "person").map(show => this.formatForCarousel(
+                    `${show.media_type ?? filter}/${show.id}`,
+                    show.title ?? show.name,
+                    this.imageBaseUrl + show.backdrop_path,
+                    show.overview,
+                    show.media_type ?? filter
+                )));
     }
 
     async getShowById(id)
@@ -150,23 +146,13 @@ export class TMDBApi extends Api
 
         return this.fetchApi(`${id}?language=fr-FR`)
                 .then(res => res.json())
-                .then(show => {
-                    const showFromDB = getShowById(id);
-                    return {
-                        id,
-                        title: show.title ?? show.name,
-                        img: this.imageBaseUrl + show.backdrop_path,
-                        overview: show.overview,
-                        media_type: mediaType,
-                        platform: this.platform,
-                        nextStartTime: showFromDB?.nextStartTime,
-                        currentEpisodeInfo: showFromDB.currentSeason && {
-                            season: showFromDB?.currentSeason,
-                            episode: showFromDB?.currentEpisode
-                        },
-                        percentageWatched: showFromDB?.percentageWatched
-                    }
-                })
+                .then(show => this.formatForCarousel(
+                    id,
+                    show.title ?? show.name,
+                    this.imageBaseUrl + show.backdrop_path,
+                    show.overview,
+                    mediaType
+                ))
     }
 
     async getSeasonById(showId, seasonNumber)

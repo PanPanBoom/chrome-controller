@@ -12,7 +12,7 @@ export const remoteConstants = {
     volume: {
         up: RemoteKeyCode.KEYCODE_VOLUME_UP,
         down: RemoteKeyCode.KEYCODE_VOLUME_DOWN,
-        mute: RemoteKeyCode.KEYCODE_MUTE
+        mute: RemoteKeyCode.KEYCODE_VOLUME_MUTE
     },
     zoom: {
         in: "zoomIn",

@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/Button";
 import { ContextMenu } from "@/components/ui/ContextMenu";
 import { CustomText } from "@/components/ui/CustomText";
 import { CustomTitle } from "@/components/ui/CustomTitle";
-import { Screen } from "@/components/ui/Screen";
 import { ScrollScreen } from "@/components/ui/ScrollScreen";
 import { AppContext } from "@/contexts/appContext";
 import { App } from "@/dtos/app";
@@ -17,7 +16,7 @@ import { FlatList, ScrollView, TextInput, View } from "react-native";
 export default function Apps()
 {
     const [apps, setApps] = useState<App[] | null>(null);
-    const [trendsPlatform, setTrendsPlatform] = useState<App | null>(null);
+    const [currentPlatform, setCurrentPlatform] = useState<App | null>(null);
     const [trendingShows, setTrendingShows] = useState<ShowDTO[]>([]);
     // const [historyShows, setHistoryShows] = useState<ShowDTO[]>([]);
     const [showLists, setShowLists] = useState<Record<string, ShowDTO[]>>({});
@@ -39,13 +38,10 @@ export default function Apps()
                 setApps(data);
 
                 const initialPlatform = data[0];
-                setTrendsPlatform(initialPlatform);
-
-                const tmdbApp = data.find((platform: App) => platform.name === "TMDB");
+                setCurrentPlatform(initialPlatform);
 
                 setActiveFilters({
-                    "trends": initialPlatform?.filters?.[0]?.apiValue || "",
-                    "search": tmdbApp?.filters?.[0]?.apiValue || ""
+                    "search": initialPlatform?.filters?.[0]?.apiValue || ""
                 });
             });
 
@@ -59,32 +55,34 @@ export default function Apps()
             return;
 
         const newPlatform = apps[newPlatformIndex];
-        setTrendsPlatform(newPlatform);
-        handleFilterChange('trends', newPlatform?.filters?.[0]?.apiValue);
+        setCurrentPlatform(newPlatform);
+        handleFilterChange('search', newPlatform?.filters?.[0]?.apiValue);
     }
 
     useEffect(() => {
-        if(!trendsPlatform) return;
+        if(!currentPlatform) return;
 
-        console.log(trendsPlatform);
+        console.log(currentPlatform);
 
-        getShowLists(server.ip, trendsPlatform.name, "")
+        getShowLists(server.ip, currentPlatform.name, "")
             .then(res => res.json())
             .then(data => setShowLists(data));
 
-        getTopShows(server.ip, trendsPlatform.name, activeFilters['trends'])
+        getTopShows(server.ip, currentPlatform.name, activeFilters['search'])
             .then(res => res.json())
             .then(dataFetched => setTrendingShows(dataFetched));
-    }, [trendsPlatform, activeFilters["trends"]]);
+    }, [currentPlatform, activeFilters["search"]]);
 
     const handleSearch = () => {
-        if(!input)
+        if(!input || !currentPlatform)
             return;
 
-        searchShow(server.ip, input, activeFilters['search'] || "movie")
+        searchShow(server.ip, currentPlatform.name, input, activeFilters['search'] || "movie")
             .then(res => res.json())
             .then(dataFetched => setSearchedShows(dataFetched));
     }
+
+    console.log(searchedShows);
 
     const handleChangeText = (newText: string) =>   {
         setInput(newText);
@@ -117,7 +115,7 @@ export default function Apps()
             </View>
             <ShowCarousel
                 shows={searchedShows.length > 0 ? searchedShows : trendingShows}
-                filters={apps?.find(app => app.name === "TMDB")?.filters || []}
+                filters={currentPlatform?.filters || []}
                 selectedFilter={activeFilters['search'] || ""}
                 onFilterChange={(newFilter) => handleFilterChange('search', newFilter)}
             />

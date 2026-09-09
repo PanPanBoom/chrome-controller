@@ -80,7 +80,7 @@ export default function remoteRoutes(io) {
 
     router.get('/searchShow', (req, res) => {
         console.log('Recherche de show: ' + req.query.search);
-        ApiManager.searchShowsByTitle(req.query.search, req.query.filter)
+        ApiManager.searchShowsByTitle(req.query.platform.toLowerCase(), req.query.search, req.query.filter)
         .then(data => res.json(data));
     });
 

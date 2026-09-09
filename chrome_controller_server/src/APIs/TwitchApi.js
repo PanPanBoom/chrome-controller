@@ -21,12 +21,31 @@ export class TwitchApi extends Api
             limit: 20
         });
 
-        return response.data.map(stream => ({
-            id: stream.userName,
-            title: stream.userDisplayName,
-            img: stream.getThumbnailUrl(1280, 720),
-            overview: stream.title,
-            platform: this.platform
+        return response.data.map(stream => this.formatForCarousel(
+            stream.userName,
+            stream.userDisplayName,
+            stream.getThumbnailUrl(1280, 720),
+            stream.title
+        ));
+    }
+
+    async searchShowsByTitle(title)
+    {
+        const response = await this.apiClient.search.searchChannels(title, {
+            liveOnly: true,
+            limit: 20
+        });
+
+        return await Promise.all(response.data.map(async (channel) => {
+            const user = await channel.getUser();
+            const stream = await user.getStream();
+            
+            return this.formatForCarousel(
+                stream.userName,
+                stream.userDisplayName,
+                stream.getThumbnailUrl(1280, 720),
+                stream.title           
+            );
         }));
     }
 

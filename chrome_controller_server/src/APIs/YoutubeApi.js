@@ -24,13 +24,29 @@ export class YoutubeApi extends Api
             maxResults: 20
         });
 
-        return response.data.items.map(video => ({
-            id: video.id,
-            title: video.snippet.title,
-            img: video.snippet.thumbnails.high.url,
-            overview: video.snippet.description,
-            platform: this.platform
-        }));
+        return response.data.items.map(video => this.formatForCarousel(
+            video.id,
+            video.snippet.title,
+            video.snippet.thumbnails.high.url,
+            video.snippet.description
+        ));
+    }
+
+    async searchShowsByTitle(title, filter)
+    {
+        const response = await this.apiClient.search.list({
+            part: 'snippet',
+            q: title,
+            regionCode: 'fr',
+            maxResults: 20
+        });
+
+        return response.data.items.map(video => this.formatForCarousel(
+            video.id.videoId,
+            video.snippet.title,
+            video.snippet.thumbnails.high.url,
+            video.snippet.description
+        ));
     }
 
     async getLists(filter)
