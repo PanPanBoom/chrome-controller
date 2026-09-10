@@ -54,17 +54,21 @@ export class NetflixApi extends Api
         return {}
     }
 
-    async searchShowsByTitle(title)
+    async searchShowsByTitle(title, filter)
     {
-        const shows = await this.apiClient.showsApi.searchShowsByTitle({
-            title,
+        console.log(filter);
+        
+        const searchResult = await this.apiClient.showsApi.searchShowsByFilters({
+            keyword: title,
             outputLanguage: 'fr',
-            country: 'fr'
+            country: 'fr',
+            catalogs: [this.platform],
+            show_type: filter
         });
 
-        return shows.map(show => this.formatForCarousel(
+        return searchResult.shows.map(show => this.formatForCarousel(
                 show.tmdbId,
-                show.title,
+                "",
                 show.imageSet.horizontalPoster.w1440,
                 show.overview,
                 show.tmdbId.split('/')[0]
