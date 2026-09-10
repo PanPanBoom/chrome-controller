@@ -49,7 +49,7 @@ export class TwitchApi extends Api
         }));
     }
 
-    async getLists(filter)
+    async sendListsRequest(filter)
     {
         return {}
     }

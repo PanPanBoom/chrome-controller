@@ -88,6 +88,11 @@ export class Api
 
     async getLists(filter)
     {
+        return this.fetchWithCache("lists", filter, () => this.sendListsRequest(filter));
+    }
+
+    async sendListsRequest(filter)
+    {
         throw new Error("Must be implemented.");
     }
 

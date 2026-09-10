@@ -38,7 +38,8 @@ export class YoutubeApi extends Api
             part: 'snippet',
             q: title,
             regionCode: 'fr',
-            maxResults: 20
+            maxResults: 20,
+            type: 'video'
         });
 
         return response.data.items.map(video => this.formatForCarousel(
@@ -49,9 +50,27 @@ export class YoutubeApi extends Api
         ));
     }
 
-    async getLists(filter)
+    async sendListsRequest(filter)
     {
-        return {}
+        return {
+            // "Abonnements": await this.getSubscriptionsVideos()
+        }
+    }
+
+    async getSubscriptionsVideos()
+    {
+        const response = await this.apiClient.subscriptions.list({
+            part: 'snippet',
+            mine: true,
+            maxResults: 20
+        });
+
+        return response.data.items.map(video => this.formatForCarousel(
+            video.snippet.resourceId.videoId,
+            video.snippet.title,
+            video.snippet.thumbnails.high.url,
+            video.snippet.description
+        ));
     }
 
     getShowLink(id)

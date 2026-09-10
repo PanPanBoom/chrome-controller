@@ -6,7 +6,7 @@ import { NoxpulseSource } from "../source/NoxpulseSource.js";
 import { MappleTVSource } from "../source/MappleTVSource.js";
 import os from 'os';
 import { state } from "../state.js";
-import { getAllShows, getNextStartTime, getShowById } from "../db.js";
+import { getAllShows, getShowsByFilter, getShowById } from "../db.js";
 
 const dateParser = (dateString) => {
     if (!dateString) return null;
@@ -40,7 +40,7 @@ export class TMDBApi extends Api
         this.platform = 'tmdb';
         this.sources = [
             // new StreamoSource(),
-            // new NakastreamSource(),
+            new NakastreamSource(),
             new NoxpulseSource(),
             new MappleTVSource(),
         ]
@@ -70,16 +70,87 @@ export class TMDBApi extends Api
                 )));
     }
 
-    async getLists(filter)
+    async sendListsRequest(filter)
     {
-        return {
-            "Reprendre": await Promise.all(getAllShows().map((show) => this.getShowMinimalById(show.id)))
+        const baseLists = {
+            "Pépites méconnues": await this.discoverShows(filter, {
+                'sort_by': 'vote_average.desc',
+                'vote_count.gte': 200,
+                'vote_count.lte': 1500,
+                'vote_average.gte': 7.5
+            }),
+            'Feel Good': await this.discoverShows(filter, {
+                with_genres: 35,
+                sort_by: 'popularity.desc',
+                without_genres: '18,27,53,99',
+                "vote_average.gte": 6.5
+            })
         }
+
+        const movieLists = {
+            "Blockbusters de l'année": await this.discoverShows("movie", {
+                'sort_by': 'revenue.desc',
+                'primary_release_year': 2026,
+                'vote_count.gte': 1000
+            })
+        };
+
+        const tvLists = {
+            "Anime": await this.discoverShows("tv", {
+                with_genres: 16,
+                with_original_language: 'ja',
+                sort_by: 'popularity.desc'
+            })
+        };
+
+        return {
+            "Reprendre": await Promise.all((filter === "all" ? getAllShows() : getShowsByFilter(filter)).map((show) => this.getShowMinimalById(show.id))),
+            ...(filter === "movie" || filter === "all" ? movieLists : {}),
+            ...(filter === "tv" || filter === "all" ? tvLists : {}),
+            ...baseLists
+        }
+    }
+
+    async discoverShows(filter, paramsObject)
+    {
+        if(filter === "all")
+        {
+            const [movies, tvShows] = await Promise.all([
+                this.discoverShows("movie", paramsObject),
+                this.discoverShows("tv", paramsObject)
+            ]);
+
+            const mixedResults = [];
+            for(let i = 0; i < Math.max(movies.length, tvShows.length); i++)
+            {
+                if(movies[i]) mixedResults.push(movies[i]);
+                if(tvShows[i]) mixedResults.push(tvShows[i]);
+            }
+
+            return mixedResults.slice(0, 20);
+        }
+
+        const params = new URLSearchParams();
+
+        for(const [key, value] of Object.entries(paramsObject))
+            params.append(key, value);
+
+        params.append('language', 'fr-FR');
+
+        const res = await this.fetchApi(`discover/${filter}?${params}`);
+        const data = await res.json();
+
+        return data?.results?.map(show => ({ ...this.formatForCarousel(
+            `${filter}/${show.id}`,
+            show.title ?? show.name,
+            this.imageBaseUrl + show.backdrop_path,
+            show.overview,
+            filter
+        ), popularity: show.popularity }));
     }
 
     async searchShowsByTitle(title, filter)
     {
-        console.log(title, filter);
         return this.fetchApi(`search/${filter === "all" ? "multi" : filter}?query=${title}&language=fr-FR`)
                 .then(res => res.json())
                 .then(data => data.results.filter(show => show.media_type !== "person").map(show => this.formatForCarousel(

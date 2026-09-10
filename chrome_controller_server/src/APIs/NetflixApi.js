@@ -49,7 +49,7 @@ export class NetflixApi extends Api
         ));
     }
 
-    async getLists(filter)
+    async sendListsRequest(filter)
     {
         return {}
     }
@@ -57,7 +57,7 @@ export class NetflixApi extends Api
     async searchShowsByTitle(title, filter)
     {
         console.log(filter);
-        
+
         const searchResult = await this.apiClient.showsApi.searchShowsByFilters({
             keyword: title,
             outputLanguage: 'fr',

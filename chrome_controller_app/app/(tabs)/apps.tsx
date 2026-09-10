@@ -22,13 +22,8 @@ export default function Apps()
     const [showLists, setShowLists] = useState<Record<string, ShowDTO[]>>({});
     const [searchedShows, setSearchedShows] = useState<ShowDTO[]>([]);
     const [input, setInput] = useState("");
-    const [activeFilters, setActiveFilters] = useState<Record<string, string>>({});
+    const [activeFilter, setActiveFilter] = useState("");
     const { server } = useContext(AppContext);
-
-    const handleFilterChange = (carouselId: string, filterValue: string) => setActiveFilters(prev => ({
-        ...prev,
-        [carouselId]: filterValue
-    }));
 
     useEffect(() => {
         getApps(server.ip)
@@ -40,9 +35,7 @@ export default function Apps()
                 const initialPlatform = data[0];
                 setCurrentPlatform(initialPlatform);
 
-                setActiveFilters({
-                    "search": initialPlatform?.filters?.[0]?.apiValue || ""
-                });
+                setActiveFilter(initialPlatform?.filters?.[0]?.apiValue || "");
             });
 
         // getHistoryShows(server.ip)
@@ -56,7 +49,7 @@ export default function Apps()
 
         const newPlatform = apps[newPlatformIndex];
         setCurrentPlatform(newPlatform);
-        handleFilterChange('search', newPlatform?.filters?.[0]?.apiValue);
+        setActiveFilter(newPlatform?.filters?.[0]?.apiValue || "");
     }
 
     useEffect(() => {
@@ -64,20 +57,23 @@ export default function Apps()
 
         console.log(currentPlatform);
 
-        getShowLists(server.ip, currentPlatform.name, "")
+        getShowLists(server.ip, currentPlatform.name, activeFilter)
             .then(res => res.json())
             .then(data => setShowLists(data));
 
-        getTopShows(server.ip, currentPlatform.name, activeFilters['search'])
+        getTopShows(server.ip, currentPlatform.name, activeFilter)
             .then(res => res.json())
             .then(dataFetched => setTrendingShows(dataFetched));
-    }, [currentPlatform, activeFilters["search"]]);
+
+        if(input)
+            handleSearch();
+    }, [currentPlatform, activeFilter]);
 
     const handleSearch = () => {
         if(!input || !currentPlatform)
             return;
 
-        searchShow(server.ip, currentPlatform.name, input, activeFilters['search'] || "movie")
+        searchShow(server.ip, currentPlatform.name, input, activeFilter)
             .then(res => res.json())
             .then(dataFetched => setSearchedShows(dataFetched));
     }
@@ -89,11 +85,6 @@ export default function Apps()
         if(newText.length === 0)
             setSearchedShows([]);
     }
-
-    useEffect(() => {
-        if(input)
-            handleSearch();
-    }, [activeFilters["search"]])
         
     return (
         <ScrollScreen className="gap-3">
@@ -116,12 +107,13 @@ export default function Apps()
             <ShowCarousel
                 shows={searchedShows.length > 0 ? searchedShows : trendingShows}
                 filters={currentPlatform?.filters || []}
-                selectedFilter={activeFilters['search'] || ""}
-                onFilterChange={(newFilter) => handleFilterChange('search', newFilter)}
+                selectedFilter={activeFilter}
+                onFilterChange={setActiveFilter}
             />
             {
                 Object.entries(showLists).map(([ label, shows ]) => 
-                    <View key={label} className="gap-4">
+                    shows.length > 0 &&
+                    <View key={label} className="gap-4 py-1">
                         <CustomTitle>{label}</CustomTitle>
                         <ShowCarousel 
                             shows={shows}
