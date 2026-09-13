@@ -15,66 +15,65 @@ export class NakastreamSource extends Source
     {
         if(!this.headers)
         {
-            const page = await ScrappingBrowser.getNewPage();
-
-            const tokenPromise = page.waitForResponse(this.baseUrl + "/api/v1/captcha/login/redeem");
-            await page.goto(this.baseUrl + '/login')
-            const tokenRes = await tokenPromise;
-            const token = await tokenRes.json();
-
-            const context = await ScrappingBrowser.getContext();
-            const cookies = await context.cookies();
-            this.clearanceCookie = 'cf_clearance=' + cookies.find(c => c.name === 'cf_clearance')?.value;
-            this.userAgent = await page.evaluate(() => navigator.userAgent);
-
-            console.log("Logging in...");
-
-            const evaluationResult = await page.evaluate(async ({ baseUrl, email, password, captchaToken }) => {
-                const response = await fetch(`${baseUrl}/api/v1/auth/login`, {
-                    method: 'POST',
-                    "headers": {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ email, password, captchaToken })
-                });
-
-                const text = await response.text();
-                let data = null;
-                try { data = JSON.parse(text); } catch(e) {}
-
-                return {
-                    status: response.status,
-                    statusText: response.statusText,
-                    data: data,
-                    rawText: text
-                };
-            }, {
-                baseUrl: this.baseUrl,
-                email: process.env.NAKASTREAM_MAIL,
-                password: process.env.NAKASTREAM_PASSWORD,
-                captchaToken: token.token
-            });
-
-            // console.log(res);
-
-            if(evaluationResult.status !== 200)
+            try
             {
-                console.log(`Error ${evaluationResult.status} while login: ${evaluationResult.statusText}`);
-                console.log(`Server details: ${evaluationResult.rawText}`);
+                const accessRes = await gotScraping.get(`${this.baseUrl}/api/v1/access`, {
+                    headerGeneratorOptions: {
+                        browsers: [{ name: 'chrome', minVersion: 110 }],
+                        devices: ['desktop'],
+                        operatingSystems: ['windows']
+                    }
+                });
+    
+                const accessData = JSON.parse(accessRes.body);
+
+                let token = null;
+                if(accessData?.captcha?.login)
+                {
+                    const page = await ScrappingBrowser.getNewPage();
+        
+                    const tokenPromise = page.waitForResponse(this.baseUrl + "/api/v1/captcha/login/redeem");
+                    await page.goto(this.baseUrl + '/login')
+                    const tokenRes = await tokenPromise;
+                    token = await tokenRes.json();
+        
+                    const context = await ScrappingBrowser.getContext();
+                    const cookies = await context.cookies();
+                    this.clearanceCookie = 'cf_clearance=' + cookies.find(c => c.name === 'cf_clearance')?.value;
+                    this.userAgent = await page.evaluate(() => navigator.userAgent);
+    
+                    await ScrappingBrowser.close();
+                }
+    
+                console.log("Logging in...");
+    
+                const loginRes = await gotScraping.post(`${this.baseUrl}/api/v1/auth/login`, {
+                    json: {
+                        email: process.env.NAKASTREAM_MAIL,
+                        password: process.env.NAKASTREAM_PASSWORD,
+                        captchaToken: token?.token
+                    },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'User-Agent': this.userAgent
+                    }
+                });
+    
+                const loginData = JSON.parse(loginRes.body);
+    
+                this.headers = {
+                    accept: 'application/json',
+                    Authorization: `Bearer ${loginData.token}`,
+                    'User-Agent': this.userAgent,
+                    'Cookie': `cf_clearance=${this.clearanceCookie}`,
+                    Referer: this.baseUrl + '/'
+                };
+    
+                return true;
+            } catch (err) {
+                console.error("Error during login: ", err);
                 return false;
             }
-
-            this.headers = {
-                accept: 'application/json',
-                Authorization: `Bearer ${evaluationResult.data.token}`,
-                'User-Agent': this.userAgent,
-                'Cookie': `cf_clearance=${this.clearanceCookie}`,
-                Referer: this.baseUrl + '/'
-            };
-
-            await ScrappingBrowser.close();
-
-            return true;
         }
 
         return true;
@@ -141,7 +140,7 @@ export class NakastreamSource extends Source
                 url: videoUrl,
                 referer: await this.getShowUrl(id, episodeInfo),
                 cookies: this.clearanceCookie,
-                userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36'
+                userAgent: this.userAgent
             }
         } catch (err) {
             console.error("Error fetching nakastream source: ", err);
