@@ -6,10 +6,16 @@ import extensionRoutes from './src/extension.js';
 import { ApiManager } from './src/APIs/ApiManager.js';
 import { getShowByTitle, removeShowById, removeShowByTitle, saveShow, upsertNextStartTime } from './src/db.js';
 import { state } from './src/state.js';
-import fs from 'fs';
 import { Extension } from './src/devices/Extension.js';
 import { AndroidTv } from './src/devices/AndroidTv.js';
-import { Readable } from 'stream';
+
+process.on('uncaughtException', (err) => {
+    console.error("uncaughtException:", err.message);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+    console.error("Promesse rejetée non gérée:", reason);
+});
 
 const app = express();
 const server = http.createServer(app);
@@ -88,7 +94,9 @@ app.post('/showUpdate', async (req, res) => {
 app.post('/connectTv', async (req, res) => {
     const { ip } = req.body;
 
-    if(ip != "")
+    state?.currentDevice?.closeConnection();
+
+    if(ip !== "")
     {
         state.currentDevice = new AndroidTv(ip);
         const isStarted = await state.currentDevice.init();
@@ -106,7 +114,6 @@ app.post('/tvCode', async (req, res) => {
     const { code } = req.body;
 
     console.log(`Received code: ${code}`);
-    console.log(state.currentDevice);
 
     if (!state.currentDevice)
         return res.status(400).send({ status: 'error', message: 'No device connected' });

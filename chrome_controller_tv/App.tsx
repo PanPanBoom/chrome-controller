@@ -35,6 +35,8 @@ type VideoInfo = {
   } | null;
   url: string;
   referer: string;
+  cookies: string;
+  userAgent: string;
   extension: string;
   serverIp: string;
   startTime: number;
@@ -58,6 +60,8 @@ function AppContent() {
         episodeInfo: episodeInfo ? JSON.parse(decodeURIComponent(episodeInfo)) : null,
         url: decodeURIComponent(params.searchParams.get('url') ?? ""),
         referer: decodeURIComponent(params.searchParams.get('referer') ?? ""),
+        cookies: decodeURIComponent(params.searchParams.get('cookies') ?? ""),
+        userAgent: decodeURIComponent(params.searchParams.get('userAgent') ?? ""),
         extension: extension ? extension[1] : "m3u8",
         serverIp: decodeURIComponent(params.searchParams.get('serverIp') ?? ""),
         startTime: Number(params.searchParams.get('startTime') ?? 0)
@@ -79,6 +83,8 @@ function AppContent() {
             startPosition: videoInfo.startTime,
             headers: {
               Referer: videoInfo.referer,
+              'Cookie': videoInfo.cookies,
+              'User-Agent': videoInfo.userAgent
             },
             bufferConfig: {
               minBufferMs: 30000,

@@ -76,21 +76,27 @@ export const getApps = async (ip: string) => await sendCommand(ip, 'remote/apps'
 
 export const getTopShows = async (ip: string, platform: string, filter: string) => {
     const params = new URLSearchParams();
-    console.log(filter);
     params.append("showType", filter);
     params.append("platform", platform);
 
     return await sendCommand(ip, `remote/topShows?${params}`);
 }
 
+export const getShowLists = async (ip: string, platform: string, filter: string) => {
+    const params = new URLSearchParams();
+    params.append("filter", filter);
+    params.append("platform", platform);
+
+    return await sendCommand(ip, `remote/shows/lists?${params}`);
+}
+
 export const getHistoryShows = async (ip: string) => await sendCommand(ip, 'remote/showHistory');
 
-export const searchShow = async (ip: string, search: string, filter: string) => {
+export const searchShow = async (ip: string, platform: string, search: string, filter: string) => {
     const params = new URLSearchParams();
     params.append("search", search);
     params.append("filter", filter);
-
-    console.log(filter);
+    params.append("platform", platform);
 
     return await sendCommand(ip, `remote/searchShow?${params}`);
 }

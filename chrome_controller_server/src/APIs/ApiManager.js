@@ -1,5 +1,5 @@
 import { NetflixApi } from "./NetflixApi.js";
-import { TMDBApi } from "./TMDBApi.js";
+import { TMDBApi } from "./TMDB/TMDBApi.js";
 import { TwitchApi } from "./TwitchApi.js";
 import { YoutubeApi } from "./YoutubeApi.js";
 
@@ -17,6 +17,11 @@ export class ApiManager
         return await this.apis[platform].getTopShows(filter);
     }
 
+    static async getLists(platform, filter)
+    {
+        return await this.apis[platform].getLists(filter);
+    }
+
     static getFilters(platform)
     {
         return this.apis[platform].filters;
@@ -27,9 +32,9 @@ export class ApiManager
         return await this.apis[platform].getShowByTitle(title);
     }
 
-    static async searchShowsByTitle(title, filter)
+    static async searchShowsByTitle(platform, title, filter)
     {
-        return await this.apis.tmdb.searchShowsByTitle(title, filter);
+        return await this.apis[platform].searchShowsByTitle(title, filter);
     }
 
     static async getShowById(id)

@@ -1,3 +1,5 @@
+import { getShowById } from "../db.js";
+
 export class Api
 {
     constructor()
@@ -49,12 +51,47 @@ export class Api
         return data;
     }
 
+    formatForCarousel(id, title, img, overview, media_type)
+    {
+        const showFromDB = getShowById(id);
+
+        return {
+            id,
+            title,
+            img,
+            overview,
+            media_type,
+            platform: this.platform,
+            nextStartTime: showFromDB?.nextStartTime,
+            currentEpisodeInfo: showFromDB?.currentSeason && {
+                season: showFromDB?.currentSeason,
+                episode: showFromDB?.currentEpisode
+            },
+            percentageWatched: showFromDB?.percentageWatched
+        }
+    }
+
     async getTopShows(filter)
     {
         return this.fetchWithCache("topShows", filter, () => this.sendTopShowsRequest(filter));
     }
 
     async sendTopShowsRequest(filter)
+    {
+        throw new Error("Must be implemented.");
+    }
+
+    async searchShowsByTitle(title, filter)
+    {
+        throw new Error("Must be implemented.");
+    }
+
+    async getLists(filter)
+    {
+        return this.fetchWithCache("lists", filter, () => this.sendListsRequest(filter));
+    }
+
+    async sendListsRequest(filter)
     {
         throw new Error("Must be implemented.");
     }

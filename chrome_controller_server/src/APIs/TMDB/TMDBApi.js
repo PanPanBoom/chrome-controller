@@ -1,12 +1,13 @@
-import { Api } from "./Api.js";
-import { ApiManager } from "./ApiManager.js";
+import { Api } from "../Api.js";
+import { ApiManager } from "../ApiManager.js";
 import 'dotenv/config';
-import { NakastreamSource } from "../source/NakastreamSource.js";
-import { NoxpulseSource } from "../source/NoxpulseSource.js";
-import { MappleTVSource } from "../source/MappleTVSource.js";
+import { NakastreamSource } from "../../source/NakastreamSource.js";
+import { NoxpulseSource } from "../../source/NoxpulseSource.js";
+import { MappleTVSource } from "../../source/MappleTVSource.js";
 import os from 'os';
-import { state } from "../state.js";
-import { getNextStartTime, getShowById } from "../db.js";
+import { state } from "../../state.js";
+import { getAllShows, getShowsByFilter, getShowById } from "../../db.js";
+import { baseListsFilters, specificListsFilters } from "./lists.js";
 
 const dateParser = (dateString) => {
     if (!dateString) return null;
@@ -61,31 +62,96 @@ export class TMDBApi extends Api
     {
         return this.fetchApi(`trending/${filter}/day?language=fr-FR`)
                 .then(res => res.json())
-                .then(data => data?.results?.map(show => ({
-                    id: `${show.media_type}/${show.id}`,
-                    title: show.title ?? show.name,
-                    img: this.imageBaseUrl + show.backdrop_path,
-                    overview: show.overview,
-                    media_type: show.media_type,
-                    platform: this.platform,
-                    nextStartTime: getNextStartTime(`${show.media_type}/${show.id}`)
-                })));
+                .then(data => data?.results?.map(show => this.formatForCarousel(
+                    `${show.media_type}/${show.id}`,
+                    show.title ?? show.name,
+                    this.imageBaseUrl + show.backdrop_path,
+                    show.overview,
+                    show.media_type
+                )));
+    }
+
+    async getLists(filter)
+    {
+        const lists = await super.getLists(filter);
+        return {
+            "Reprendre": await Promise.all((filter === "all" ? getAllShows() : getShowsByFilter(filter)).map((show) => this.getShowMinimalById(show.id))),
+            ...lists
+        };
+    }
+
+    async sendListsRequest(filter)
+    {
+        const baseListsArray = await Promise.all(Object.entries(baseListsFilters).map(async ([label, params]) => {
+            const shows = await this.discoverShows(filter, params);
+            return [ label, shows ];
+        }));
+
+        const specificListsArray = await Promise.all(Object.entries(specificListsFilters).map(async ([filterKey, filterLists]) => {
+            if(filterKey === filter || filter === "all")
+                return await Promise.all(Object.entries(filterLists).map(async ([label, params]) => {
+                    const shows = await this.discoverShows(filterKey, params);
+                    return [ label, shows ];
+                }));
+
+            return [];
+        }));
+
+        return {
+            ...Object.fromEntries(specificListsArray.flat()),
+            ...Object.fromEntries(baseListsArray)
+        }
+    }
+
+    async discoverShows(filter, paramsObject)
+    {
+        if(filter === "all")
+        {
+            const [movies, tvShows] = await Promise.all([
+                this.discoverShows("movie", paramsObject),
+                this.discoverShows("tv", paramsObject)
+            ]);
+
+            const mixedResults = [];
+            for(let i = 0; i < Math.max(movies.length, tvShows.length); i++)
+            {
+                if(movies[i]) mixedResults.push(movies[i]);
+                if(tvShows[i]) mixedResults.push(tvShows[i]);
+            }
+
+            return mixedResults.slice(0, 20);
+        }
+
+        const params = new URLSearchParams();
+
+        for(const [key, value] of Object.entries(paramsObject))
+            params.append(key, value);
+
+        params.append('language', 'fr-FR');
+
+        const res = await this.fetchApi(`discover/${filter}?${params}`);
+        const data = await res.json();
+
+        return data?.results?.map(show => this.formatForCarousel(
+            `${filter}/${show.id}`,
+            show.title ?? show.name,
+            this.imageBaseUrl + show.backdrop_path,
+            show.overview,
+            filter
+        ));
     }
 
     async searchShowsByTitle(title, filter)
     {
-        console.log(title, filter);
         return this.fetchApi(`search/${filter === "all" ? "multi" : filter}?query=${title}&language=fr-FR`)
                 .then(res => res.json())
-                .then(data => data.results.filter(show => show.media_type !== "person").map(show => ({
-                    id: `${show.media_type ?? filter}/${show.id}`,
-                    title: show.title ?? show.name,
-                    img: this.imageBaseUrl + show.backdrop_path,
-                    overview: show.overview,
-                    media_type: show.media_type ?? filter,
-                    platform: this.platform,
-                    nextStartTime: getNextStartTime(`${show.media_type ?? filter}/${show.id}`)
-                })));
+                .then(data => data.results.filter(show => show.media_type !== "person").map(show => this.formatForCarousel(
+                    `${show.media_type ?? filter}/${show.id}`,
+                    show.title ?? show.name,
+                    this.imageBaseUrl + show.backdrop_path,
+                    show.overview,
+                    show.media_type ?? filter
+                )));
     }
 
     async getShowById(id)
@@ -143,23 +209,13 @@ export class TMDBApi extends Api
 
         return this.fetchApi(`${id}?language=fr-FR`)
                 .then(res => res.json())
-                .then(show => {
-                    const showFromDB = getShowById(id);
-                    return {
-                        id,
-                        title: show.title ?? show.name,
-                        img: this.imageBaseUrl + show.backdrop_path,
-                        overview: show.overview,
-                        media_type: mediaType,
-                        platform: this.platform,
-                        nextStartTime: showFromDB?.nextStartTime,
-                        currentEpisodeInfo: showFromDB.currentSeason && {
-                            season: showFromDB?.currentSeason,
-                            episode: showFromDB?.currentEpisode
-                        },
-                        percentageWatched: showFromDB?.percentageWatched
-                    }
-                })
+                .then(show => this.formatForCarousel(
+                    id,
+                    show.title ?? show.name,
+                    this.imageBaseUrl + show.backdrop_path,
+                    show.overview,
+                    mediaType
+                ))
     }
 
     async getSeasonById(showId, seasonNumber)
@@ -267,6 +323,8 @@ export class TMDBApi extends Api
 
                 params.append('url', encodeURIComponent(videoInfo.url));
                 params.append('referer', encodeURIComponent(videoInfo.referer));
+                params.append('cookies', encodeURIComponent(videoInfo.cookies));
+                params.append('userAgent', encodeURIComponent(videoInfo.userAgent));
                 params.append('serverIp', encodeURIComponent(state.serverIp));
                 params.append('startTime', startTime);
                 console.log(`Starting show at ${startTime / 1000}s`);

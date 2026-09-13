@@ -40,34 +40,39 @@ export class NetflixApi extends Api
 
         const shows = await this.apiClient.showsApi.getTopShows(requestParams);
 
-        return shows.map(show => ({
-            id: show.tmdbId,
-            title: "",
-            img: show.imageSet.horizontalPoster.w1440,
-            // link: show.streamingOptions.fr.filter(streamingOption => streamingOption.service.id.toLowerCase() === this.platform)[0].link,
-            overview: show.overview,
-            media_type: show.tmdbId.split('/')[0],
-            platform: this.platform
-        }));
+        return shows.map(show => this.formatForCarousel(
+            show.tmdbId,
+            "",
+            show.imageSet.horizontalPoster.w1440,
+            show.overview,
+            show.tmdbId.split('/')[0]
+        ));
     }
 
-    async searchShowsByTitle(title)
+    async sendListsRequest(filter)
     {
-        const shows = await this.apiClient.showsApi.searchShowsByTitle({
-            title,
+        return {}
+    }
+
+    async searchShowsByTitle(title, filter)
+    {
+        console.log(filter);
+
+        const searchResult = await this.apiClient.showsApi.searchShowsByFilters({
+            keyword: title,
             outputLanguage: 'fr',
-            country: 'fr'
+            country: 'fr',
+            catalogs: [this.platform],
+            show_type: filter
         });
 
-        return shows.map(show => ({
-                id: show.tmdbId.split("/")[1],
-                title: show.title,
-                img: show.imageSet.horizontalPoster.w1440,
-                // link: show.streamingOptions?.fr?.filter(streamingOption => streamingOption.service.id.toLowerCase() === this.platform)[0]?.link,
-                overview: show.overview,
-                media_type: show.showType,
-                platform: this.platform
-        }));
+        return searchResult.shows.map(show => this.formatForCarousel(
+                show.tmdbId,
+                "",
+                show.imageSet.horizontalPoster.w1440,
+                show.overview,
+                show.tmdbId.split('/')[0]
+        ));
     }
 
     async getShowByTitle(title)

@@ -11,6 +11,8 @@ export class AndroidTv extends Device {
         super(ip);
         this.currentApp = null;
         this.lastInputSent = "";
+
+        console.log("NOUVELLE INSTANCE TV");
     }
 
     async init()
@@ -105,7 +107,7 @@ export class AndroidTv extends Device {
     sendInput(input)
     {
         if(this.lastInputSent.length > input.length)
-            this.keyPress(RemoteKeyCode.KEYCODE_DEL);
+            this.keyPress(RemoteKeyCode.KEYCODE_DEL, RemoteDirection.SHORT);
 
         else
             this.remote.sendText(input[input.length - 1]);
@@ -115,11 +117,28 @@ export class AndroidTv extends Device {
 
     submitInput(input)
     {
-        this.keyPress(RemoteKeyCode.KEYCODE_ENTER);
+        this.keyPress(RemoteKeyCode.KEYCODE_ENTER, RemoteDirection.SHORT);
     }
 
     sendCode(code)
     {
         return this.remote.sendCode(code);
+    }
+
+    closeConnection()
+    {
+        if(!this.remote)
+            return;
+
+        const client = this.remote.remoteManager.client;
+
+        client?.removeAllListeners('close');
+        client?.removeAllListeners('timeout');
+        client?.removeAllListeners('error');
+
+        client?.destroy();
+
+        this.remote = null;
+        console.log("AndroidTV connection closed");
     }
 }

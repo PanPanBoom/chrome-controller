@@ -61,17 +61,14 @@ export default function remoteRoutes(io) {
         .then(data => res.json(data));
     });
 
-    router.get('/showHistory', async (req, res) => {
-        const shows = await Promise.all(getAllShows().map((show) => ApiManager.apis.tmdb.getShowMinimalById(show.id)));
-
-        console.log(shows);
-
-        res.json(shows);
-    })
+    router.get('/shows/lists', (req, res) => {
+        ApiManager.getLists(req.query.platform.toLowerCase(), req.query.filter)
+        .then(data => res.json(data));
+    });
 
     router.get('/searchShow', (req, res) => {
         console.log('Recherche de show: ' + req.query.search);
-        ApiManager.searchShowsByTitle(req.query.search, req.query.filter)
+        ApiManager.searchShowsByTitle(req.query.platform.toLowerCase(), req.query.search, req.query.filter)
         .then(data => res.json(data));
     });
 

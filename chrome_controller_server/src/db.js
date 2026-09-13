@@ -4,6 +4,8 @@ const db = new Database('local.db');
 
 export const getAllShows = () => db.prepare('SELECT * FROM shows').all();
 
+export const getShowsByFilter = (filter) => db.prepare("SELECT * FROM shows WHERE id LIKE ?").all(filter + '%');
+
 export const saveShow = (showId, episodeInfo) => db.prepare('INSERT INTO shows (id, currentSeason, currentEpisode) VALUES (?, ?, ?)').run(showId, episodeInfo.season, episodeInfo.episode);
 
 export const removeShowById = (id) => db.prepare('DELETE FROM shows WHERE id = ?').run(id);
