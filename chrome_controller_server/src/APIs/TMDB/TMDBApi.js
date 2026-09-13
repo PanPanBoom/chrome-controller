@@ -1,12 +1,13 @@
-import { Api } from "./Api.js";
-import { ApiManager } from "./ApiManager.js";
+import { Api } from "../Api.js";
+import { ApiManager } from "../ApiManager.js";
 import 'dotenv/config';
-import { NakastreamSource } from "../source/NakastreamSource.js";
-import { NoxpulseSource } from "../source/NoxpulseSource.js";
-import { MappleTVSource } from "../source/MappleTVSource.js";
+import { NakastreamSource } from "../../source/NakastreamSource.js";
+import { NoxpulseSource } from "../../source/NoxpulseSource.js";
+import { MappleTVSource } from "../../source/MappleTVSource.js";
 import os from 'os';
-import { state } from "../state.js";
-import { getAllShows, getShowsByFilter, getShowById } from "../db.js";
+import { state } from "../../state.js";
+import { getAllShows, getShowsByFilter, getShowById } from "../../db.js";
+import { baseListsFilters, specificListsFilters } from "./lists.js";
 
 const dateParser = (dateString) => {
     if (!dateString) return null;
@@ -70,44 +71,35 @@ export class TMDBApi extends Api
                 )));
     }
 
-    async sendListsRequest(filter)
+    async getLists(filter)
     {
-        const baseLists = {
-            "Pépites méconnues": await this.discoverShows(filter, {
-                'sort_by': 'vote_average.desc',
-                'vote_count.gte': 200,
-                'vote_count.lte': 1500,
-                'vote_average.gte': 7.5
-            }),
-            'Feel Good': await this.discoverShows(filter, {
-                with_genres: 35,
-                sort_by: 'popularity.desc',
-                without_genres: '18,27,53,99',
-                "vote_average.gte": 6.5
-            })
-        }
-
-        const movieLists = {
-            "Blockbusters de l'année": await this.discoverShows("movie", {
-                'sort_by': 'revenue.desc',
-                'primary_release_year': 2026,
-                'vote_count.gte': 1000
-            })
-        };
-
-        const tvLists = {
-            "Anime": await this.discoverShows("tv", {
-                with_genres: 16,
-                with_original_language: 'ja',
-                sort_by: 'popularity.desc'
-            })
-        };
-
+        const lists = await super.getLists(filter);
         return {
             "Reprendre": await Promise.all((filter === "all" ? getAllShows() : getShowsByFilter(filter)).map((show) => this.getShowMinimalById(show.id))),
-            ...(filter === "movie" || filter === "all" ? movieLists : {}),
-            ...(filter === "tv" || filter === "all" ? tvLists : {}),
-            ...baseLists
+            ...lists
+        };
+    }
+
+    async sendListsRequest(filter)
+    {
+        const baseListsArray = await Promise.all(Object.entries(baseListsFilters).map(async ([label, params]) => {
+            const shows = await this.discoverShows(filter, params);
+            return [ label, shows ];
+        }));
+
+        const specificListsArray = await Promise.all(Object.entries(specificListsFilters).map(async ([filterKey, filterLists]) => {
+            if(filterKey === filter || filter === "all")
+                return await Promise.all(Object.entries(filterLists).map(async ([label, params]) => {
+                    const shows = await this.discoverShows(filterKey, params);
+                    return [ label, shows ];
+                }));
+
+            return [];
+        }));
+
+        return {
+            ...Object.fromEntries(specificListsArray.flat()),
+            ...Object.fromEntries(baseListsArray)
         }
     }
 
@@ -140,13 +132,13 @@ export class TMDBApi extends Api
         const res = await this.fetchApi(`discover/${filter}?${params}`);
         const data = await res.json();
 
-        return data?.results?.map(show => ({ ...this.formatForCarousel(
+        return data?.results?.map(show => this.formatForCarousel(
             `${filter}/${show.id}`,
             show.title ?? show.name,
             this.imageBaseUrl + show.backdrop_path,
             show.overview,
             filter
-        ), popularity: show.popularity }));
+        ));
     }
 
     async searchShowsByTitle(title, filter)

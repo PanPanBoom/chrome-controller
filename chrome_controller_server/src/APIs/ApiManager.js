@@ -1,5 +1,5 @@
 import { NetflixApi } from "./NetflixApi.js";
-import { TMDBApi } from "./TMDBApi.js";
+import { TMDBApi } from "./TMDB/TMDBApi.js";
 import { TwitchApi } from "./TwitchApi.js";
 import { YoutubeApi } from "./YoutubeApi.js";
 
