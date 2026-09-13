@@ -8,7 +8,8 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node ./server.js"
+    "start": "node ./server.js",
+    "dev": "node --watch ./server.js"
   },
   "dependencies": {
     "@twurple/api": "^8.0.3",
@@ -19,6 +20,7 @@
     "dotenv": "^17.3.1",
     "express": "^5.2.1",
     "googleapis": "^171.4.0",
+    "got-scraping": "^4.2.1",
     "loudness": "^0.4.2",
     "patchright": "^1.62.1",
     "playwright": "^1.62.1",
