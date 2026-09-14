@@ -99,7 +99,9 @@ export class AndroidTv extends Device {
 
     async castShow(platform, id, episodeInfo = null, startTime = 0)
     {
-        const intent = await ApiManager.getShowIntent(platform, id, episodeInfo, startTime);
+        const finalEpisodeInfo = id.includes('tv') && !episodeInfo ? { season: 1, episode: 1 } : episodeInfo;
+
+        const intent = await ApiManager.getShowIntent(platform, id, finalEpisodeInfo, startTime);
 
         await this.openUrl(intent);
     }
