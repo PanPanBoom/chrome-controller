@@ -13,8 +13,8 @@ import {
 import "./global.css";
 import { CustomText } from './components/CustomText';
 import { CustomTitle } from './components/CustomTitle';
-import Video from 'react-native-video';
 import { useEffect, useState } from 'react';
+import { VideoInfo, VideoPlayer } from './components/VideoPlayer';
 
 function App() {
   const isDarkMode = useColorScheme() === 'dark';
@@ -27,25 +27,11 @@ function App() {
   );
 }
 
-type VideoInfo = {
-  showId: string;
-  episodeInfo: {
-    season: number;
-    episode: number;
-  } | null;
-  url: string;
-  referer: string;
-  cookies: string;
-  userAgent: string;
-  extension: string;
-  serverIp: string;
-  startTime: number;
-}
+
 
 function AppContent() {
   // const safeAreaInsets = useSafeAreaInsets();
   const [videoInfo, setVideoInfo] = useState<VideoInfo | null>(null);
-  const [videoDuration, setVideoDuration] = useState(0);
 
   useEffect(() => {
     Linking.addEventListener('url', ({ url }) => {
@@ -76,73 +62,8 @@ function AppContent() {
   if(videoInfo?.url && videoInfo.url.length > 0)
     return (
       <View className='bg-black'>
-        <Video
-          source={{
-            uri: videoInfo.url,
-            type: videoInfo.extension,
-            startPosition: videoInfo.startTime,
-            headers: {
-              Referer: videoInfo.referer,
-              'Cookie': videoInfo.cookies,
-              'User-Agent': videoInfo.userAgent
-            },
-            bufferConfig: {
-              minBufferMs: 30000,
-              maxBufferMs: 60000,
-              bufferForPlaybackMs: 5000,
-              bufferForPlaybackAfterRebufferMs: 8000,
-            }
-          }}
-          onLoad={(data) => {
-            console.log("✅ VIDÉO CHARGÉE !", data);
-            setVideoDuration(data.duration);
-          }}
-          onError={(error) => {
-            console.log("❌ ERREUR EXOPLAYER :", error.error);
-          }}
-          onBuffer={({ isBuffering }) => {
-            console.log(isBuffering ? "⏳ Mise en cache..." : "▶️ Lecture");
-          }}
-          progressUpdateInterval={10 * 1000}
-          onProgress={(progress) => {
-            console.log(`${videoInfo.serverIp}/updateStartTime`);
-            fetch(`${videoInfo.serverIp}/updateStartTime`, {
-              method: 'PUT',
-              headers: {
-                'Content-Type': 'application/json'
-              },
-              body: JSON.stringify({
-                showId: videoInfo.showId,
-                nextStartTime: progress.currentTime * 1000,
-                episodeInfo: videoInfo.episodeInfo,
-                percentageWatched: progress.currentTime / videoDuration * 100
-              })
-            })
-          }}
-          onEnd={() => {
-            setVideoInfo(null);
-            setVideoDuration(0);
-            fetch(`${videoInfo.serverIp}/showEnd`, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json'
-              },
-              body: JSON.stringify({
-                showId: videoInfo.showId,
-                episodeInfo: videoInfo.episodeInfo
-              })
-            })
-          }}
-          style={{width: '100%', height: '100%'}}
-          controls={true}
-          resizeMode='contain'
-          reportBandwidth={true}
-        />
+        <VideoPlayer videoInfo={videoInfo} onVideoEnd={() => setVideoInfo(null)} />
       </View>
-      // <View className='flex bg-background flex-1 justify-center items-center gap-2'>
-      //   <CustomText>URL: {videoInfo.url}</CustomText>
-      //   <CustomText>Extension: {videoInfo.extension}</CustomText>
-      // </View>
     )
 
   return (

@@ -63,9 +63,9 @@ export class Api
             media_type,
             platform: this.platform,
             nextStartTime: showFromDB?.nextStartTime,
-            currentEpisodeInfo: showFromDB?.currentSeason && {
-                season: showFromDB?.currentSeason,
-                episode: showFromDB?.currentEpisode
+            currentEpisodeInfo: media_type === "tv" && {
+                season: showFromDB?.currentSeason ?? 1,
+                episode: showFromDB?.currentEpisode ?? 1
             },
             percentageWatched: showFromDB?.percentageWatched
         }

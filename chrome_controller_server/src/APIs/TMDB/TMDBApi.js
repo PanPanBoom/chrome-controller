@@ -329,7 +329,7 @@ export class TMDBApi extends Api
                 params.append('startTime', startTime);
                 console.log(`Starting show at ${startTime / 1000}s`);
 
-                return `chromecontroller://play?${params}`;
+                return `chromecontrollerdebug://play?${params}`;
             }
         }
 
