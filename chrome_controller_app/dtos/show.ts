@@ -13,17 +13,19 @@ export type ShowDTO = {
     percentageWatched?: number;
 };
 
+export type CastDTO = {
+    id: number;
+    name: string;
+    character: string;
+    img: string;
+}[];
+
 export type MovieDTO = ShowDTO & {
     genres: string[];
     release_date: string;
     runtime: number;
     vote_average: number;
-    cast: {
-        id: number;
-        name: string;
-        character: string;
-        img: string;
-    }[];
+    cast: CastDTO;
     director: string;
     platforms: {
         id: number;
@@ -48,9 +50,11 @@ export type SeriesDTO = MovieDTO & {
 };
 
 export type SeasonDTO = ShowDTO & {
-    episode_count: number;
     season_number: number;
     vote_average: number;
+    air_date: string;
+    poster_path: string;
+    cast: CastDTO;
     episodes: {
         id: number;
         title: string;
@@ -63,7 +67,7 @@ export type SeasonDTO = ShowDTO & {
     }[]
 };
 
-export type ShowReview = {
+export type ShowReviewDTO = {
     id: number;
     author: {
         name: string;

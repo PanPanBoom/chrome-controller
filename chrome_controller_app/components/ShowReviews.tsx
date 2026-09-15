@@ -1,5 +1,5 @@
 import { AppContext } from "@/contexts/appContext";
-import { ShowReview } from "@/dtos/show";
+import { ShowReviewDTO } from "@/dtos/show";
 import { getShowReviews } from "@/server/socket";
 import { useContext, useEffect, useState } from "react";
 import { ActivityIndicator, Image, View } from "react-native"
@@ -15,7 +15,7 @@ type ShowReviewsProps = {
 
 export const ShowReviews = (props: ShowReviewsProps) => {
     const { server } = useContext(AppContext);
-    const [reviews, setReviews] = useState<ShowReview[] | null>(null);
+    const [reviews, setReviews] = useState<ShowReviewDTO[] | null>(null);
 
     useEffect(() => {
         getShowReviews(server.ip, props.showId)

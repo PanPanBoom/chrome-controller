@@ -9,8 +9,6 @@ export function useRemoteButton(ip: string, button: number, directions: remoteCo
     const timeoutRef = useRef<number | null>(null);
     const longPressTriggered = useRef(false);
 
-    console.log(directions);
-
     const handlePressIn = () => {
         if(!directions)
             return;
@@ -29,7 +27,6 @@ export function useRemoteButton(ip: string, button: number, directions: remoteCo
 
         if(timeoutRef.current) clearTimeout(timeoutRef.current);
         sendKeyPress(ip, button, longPressTriggered.current ? directions.longPressEnd : directions.shortPress);
-        console.log(longPressTriggered.current ? "long press end" : "short press");
     }
 
     return { onPressIn: handlePressIn, onPressOut: handlePressOut }

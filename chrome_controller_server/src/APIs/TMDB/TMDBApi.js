@@ -220,17 +220,23 @@ export class TMDBApi extends Api
 
     async getSeasonById(showId, seasonNumber)
     {
-        return this.fetchApi(`${showId}/season/${seasonNumber}?language=fr-FR`)
+        return this.fetchApi(`${showId}/season/${seasonNumber}?language=fr-FR&append_to_response=credits`)
                 .then(res => res.json())
                 .then(season => ({
                     id: season.id,
                     season_number: season.season_number,
                     episode_count: season.episode_count,
-                    air_date: season.air_date,
+                    air_date: dateParser(season.air_date),
                     poster_path: season.poster_path ? this.imageBaseUrl + season.poster_path : null,
                     vote_average: season.vote_average,
                     overview: season.overview,
-                    name: season.name,
+                    title: season.name,
+                    cast: season?.credits?.cast?.map(castMember => ({
+                        id: castMember.id,
+                        name: castMember.name,
+                        character: castMember.character,
+                        img: castMember.profile_path ? this.imageBaseUrl + castMember.profile_path : null
+                    })),
                     episodes: season.episodes?.map(episode => ({
                         id: episode.id,
                         title: episode.name,

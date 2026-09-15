@@ -8,10 +8,11 @@ import { TextButton } from "./TextButton";
 type ContextMenuProps = ViewProps & {
     context?: string[];
     onChange?: (newOptionIndex: number) => void
+    baseSelectionIndex?: number;
 }
 
-export const ContextMenu = (props: ContextMenuProps) => {
-    const [activeIndex, setActiveIndex] = useState(0);
+export const ContextMenu = ({baseSelectionIndex = 0, ...props}: ContextMenuProps) => {
+    const [activeIndex, setActiveIndex] = useState(baseSelectionIndex);
     const [showMenu, setShowMenu] = useState(false);
 
     const handleNewSelection = (newIndex: number) => {

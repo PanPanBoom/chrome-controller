@@ -29,8 +29,6 @@ export const WatchButton = ({ showId, episodeInfo, nextStartTime = 0, shouldChec
             .then(data => setIsAvailable(data));
     }, [shouldCheck]);
 
-    console.log(nextStartTime);
-
     return (
         <Button disabled={isAvailable === null || isAvailable === false} className={cn("bg-primary flex-row gap-2 rounded-full", className)} onPress={() => sendShowCast(server.ip, 'tmdb', showId, episodeInfo, nextStartTime ?? 0)} {...props}>
             {

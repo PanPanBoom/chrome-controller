@@ -55,8 +55,6 @@ export default function Apps()
     useEffect(() => {
         if(!currentPlatform) return;
 
-        console.log(currentPlatform);
-
         getShowLists(server.ip, currentPlatform.name, activeFilter)
             .then(res => res.json())
             .then(data => setShowLists(data));
@@ -77,8 +75,6 @@ export default function Apps()
             .then(res => res.json())
             .then(dataFetched => setSearchedShows(dataFetched));
     }
-
-    console.log(searchedShows);
 
     const handleChangeText = (newText: string) =>   {
         setInput(newText);

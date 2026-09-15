@@ -20,6 +20,7 @@ import { Button } from "@/components/ui/Button";
 import { ShowReviews } from "@/components/ShowReviews";
 import { RatingBox } from "@/components/RatingBox";
 import { WatchButton } from "@/components/WatchButton";
+import { IconTextLabel } from "@/components/ui/IconTextLabel";
 
 export default function Show()
 {
@@ -29,7 +30,6 @@ export default function Show()
     const [showData, setShowData] = useState<MovieDTO | SeriesDTO | null>(null);
 
     useEffect(() => {
-        console.log(id);
         getShowById(server.ip, `${mediaType}/${id}`)
         .then(res => res.json())
         .then(data => setShowData(data));
@@ -63,19 +63,15 @@ export default function Show()
                             }
                         </View>
                         <View className="flex-row gap-2 justify-center">
-                            <RatingBox platform="TMDB" rating={showData.vote_average} />
-                            {
-                                showData.runtime ?
-                                <View className="flex-row items-center gap-1">
-                                    <Clock color={colors.text} size={14}/>
-                                    <CustomText>{showData.runtime >= 60 ? `${Math.floor(showData.runtime / 60)}h ${showData.runtime % 60}min` : `${showData.runtime}min`}</CustomText>
-                                </View>
-                                :
-                                <View className="flex-row items-center gap-1">
-                                    <Tv color={colors.text} size={14}/>
-                                    <CustomText>{(showData as SeriesDTO).number_of_seasons} saisons ({(showData as SeriesDTO).number_of_episodes} épisodes)</CustomText>
-                                </View>
-                            }
+                            <RatingBox rating={showData.vote_average} />
+                            <IconTextLabel
+                                icon={Clock}
+                                text={showData.runtime ? showData.runtime >= 60 ? `${Math.floor(showData.runtime / 60)}h ${showData.runtime % 60}min` : `${showData.runtime}min` : ''}
+                            />
+                            <IconTextLabel
+                                icon={Tv} 
+                                text={'seasons' in showData ? `${showData.number_of_seasons} saisons (${showData.number_of_episodes} épisodes)` : ''}
+                            />
                             <View className="flex-row items-center gap-1">
                                 <Calendar color={colors.text} size={14}/>
                                 <CustomText>{showData.release_date}</CustomText>

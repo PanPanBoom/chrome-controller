@@ -7,7 +7,6 @@ export const Button = ({className, onPressIn, onPressOut, style, ...props}: Pres
 
     const handlePressIn = (e: GestureResponderEvent) => {
         setIsPressed(true);
-        console.log('onPressIn type:', typeof onPressIn, onPressIn);
         onPressIn?.(e);
     }
 
