@@ -72,10 +72,10 @@ export default function Show()
                                 icon={Tv} 
                                 text={'seasons' in showData ? `${showData.number_of_seasons} saisons (${showData.number_of_episodes} épisodes)` : ''}
                             />
-                            <View className="flex-row items-center gap-1">
-                                <Calendar color={colors.text} size={14}/>
-                                <CustomText>{showData.release_date}</CustomText>
-                            </View>
+                            <IconTextLabel 
+                                icon={Calendar}
+                                text={showData.release_date}
+                            />
                         </View>
                         <ScrollView horizontal className="grow-0" contentContainerClassName="flex-row gap-1 items-center" showsHorizontalScrollIndicator={false}>
                             {

@@ -154,6 +154,18 @@ export class TMDBApi extends Api
                 )));
     }
 
+    async getCollection(id)
+    {
+        return this.fetchApi(`collection/${id}?language=fr-FR`)
+            .then(res => res.json());
+    }
+
+    async getSimilarShows(id)
+    {
+        return this.fetchApi(`${id}/similar?language=fr-FR`)
+            .then(res => res.json());
+    }
+
     async getShowById(id)
     {
         return this.fetchApi(`${id}?language=fr-FR&append_to_response=credits,watch/providers,videos`)
@@ -164,8 +176,7 @@ export class TMDBApi extends Api
                     
                     if(show.belongs_to_collection)
                     {
-                        const collectionRes = await this.fetchApi(`collection/${show.belongs_to_collection.id}?language=fr-FR`);
-                        const collection = await collectionRes.json();
+                        const collection = await this.getCollection(show.belongs_to_collection.id);
                         showsInCollection = collection.parts
                             .filter(showInCollection => showInCollection.id !== show.id)
                             .map(showInCollection => this.formatForCarousel(
@@ -176,6 +187,11 @@ export class TMDBApi extends Api
                                 showInCollection.media_type
                             ));
                     }
+
+                    const similarShows = (await this.getSimilarShows(id)).results;
+                    similarShows.sort((a, b) => b.popularity - a.popularity);
+
+                    const mediaType = id.split('/')[0];
 
                     return {
                         id,
@@ -216,7 +232,14 @@ export class TMDBApi extends Api
                             season: showInDB?.currentSeason,
                             episode: showInDB?.currentEpisode
                         },
-                        collection: showsInCollection
+                        collection: showsInCollection,
+                        similars: similarShows.map(similarShow => this.formatForCarousel(
+                            `${mediaType}/${similarShow.id}`,
+                            similarShow.title ?? similarShow.name,
+                            this.imageBaseUrl + similarShow.backdrop_path,
+                            similarShow.overview,
+                            mediaType
+                        ))
                     }
                 });
     }

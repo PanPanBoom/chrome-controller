@@ -46,6 +46,13 @@ export const ShowOverview = ({ showData }: ShowOverviewProps) => {
                     <ShowCarousel shows={showData.collection} />
                 </>
             }
+            {
+                showData?.similars?.length > 0 &&
+                <>
+                    <CustomTitle>Similaires</CustomTitle>
+                    <ShowCarousel shows={showData.similars} />
+                </>
+            }
         </>
     )
 }

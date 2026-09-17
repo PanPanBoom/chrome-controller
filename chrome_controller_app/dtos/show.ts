@@ -34,6 +34,7 @@ export type MovieDTO = ShowDTO & {
     }[];
     trailer: string;
     collection: ShowDTO[];
+    similars: ShowDTO[];
 };
 
 export type SeriesDTO = MovieDTO & {
