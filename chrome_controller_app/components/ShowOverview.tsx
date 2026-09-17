@@ -8,6 +8,7 @@ import { sendShowCast } from "@/server/socket";
 import { useContext } from "react";
 import { AppContext } from "@/contexts/appContext";
 import { ShowCasting } from "./ShowCasting";
+import { ShowCarousel } from "./ShowCarousel";
 
 type ShowOverviewProps = {
     showData: MovieDTO | SeriesDTO;
@@ -36,6 +37,13 @@ export const ShowOverview = ({ showData }: ShowOverviewProps) => {
                             ))
                         }
                     </ScrollView>
+                </>
+            }
+            {
+                showData.collection.length > 0 &&
+                <>
+                    <CustomTitle>Films de la saga</CustomTitle>
+                    <ShowCarousel shows={showData.collection} />
                 </>
             }
         </>

@@ -160,6 +160,23 @@ export class TMDBApi extends Api
                 .then(res => res.json())
                 .then(async (show) => {
                     const showInDB = getShowById(id);
+                    let showsInCollection = [];
+                    
+                    if(show.belongs_to_collection)
+                    {
+                        const collectionRes = await this.fetchApi(`collection/${show.belongs_to_collection.id}?language=fr-FR`);
+                        const collection = await collectionRes.json();
+                        showsInCollection = collection.parts
+                            .filter(showInCollection => showInCollection.id !== show.id)
+                            .map(showInCollection => this.formatForCarousel(
+                                `${showInCollection.media_type}/${showInCollection.id}`,
+                                showInCollection.name ?? showInCollection.title,
+                                this.imageBaseUrl + showInCollection.backdrop_path,
+                                showInCollection.overview,
+                                showInCollection.media_type
+                            ));
+                    }
+
                     return {
                         id,
                         title: show.title ?? show.name,
@@ -198,7 +215,8 @@ export class TMDBApi extends Api
                         currentEpisodeInfo: showInDB && {
                             season: showInDB?.currentSeason,
                             episode: showInDB?.currentEpisode
-                        }
+                        },
+                        collection: showsInCollection
                     }
                 });
     }
