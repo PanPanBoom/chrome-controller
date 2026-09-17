@@ -143,61 +143,66 @@ export class MappleTVSource extends Source
         if(id === this.lastIdFetched && episodeInfo === this.lastEpisodeFetched)
             return { url: this.lastIntentFetched };
 
-        const resToken = await fetch(this.getShowUrl(id, episodeInfo));
-        const html = await resToken.text();
+        const resToken = await fetch(`${this.apiUrl}/request-token`, {
+            method: 'POST'
+        });
+
+        if(resToken.status !== 200)
+        {
+            console.log(`Error ${resToken.status} while fetching token: ${resToken.statusText}`);
+            console.log(resToken.body);
+            return { url: '' };
+        }
+
+        const tokenData = await resToken.json();
 
         const rawCookies = resToken.headers.get('set-cookie');
         const dynamicCookie = rawCookies ? rawCookies.split(';')[0] : '';
 
-        const match = html.match(/window\.__REQUEST_TOKEN__\s*=\s*"([^"]+)"/);
-
         const [ mediaType, realId ] = id.split('/');
 
-        if (match)
+        const token = tokenData.token;
+        console.log("Token reçu:", token);
+
+        this.baseHeaders = {
+            "accept": "*/*",
+            "content-type": "application/json",
+            "Referer": this.baseUrl,
+            "cookie": dynamicCookie
+        };
+
+        const initRes = await fetch(`${this.apiUrl}/playback-init`, {
+            headers: this.baseHeaders,
+            "body": JSON.stringify({
+                "mediaId": realId,
+                "mediaType": mediaType,
+                "requestToken": token,
+                "tv_slug": mediaType === "tv" ? `${episodeInfo?.season ?? 1}-${episodeInfo?.episode ?? 1}` : undefined
+            }),
+            "method": "POST"
+        });
+
+        if(initRes.status !== 200)
         {
-            const token = match[1];
-            console.log("Token extrait :", token);
+            console.log(`Error ${initRes.status} while fetching video source: ${initRes.statusText}`);
+            return { url: "" };
+        }
 
-            this.baseHeaders = {
-                "accept": "*/*",
-                "content-type": "application/json",
-                "Referer": this.baseUrl,
-                "cookie": dynamicCookie
+        const init = await initRes.json();
+
+        const videoToken = await this.getVideoToken(realId, episodeInfo, mediaType, token, init.pow.challengeId, init.pow.challenge, init.pow.difficulty)
+
+        for(const source of ['mapple', 's25', 's2', 's19', 's13'])
+        {
+            const videoUrl = await this.getVideoUrlFromSource(realId, episodeInfo, mediaType, token, videoToken, source);
+
+            if(videoUrl === "")
+                continue;
+
+            return {
+                url: videoUrl,
+                referer: this.baseUrl + "/"    
             };
-
-            const initRes = await fetch(`${this.apiUrl}/playback-init`, {
-                headers: this.baseHeaders,
-                "body": JSON.stringify({
-                    "mediaId": realId,
-                    "mediaType": mediaType,
-                    "requestToken": token,
-                    "tv_slug": mediaType === "tv" ? `${episodeInfo?.season ?? 1}-${episodeInfo?.episode ?? 1}` : undefined
-                }),
-                "method": "POST"
-            });
-
-            if(initRes.status !== 200)
-            {
-                console.log(`Error ${initRes.status} while fetching video source: ${initRes.statusText}`);
-                return { url: "" };
-            }
-
-            const init = await initRes.json();
-
-            const videoToken = await this.getVideoToken(realId, episodeInfo, mediaType, token, init.pow.challengeId, init.pow.challenge, init.pow.difficulty)
-
-            for(const source of ['mapple', 's25', 's2', 's19', 's13'])
-            {
-                const videoUrl = await this.getVideoUrlFromSource(realId, episodeInfo, mediaType, token, videoToken, source);
-
-                if(videoUrl === "")
-                    continue;
-
-                return {
-                    url: videoUrl,
-                    referer: this.baseUrl + "/"    
-                };
-            }
         }
 
         return { url: "" };
