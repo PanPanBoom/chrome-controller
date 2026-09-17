@@ -5,6 +5,7 @@ import { tidbClient } from "../src/TIDBClient";
 import { View } from "react-native";
 import { CustomText } from "./CustomText";
 import { Button } from "./Button"
+import { useKeepAwake } from "@sayem314/react-native-keep-awake";
 
 export type VideoInfo = {
   showId: string;
@@ -33,6 +34,8 @@ export const VideoPlayer = ({ videoInfo, onVideoEnd }: { videoInfo: VideoInfo, o
     const [tidbInfo, setTidbInfo] = useState<MediaRecord | null>(null);
     const [currentMediaPart, setCurrentMediaPart] = useState<'intro' | 'recap' | 'credits' | 'preview' | null>(null);
     const videoRef = useRef<VideoRef>(null);
+
+    useKeepAwake();
 
     const handleLoad = (data: { duration: number }) => {
         console.log("Video loaded: ", data);

@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@react-native/new-app-screen": "0.86.0",
+    "@sayem314/react-native-keep-awake": "^2.0.0",
     "clsx": "^2.1.1",
     "nativewind": "^4.2.6",
     "react": "19.2.3",
