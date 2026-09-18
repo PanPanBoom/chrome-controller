@@ -17,6 +17,7 @@ import { DeviceSelectionWidget } from "@/components/DeviceSelectionWidget";
 import { ModalContext } from "@/contexts/modalProvider";
 import { PairingCodeWidget } from "@/components/PairingCodeWidget";
 import { useRemoteButton } from "@/hooks/useRemoteButton";
+import { useDeviceVolumeControl } from "@/hooks/useDeviceVolumeControl";
 
 export default function Remote() {
     const { server, device, setDevice } = useContext(AppContext);
@@ -25,6 +26,8 @@ export default function Remote() {
     const [input, setInput] = useState("");
     const [devices, setDevices] = useState([]);
     const inputRef = useRef<TextInput>(null);
+
+    useDeviceVolumeControl(server.ip, commands);
 
     useEffect(() => {
         getCommands(server.ip)
