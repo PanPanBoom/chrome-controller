@@ -2,12 +2,27 @@ import { remoteConstantsDTO } from "@/dtos/remoteConstants";
 import { sendKeyPress } from "@/server/socket";
 import { useEffect, useRef } from "react";
 import { EmitterSubscription } from "react-native";
-import { VolumeManager } from "react-native-volume-manager";
+import Constants, { ExecutionEnvironment } from "expo-constants";
+
+const isExpoGo = Constants.executionEnvironment === ExecutionEnvironment.StoreClient;
+
+let VolumeManager: any = null;
+if(!isExpoGo)
+{
+    try {
+        VolumeManager = require("react-native-volume-manager").VolumeManager;
+    } catch (e) {
+        console.log(e);
+    }
+}
 
 export const useDeviceVolumeControl = (ip: string, constants: remoteConstantsDTO) => {
     const prevVolume = useRef(0.5);
 
     useEffect(() => {
+        if(isExpoGo || !VolumeManager)
+            return;
+
         let volumeListener: EmitterSubscription;
 
         const timer = setTimeout(async () => {
@@ -16,7 +31,7 @@ export const useDeviceVolumeControl = (ip: string, constants: remoteConstantsDTO
     
                 await VolumeManager.setVolume(0.5);
         
-                volumeListener = VolumeManager.addVolumeListener((result) => {
+                volumeListener = VolumeManager.addVolumeListener((result: any) => {
                     const currentVolume = result.volume;
         
                     sendKeyPress(ip, currentVolume > prevVolume.current ? constants.volume.up : constants.volume.down, constants.directions.shortPress);
