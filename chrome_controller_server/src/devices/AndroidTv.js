@@ -82,14 +82,7 @@ export class AndroidTv extends Device {
 
     keyPress(key, direction)
     {
-        if(key === remoteConstants.volume.mute)
-        {
-            this.isMuted = !this.isMuted;
-            io.emit('muteChanged', { muted: this.isMuted });
-        }
-
-        else
-            this.remote.sendKey(key, direction);
+        this.remote.sendKey(key, direction);
     }
 
     async openUrl(url)
