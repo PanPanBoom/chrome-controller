@@ -7,7 +7,9 @@
     "ios": "react-native run-ios",
     "lint": "eslint .",
     "start": "react-native start",
-    "test": "jest"
+    "test": "jest",
+    "dev": "react-native run-android --port 8082",
+    "logs": "react-native log-android"
   },
   "dependencies": {
     "@react-native/new-app-screen": "0.86.0",
@@ -21,7 +23,8 @@
     "react-native-video": "^6.19.2",
     "react-native-worklets": "^0.11.2",
     "tailwind-merge": "^3.6.0",
-    "theintrodb": "^3.2.0"
+    "theintrodb": "^3.2.0",
+    "wyzie-lib": "^2.5.3"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
