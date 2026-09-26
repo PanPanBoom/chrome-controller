@@ -4,13 +4,10 @@ import { apps } from "./apps.js";
 import os from 'os';
 import { execSync } from "child_process";
 import fs from 'fs';
-import * as streamingAvailability from 'streaming-availability';
 import 'dotenv/config';
-import { google } from 'googleapis';
-import { youtube } from "googleapis/build/src/apis/youtube/index.js";
 import { ApiManager } from "./APIs/ApiManager.js";
 import Bonjour from 'bonjour';
-import { getAllShows } from "./db.js";
+import { state } from "./state.js";
 
 const bonjour = new Bonjour();
 
@@ -106,7 +103,7 @@ export default function remoteRoutes(io) {
         const devices = [{
             name: "Extension",
             host: req.hostname,
-            ip: req.ip
+            ip: ''
         }];
 
         const bonjourBrower = bonjour.find({ type: 'androidtvremote2' }, (device) => {
@@ -121,8 +118,13 @@ export default function remoteRoutes(io) {
 
         setTimeout(() => {
             bonjourBrower.stop();
-            console.log(devices);
-            res.json(devices);
+            console.log(state?.currentDevice?.ip);
+            const orderedDevices = [
+                devices.splice(devices.findIndex(device => device.ip === state?.currentDevice?.ip), 1)[0],
+                ...devices
+            ];
+            console.log(orderedDevices);
+            res.json(orderedDevices);
         }, 3000);
     });
 
