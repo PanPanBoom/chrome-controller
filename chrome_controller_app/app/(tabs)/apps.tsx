@@ -1,4 +1,5 @@
 import { AppListElement } from "@/components/AppListElement";
+import { SearchBar } from "@/components/SearchBar";
 import { ShowCarousel } from "@/components/ShowCarousel";
 import { Button } from "@/components/ui/Button";
 import { ContextMenu } from "@/components/ui/ContextMenu";
@@ -88,18 +89,12 @@ export default function Apps()
                 <CustomTitle>Rechercher</CustomTitle>
                 <ContextMenu context={apps?.map(app => app.name)} onChange={handlePlatformChange}/>
             </View>
-            <View className="flex-row gap-2">
-                <TextInput
-                    className="flex-1 p-2 bg-black/50 text-xl text-text rounded-xl" 
-                    value={input}
-                    onChangeText={handleChangeText}
-                    returnKeyType="search"
-                    onSubmitEditing={handleSearch}
-                />
-                <Button className="bg-primary" onPress={handleSearch}>
-                    <CustomText>Rechercher</CustomText>
-                </Button>
-            </View>
+            <SearchBar
+                value={input}
+                onSearch={handleSearch}
+                onChangeText={handleChangeText}
+                onClear={() => setInput("")}
+            />
             <ShowCarousel
                 shows={searchedShows.length > 0 ? searchedShows : trendingShows}
                 filters={currentPlatform?.filters || []}
