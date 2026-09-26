@@ -22,7 +22,12 @@ export default function RootLayout() {
           headerShown: false,
         }}>
           <Stack.Screen name="index"/>
-          <Stack.Screen name="(tabs)"/>
+          <Stack.Screen
+            name="(tabs)"
+            options={{
+              gestureEnabled: false
+            }}
+          />
           <Stack.Screen name="scanNetwork" />
           <Stack.Screen name="show/[id]" />
           <Stack.Screen 
