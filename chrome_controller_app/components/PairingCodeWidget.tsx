@@ -1,5 +1,5 @@
 import { AppContext } from "@/contexts/appContext";
-import { sendTvCode } from "@/server/socket";
+import { sendTvCode } from "@/server/api";
 import { useContext, useState } from "react";
 import { TextInput, View } from "react-native";
 import { CustomTitle } from "./ui/CustomTitle";

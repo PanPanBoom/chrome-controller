@@ -2,7 +2,7 @@ import { View, TextInput } from "react-native";
 import { DPad } from "@/components/DPad/DPad";
 import { Cast, Keyboard, ListIndentIncrease, Maximize, Power, Star, Undo2, Volume1, Volume2 } from "lucide-react-native";
 import { useContext, useEffect, useRef, useState } from "react";
-import { getCommands, getDevices, sendFullscreenToggle, sendInput, sendKeyPress, socket, submitInput } from '../../../server/socket';
+import { getCommands, getDevices, sendFullscreenToggle, sendInput, sendKeyPress, submitInput } from '../../../server/api';
 import { AppContext } from "@/contexts/appContext";
 import { IconButton } from "@/components/ui/IconButton";
 import { CustomText } from "@/components/ui/CustomText";
@@ -18,6 +18,7 @@ import { ModalContext } from "@/contexts/modalProvider";
 import { PairingCodeWidget } from "@/components/PairingCodeWidget";
 import { useRemoteButton } from "@/hooks/useRemoteButton";
 import { useDeviceVolumeControl } from "@/hooks/useDeviceVolumeControl";
+import { socketClient } from "@/server/SocketClient";
 
 export default function Remote() {
     const { server, device, setDevice } = useContext(AppContext);
@@ -46,13 +47,13 @@ export default function Remote() {
                 setDevice(data[0]);
         });
 
-        socket.on('keyboard', () => {
+        socketClient.on('keyboard', () => {
             console.log('Keyboard show event');
             if(inputRef.current)
                 inputRef.current.focus();
         });
 
-        socket.on('tvCodeRequest', () => {
+        socketClient.on('tvCodeRequest', () => {
             showModal(<PairingCodeWidget />);
         });
 

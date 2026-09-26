@@ -4,7 +4,7 @@ import { MovieDTO, SeriesDTO } from "@/dtos/show";
 import { CustomText } from "./ui/CustomText";
 import { LinearGradient } from "expo-linear-gradient";
 import { Button } from "./ui/Button";
-import { sendShowCast } from "@/server/socket";
+import { sendShowCast } from "@/server/api";
 import { useContext } from "react";
 import { AppContext } from "@/contexts/appContext";
 import { ShowCasting } from "./ShowCasting";

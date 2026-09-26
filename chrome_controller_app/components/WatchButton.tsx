@@ -1,7 +1,7 @@
 import { ActivityIndicator, PressableProps, ViewProps } from "react-native";
 import { Button } from "./ui/Button";
 import { useContext, useEffect, useState } from "react";
-import { isShowAvailable, sendShowCast } from "@/server/socket";
+import { isShowAvailable, sendShowCast } from "@/server/api";
 import { AppContext } from "@/contexts/appContext";
 import { Ban, Play } from "lucide-react-native";
 import { CustomText } from "./ui/CustomText";

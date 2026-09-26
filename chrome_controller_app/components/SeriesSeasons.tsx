@@ -1,7 +1,7 @@
 import { SeasonDTO, SeriesDTO } from "@/dtos/show"
 import { ContextMenu } from "./ui/ContextMenu";
 import { useContext, useEffect, useState } from "react";
-import { getSeasonById } from "@/server/socket";
+import { getSeasonById } from "@/server/api";
 import { AppContext } from "@/contexts/appContext";
 import { CustomText } from "./ui/CustomText";
 import { View, Image } from "react-native";

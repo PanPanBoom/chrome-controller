@@ -1,5 +1,5 @@
 import { remoteConstantsDTO } from "@/dtos/remoteConstants";
-import { sendKeyPress } from "@/server/socket";
+import { sendKeyPress } from "@/server/api";
 import { useEffect, useRef } from "react";
 import { EmitterSubscription } from "react-native";
 import Constants, { ExecutionEnvironment } from "expo-constants";

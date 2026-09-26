@@ -8,7 +8,7 @@ import { ScrollScreen } from "@/components/ui/ScrollScreen";
 import { AppContext } from "@/contexts/appContext";
 import { App } from "@/dtos/app";
 import { ShowDTO } from "@/dtos/show";
-import { getApps, getHistoryShows, getShowLists, getTopShows, searchShow } from "@/server/socket";
+import { getApps, getHistoryShows, getShowLists, getTopShows, searchShow } from "@/server/api";
 import { Href, Label, router } from "expo-router";
 import { useContext, useEffect, useState } from "react";
 import { FlatList, ScrollView, TextInput, View } from "react-native";

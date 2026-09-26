@@ -6,7 +6,7 @@ import { ChevronRight } from "lucide-react-native";
 import { colors } from "@/constants/colors";
 import { cn } from "@/etc/utils";
 import { Button } from "./ui/Button";
-import { sendShowCast } from "@/server/socket";
+import { sendShowCast } from "@/server/api";
 import { AppContext } from "@/contexts/appContext";
 import { WatchButton } from "./WatchButton";
 

@@ -1,7 +1,7 @@
 import clsx, { ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import * as Network from 'expo-network';
-import { sendPing } from '@/server/socket';
+import { sendPing } from '@/server/api';
 
 export const cn = (...classes: ClassValue[]) => twMerge(clsx(...classes));
 
@@ -16,11 +16,8 @@ export const scanNetwork = async () => {
     {
       const targetIp = `${baseIp}.${i}`;
 
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 5000);
-
       promises.push(
-        sendPing(targetIp, controller.signal)
+        sendPing(targetIp)
           .then(res => res.json())
           .then(data => {
             if(data)

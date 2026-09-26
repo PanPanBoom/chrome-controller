@@ -1,5 +1,5 @@
 import { remoteConstantsDTO } from "@/dtos/remoteConstants";
-import { sendKeyPress } from "@/server/socket";
+import { sendKeyPress } from "@/server/api";
 import { useRef } from "react";
 
 const LONG_PRESS_THRESHOLD = 500;

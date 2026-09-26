@@ -3,7 +3,7 @@ import { CustomTitle } from "@/components/ui/CustomTitle";
 import { Screen } from "@/components/ui/Screen"
 import { AppContext } from "@/contexts/appContext";
 import { MovieDTO, SeriesDTO, ShowDTO } from "@/dtos/show"
-import { getShowById, sendAppLaunch, sendShowCast } from "@/server/socket";
+import { getShowById, sendAppLaunch, sendShowCast } from "@/server/api";
 import { router, useLocalSearchParams } from "expo-router";
 import { useContext, useEffect, useState } from "react";
 import { ActivityIndicator, FlatList, Image, ScrollView, View } from "react-native";

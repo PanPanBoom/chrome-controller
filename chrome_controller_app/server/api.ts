@@ -1,16 +1,11 @@
-import { io } from 'socket.io-client'
+const sendCommand = async (ip: string, command: string, init?: RequestInit) => {
+    const controller = new AbortController();
+    setTimeout(() => controller.abort(), 5000);
 
-export const socket = io("http://192.168.1.46:3000", {
-    transports: ['websocket']
-});
+    return await fetch(`http://${ip}:3000/${command}`, {...init, signal: controller.signal});
+}
 
-socket.on('connect', () => {
-    console.log("Connecté au serveur");
-});
-
-const sendCommand = async (ip: string, command: string, init?: RequestInit) => await fetch(`http://${ip}:3000/${command}`, init);
-
-export const sendPing = async (ip: string, signal: AbortController["signal"]) => await sendCommand(ip, 'remote/ping', {signal});
+export const sendPing = async (ip: string) => await sendCommand(ip, 'remote/ping');
 
 export const getCommands = async (ip: string) => await sendCommand(ip, 'remote/config/commands');
 

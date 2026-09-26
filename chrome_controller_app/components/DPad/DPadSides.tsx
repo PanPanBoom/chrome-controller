@@ -5,18 +5,20 @@ import { View } from "react-native";
 import { DPadSidesIcons } from "./DPadSidesIcons";
 import { PAD_SIZE } from "./constants";
 import { useContext, useEffect, useState } from "react";
-import { getisMuted, socket } from "@/server/socket";
+import { getisMuted } from "@/server/api";
 import { AppContext } from "@/contexts/appContext";
+import { socketClient } from "@/server/SocketClient";
 
 export const DPadSides = () => {
     const { server, device } = useContext(AppContext);
     const [isMuted, setIsMuted] = useState(false);
 
     useEffect(() => {
-        socket.on('muteChanged', (data) => {
-            setIsMuted(data.muted);
-        })
-    })
+        const handler = (data: any) => setIsMuted(data.muted);
+        socketClient.on('muteChanged', handler);
+
+        return () => socketClient.off('muteChanged', handler);
+    }, []);
 
     useEffect(() => {
         getisMuted(server.ip)

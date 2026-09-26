@@ -1,6 +1,6 @@
 import { DPadSide } from './DPadSide'
 import { Plus, Minus, Volume2, LucideIcon } from 'lucide-react-native'
-import { sendMute, sendVolume } from '@/server/socket'
+import { sendMute, sendVolume } from '@/server/api'
 import { useContext, useEffect, useState } from 'react'
 import { AppContext } from '@/contexts/appContext'
 import { VOLUME_SIDE_ANGLES } from './constants'

@@ -3,7 +3,7 @@ import { Pressable, Image, Linking } from "react-native";
 import { CustomText } from "./ui/CustomText";
 import { useContext } from "react";
 import { AppContext } from "@/contexts/appContext";
-import { sendAppLaunch } from "@/server/socket";
+import { sendAppLaunch } from "@/server/api";
 import { router } from "expo-router";
 
 type AppListElementProps = {

@@ -1,6 +1,6 @@
 import { AppContext } from "@/contexts/appContext";
 import { ShowReviewDTO } from "@/dtos/show";
-import { getShowReviews } from "@/server/socket";
+import { getShowReviews } from "@/server/api";
 import { useContext, useEffect, useState } from "react";
 import { ActivityIndicator, Image, View } from "react-native"
 import { CustomText } from "./ui/CustomText";

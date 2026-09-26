@@ -1,6 +1,6 @@
 import { AppContext } from "@/contexts/appContext";
 import { DeviceDataDTO } from "@/dtos/deviceData";
-import { connectTv, getDevices } from "@/server/socket";
+import { connectTv, getDevices } from "@/server/api";
 import { useContext, useEffect, useState } from "react";
 import { ActivityIndicator, Pressable, View } from "react-native";
 import { CustomText } from "./ui/CustomText";
