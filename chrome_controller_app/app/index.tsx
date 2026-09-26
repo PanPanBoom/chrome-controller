@@ -21,11 +21,11 @@ export default function Index() {
       {
         setItem(foundServers[0].ip);
         setServer(foundServers[0]);
-        router.push({ pathname: '/(tabs)/remote' });
+        router.replace('/(tabs)/remote');
       }
 
       else
-        router.push({ pathname: '/(tabs)/cast'});
+        router.replace('/(tabs)/cast');
     }
 
     getItem()
@@ -41,7 +41,7 @@ export default function Index() {
                 ip: lastServerIp,
                 serverData: data
               });
-              router.push({ pathname: '/(tabs)/remote' });
+              router.replace('/(tabs)/remote');
             })
             .catch(launchScanNetwork);
         else
