@@ -1,13 +1,13 @@
 import { Api } from "../Api.js";
-import { ApiManager } from "../ApiManager.js";
 import 'dotenv/config';
 import { NakastreamSource } from "../../source/NakastreamSource.js";
+// import { NakanimeSource } from "../../source/NakanimeSource.js";
 import { NoxpulseSource } from "../../source/NoxpulseSource.js";
 import { MappleTVSource } from "../../source/MappleTVSource.js";
-import os from 'os';
 import { state } from "../../state.js";
 import { getAllShows, getShowsByFilter, getShowById } from "../../db.js";
 import { baseListsFilters, specificListsFilters } from "./lists.js";
+import { MovixSource } from "../../source/MovixSource.js";
 
 const dateParser = (dateString) => {
     if (!dateString) return null;
@@ -42,6 +42,7 @@ export class TMDBApi extends Api
         this.sources = [
             // new StreamoSource(),
             new NakastreamSource(),
+            new MovixSource(),
             new NoxpulseSource(),
             new MappleTVSource(),
         ]

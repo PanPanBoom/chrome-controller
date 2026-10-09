@@ -9,9 +9,10 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node ./server.js",
-    "dev": "node --watch ./server.js"
+    "dev": "node --watch_path=./src --watch-path=./server.js server.js"
   },
   "dependencies": {
+    "@movie-web/providers": "^2.4.13",
     "@twurple/api": "^8.0.3",
     "@twurple/auth": "^8.0.3",
     "androidtv-remote": "github:astrokin/androidtv-remote",
