@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import Video, { AudioTrack, SelectedTrackType, VideoRef } from "react-native-video";
+import Video, { ISO639_1, SelectedTrackType, TextTrackType, VideoRef, AudioTrack } from "react-native-video";
 import { MediaRecord } from "theintrodb";
 import { tidbClient } from "../src/TIDBClient";
 import { View } from "react-native";
@@ -35,9 +35,16 @@ export const VideoPlayer = ({ videoInfo, onVideoEnd }: { videoInfo: VideoInfo, o
     const [videoDuration, setVideoDuration] = useState(0);
     const [progress, setProgress] = useState(0);
     const [tidbInfo, setTidbInfo] = useState<MediaRecord | null>(null);
+    const [subtitles, setSubtitles] = useState<{
+        title: string;
+        language: ISO639_1,
+        type: TextTrackType,
+        uri: string
+    }[] | null>(null);
     const [currentMediaPart, setCurrentMediaPart] = useState<'intro' | 'recap' | 'credits' | 'preview' | null>(null);
     const [audioTracks, setAudioTracks] = useState<AudioTrack[]>([]);
     const [selectedAudioTrack, setSelectedAudioTrack] = useState<AudioTrack | null>(null);
+    const [isFinished, setIsFinished] = useState(false);
     const videoRef = useRef<VideoRef>(null);
 
     useKeepAwake();
@@ -94,45 +101,93 @@ export const VideoPlayer = ({ videoInfo, onVideoEnd }: { videoInfo: VideoInfo, o
     }
 
     const handleEnd = () => {
-        onVideoEnd();
-        fetch(`${videoInfo.serverIp}/showEnd`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                showId: videoInfo.showId,
-                episodeInfo: videoInfo.episodeInfo
-            })
-        });
+        setIsFinished(true);
+
+        setTimeout(() => {
+            onVideoEnd();
+            fetch(`${videoInfo.serverIp}/showEnd`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    showId: videoInfo.showId,
+                    episodeInfo: videoInfo.episodeInfo
+                })
+            });
+        }, 500);
     }
+
+    useEffect(() => {
+        console.log("Subtitles:", JSON.stringify(subtitles));
+    }, [subtitles]);
+
+    useEffect(() => {
+        const params = new URLSearchParams();
+        params.append('showId', videoInfo.showId.split('/')[1]);
+        params.append('episodeInfo', encodeURIComponent(JSON.stringify(videoInfo.episodeInfo)));
+        params.append('duration', videoDuration + '');
+
+        fetch(`${videoInfo.serverIp}/extension/subtitles?${params}`)
+            .then(res => res.json())
+            .then(data => {
+                if(data && data.length > 0)
+                {
+                    setSubtitles([{
+                        title: 'Français',
+                        language: 'fr',
+                        type: TextTrackType.VTT,
+                        uri: `${videoInfo.serverIp}/extension/proxy-subtitles?url=${encodeURIComponent(data[0].url)}`
+                    }]);
+                }
+                else
+                    setSubtitles([]);
+            })
+            .catch(err => console.log('Subtitles error:', err));
+
+        return () => {
+            setIsFinished(true);
+        };
+    }, []);
+
+    if(subtitles === null)
+        return <View className="flex bg-black" />
     
     return (
         <View>
             <Video
                 ref={videoRef}
-                source={{
+                source={isFinished ? undefined : {
                     uri: videoInfo.url,
                     type: videoInfo.extension,
                     startPosition: videoInfo.startTime,
+                    textTracks: subtitles,
                     headers: {
                         Referer: videoInfo.referer,
                         'Cookie': videoInfo.cookies,
                         'User-Agent': videoInfo.userAgent
                     },
                     bufferConfig: {
-                        minBufferMs: 30000,
-                        maxBufferMs: 60000,
-                        bufferForPlaybackMs: 5000,
-                        bufferForPlaybackAfterRebufferMs: 8000,
+                        minBufferMs: 15000,
+                        maxBufferMs: 30000,
+                        bufferForPlaybackMs: 2500,
+                        bufferForPlaybackAfterRebufferMs: 5000,
                     }
                 }}
+                selectedTextTrack={
+                    subtitles.length > 0 ?
+                    {
+                        type: SelectedTrackType.INDEX,
+                        value: 0
+                    } : { type: SelectedTrackType.DISABLED }
+                }
                 onLoad={handleLoad}
-                onError={(error) => console.log("ExoPlayer error:", error.error)}
+                onError={(error) => console.log("ExoPlayer error:", JSON.stringify(error))}
                 onBuffer={({ isBuffering }) => console.log(isBuffering ? "Buffering..." : "Playing")}
                 progressUpdateInterval={1 * 1000}
                 onProgress={handleProgress}
                 onEnd={handleEnd}
+                onTextTracks={(e) => console.log("onTextTracks:", JSON.stringify(e))}
                 style={{width: '100%', height: '100%'}}
                 resizeMode='contain'
                 reportBandwidth={true}
@@ -141,6 +196,7 @@ export const VideoPlayer = ({ videoInfo, onVideoEnd }: { videoInfo: VideoInfo, o
                     setSelectedAudioTrack(e.audioTracks.find(track => track.selected) ?? null);
                 }}
                 selectedAudioTrack={selectedAudioTrack ? { type: SelectedTrackType.INDEX, value: selectedAudioTrack.index } : { type: SelectedTrackType.SYSTEM }}
+                paused={isFinished}
                 // controlsStyles={{
                 //     hideFullscreen: true
                 // }}
