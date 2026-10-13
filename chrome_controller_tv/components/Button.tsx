@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { Pressable, PressableProps, View } from "react-native"
+import { cn } from "../etc/utils";
 
-type ButtonProps = PressableProps & {
+export type ButtonProps = PressableProps & {
     children: React.ReactNode;
+    onFocusStyle: string;
 }
 
 export const Button = ({children, className, ...props}: ButtonProps) => {
@@ -11,7 +13,7 @@ export const Button = ({children, className, ...props}: ButtonProps) => {
     return (
         <Pressable
             {...props}
-            className={`${isFocused ? 'bg-primary' : 'bg-primary/50'} rounded-xl py-2 px-6 shadow ${className}`}
+            className={cn("rounded-xl py-2 px-6 shadow", className, isFocused ? props.onFocusStyle : "")}
             focusable={true}
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}

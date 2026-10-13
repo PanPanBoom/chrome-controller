@@ -43,6 +43,7 @@ function AppContent() {
 
       setVideoInfo({
         showId: params.searchParams.get('showId') ?? "",
+        title: decodeURIComponent(params.searchParams.get('title') ?? ""),
         episodeInfo: episodeInfo ? JSON.parse(decodeURIComponent(episodeInfo)) : null,
         url: decodeURIComponent(params.searchParams.get('url') ?? ""),
         referer: decodeURIComponent(params.searchParams.get('referer') ?? ""),

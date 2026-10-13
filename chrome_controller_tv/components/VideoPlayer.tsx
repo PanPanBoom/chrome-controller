@@ -1,14 +1,16 @@
 import { useEffect, useRef, useState } from "react";
-import Video, { VideoRef } from "react-native-video";
+import Video, { AudioTrack, SelectedTrackType, VideoRef } from "react-native-video";
 import { MediaRecord } from "theintrodb";
 import { tidbClient } from "../src/TIDBClient";
 import { View } from "react-native";
 import { CustomText } from "./CustomText";
 import { Button } from "./Button"
 import { useKeepAwake } from "@sayem314/react-native-keep-awake";
+import { VideoPlayerControls } from "./VideoPlayerControls";
 
 export type VideoInfo = {
   showId: string;
+  title: string;
   episodeInfo: {
     season: number;
     episode: number;
@@ -31,8 +33,11 @@ const skipButtonLabels = {
 
 export const VideoPlayer = ({ videoInfo, onVideoEnd }: { videoInfo: VideoInfo, onVideoEnd: () => void }) => {
     const [videoDuration, setVideoDuration] = useState(0);
+    const [progress, setProgress] = useState(0);
     const [tidbInfo, setTidbInfo] = useState<MediaRecord | null>(null);
     const [currentMediaPart, setCurrentMediaPart] = useState<'intro' | 'recap' | 'credits' | 'preview' | null>(null);
+    const [audioTracks, setAudioTracks] = useState<AudioTrack[]>([]);
+    const [selectedAudioTrack, setSelectedAudioTrack] = useState<AudioTrack | null>(null);
     const videoRef = useRef<VideoRef>(null);
 
     useKeepAwake();
@@ -60,6 +65,7 @@ export const VideoPlayer = ({ videoInfo, onVideoEnd }: { videoInfo: VideoInfo, o
     }
 
     const handleProgress = (progress: { currentTime: number }) => {
+        setProgress(progress.currentTime);
         fetch(`${videoInfo.serverIp}/updateStartTime`, {
             method: 'PUT',
             headers: {
@@ -128,17 +134,31 @@ export const VideoPlayer = ({ videoInfo, onVideoEnd }: { videoInfo: VideoInfo, o
                 onProgress={handleProgress}
                 onEnd={handleEnd}
                 style={{width: '100%', height: '100%'}}
-                controls={true}
                 resizeMode='contain'
                 reportBandwidth={true}
+                onAudioTracks={(e) => {
+                    setAudioTracks(e.audioTracks)
+                    setSelectedAudioTrack(e.audioTracks.find(track => track.selected) ?? null);
+                }}
+                selectedAudioTrack={selectedAudioTrack ? { type: SelectedTrackType.INDEX, value: selectedAudioTrack.index } : { type: SelectedTrackType.SYSTEM }}
                 // controlsStyles={{
                 //     hideFullscreen: true
                 // }}
             />
+            <VideoPlayerControls 
+                title={videoInfo.title}
+                episodeInfo={videoInfo.episodeInfo ?? undefined}
+                duration={videoDuration}
+                currentTime={progress}
+                videoRef={videoRef}
+                audioTracks={audioTracks}
+                onSelectAudioTrack={(track) => setSelectedAudioTrack(track)}
+            />
             {
                 currentMediaPart &&
                 <Button
-                    className="absolute bottom-[25%] right-[5%]"
+                    className="absolute bottom-[25%] right-[5%] bg-primary/50"
+                    onFocusStyle="bg-primary"
                     onPress={handleSkip}
                     hasTVPreferredFocus={true}
                     >
