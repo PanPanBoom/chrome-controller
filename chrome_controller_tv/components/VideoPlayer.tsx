@@ -7,6 +7,8 @@ import { CustomText } from "./CustomText";
 import { Button } from "./Button"
 import { useKeepAwake } from "@sayem314/react-native-keep-awake";
 import { VideoPlayerControls } from "./VideoPlayerControls";
+import { SubtitlesTracksWidgetProps } from "./SubtitlesTracksWidget";
+import { SubtitlesDisplayer } from "./SubtitlesDisplayer";
 
 export type VideoInfo = {
   showId: string;
@@ -35,12 +37,8 @@ export const VideoPlayer = ({ videoInfo, onVideoEnd }: { videoInfo: VideoInfo, o
     const [videoDuration, setVideoDuration] = useState(0);
     const [progress, setProgress] = useState(0);
     const [tidbInfo, setTidbInfo] = useState<MediaRecord | null>(null);
-    const [subtitles, setSubtitles] = useState<{
-        title: string;
-        language: ISO639_1,
-        type: TextTrackType,
-        uri: string
-    }[] | null>(null);
+    const [subtitles, setSubtitles] = useState<SubtitlesTracksWidgetProps['subtitles']>([]);
+    const [selectedSubtitle, setSelectedSubtitle] = useState<SubtitlesTracksWidgetProps['subtitles'][number] | null>(null);
     const [currentMediaPart, setCurrentMediaPart] = useState<'intro' | 'recap' | 'credits' | 'preview' | null>(null);
     const [audioTracks, setAudioTracks] = useState<AudioTrack[]>([]);
     const [selectedAudioTrack, setSelectedAudioTrack] = useState<AudioTrack | null>(null);
@@ -52,6 +50,8 @@ export const VideoPlayer = ({ videoInfo, onVideoEnd }: { videoInfo: VideoInfo, o
     const handleLoad = (data: { duration: number }) => {
         console.log("Video loaded: ", data);
         setVideoDuration(data.duration);
+        setSelectedSubtitle(null);
+        setSubtitles([]);
 
         tidbClient.getMedia({
             tmdbId: Number(videoInfo.showId.split('/')[1]),
@@ -119,10 +119,6 @@ export const VideoPlayer = ({ videoInfo, onVideoEnd }: { videoInfo: VideoInfo, o
     }
 
     useEffect(() => {
-        console.log("Subtitles:", JSON.stringify(subtitles));
-    }, [subtitles]);
-
-    useEffect(() => {
         const params = new URLSearchParams();
         params.append('showId', videoInfo.showId.split('/')[1]);
         params.append('episodeInfo', encodeURIComponent(JSON.stringify(videoInfo.episodeInfo)));
@@ -131,27 +127,14 @@ export const VideoPlayer = ({ videoInfo, onVideoEnd }: { videoInfo: VideoInfo, o
         fetch(`${videoInfo.serverIp}/extension/subtitles?${params}`)
             .then(res => res.json())
             .then(data => {
+                console.log("Subtitles: ", data);
                 if(data && data.length > 0)
-                {
-                    setSubtitles([{
-                        title: 'Français',
-                        language: 'fr',
-                        type: TextTrackType.VTT,
-                        uri: `${videoInfo.serverIp}/extension/proxy-subtitles?url=${encodeURIComponent(data[0].url)}`
-                    }]);
-                }
+                    setSubtitles([{ id: 'disabled', display: 'Désactivé', language: '' as ISO639_1, release: '', url: '' }, ...data]);
                 else
                     setSubtitles([]);
             })
             .catch(err => console.log('Subtitles error:', err));
-
-        return () => {
-            setIsFinished(true);
-        };
-    }, []);
-
-    if(subtitles === null)
-        return <View className="flex bg-black" />
+    }, [videoDuration]);
     
     return (
         <View>
@@ -161,7 +144,6 @@ export const VideoPlayer = ({ videoInfo, onVideoEnd }: { videoInfo: VideoInfo, o
                     uri: videoInfo.url,
                     type: videoInfo.extension,
                     startPosition: videoInfo.startTime,
-                    textTracks: subtitles,
                     headers: {
                         Referer: videoInfo.referer,
                         'Cookie': videoInfo.cookies,
@@ -174,20 +156,12 @@ export const VideoPlayer = ({ videoInfo, onVideoEnd }: { videoInfo: VideoInfo, o
                         bufferForPlaybackAfterRebufferMs: 5000,
                     }
                 }}
-                selectedTextTrack={
-                    subtitles.length > 0 ?
-                    {
-                        type: SelectedTrackType.INDEX,
-                        value: 0
-                    } : { type: SelectedTrackType.DISABLED }
-                }
                 onLoad={handleLoad}
                 onError={(error) => console.log("ExoPlayer error:", JSON.stringify(error))}
                 onBuffer={({ isBuffering }) => console.log(isBuffering ? "Buffering..." : "Playing")}
-                progressUpdateInterval={1 * 1000}
+                progressUpdateInterval={0.25 * 1000}
                 onProgress={handleProgress}
                 onEnd={handleEnd}
-                onTextTracks={(e) => console.log("onTextTracks:", JSON.stringify(e))}
                 style={{width: '100%', height: '100%'}}
                 resizeMode='contain'
                 reportBandwidth={true}
@@ -201,6 +175,12 @@ export const VideoPlayer = ({ videoInfo, onVideoEnd }: { videoInfo: VideoInfo, o
                 //     hideFullscreen: true
                 // }}
             />
+            <SubtitlesDisplayer 
+                subtitles={selectedSubtitle}
+                progress={progress}
+                serverIp={videoInfo.serverIp}
+                className="absolute bottom-[10%] left-[5%] right-[5%]"
+            />
             <VideoPlayerControls 
                 title={videoInfo.title}
                 episodeInfo={videoInfo.episodeInfo ?? undefined}
@@ -209,6 +189,9 @@ export const VideoPlayer = ({ videoInfo, onVideoEnd }: { videoInfo: VideoInfo, o
                 videoRef={videoRef}
                 audioTracks={audioTracks}
                 onSelectAudioTrack={(track) => setSelectedAudioTrack(track)}
+                subtitles={subtitles}
+                selectedSubtitle={selectedSubtitle ?? undefined}
+                onSelectSubtitle={(subtitle) => setSelectedSubtitle(subtitle.id === 'disabled' ? null : subtitle)}
             />
             {
                 currentMediaPart &&

@@ -6,6 +6,7 @@ export function usePlayerRemote({ onTogglePlay, onSeek }: {
 })
 {
     useTVEventHandler((evt) => {
+        console.log("TV Event:", evt);
         switch(evt.eventType)
         {
             case "playPause":

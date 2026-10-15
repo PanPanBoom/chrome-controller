@@ -13,7 +13,7 @@ export const Button = ({children, className, ...props}: ButtonProps) => {
     return (
         <Pressable
             {...props}
-            className={cn("rounded-xl py-2 px-6 shadow", className, isFocused ? props.onFocusStyle : "")}
+            className={cn("rounded-xl py-2 px-6 shadow", className, isFocused && props.onFocusStyle, props.disabled && "opacity-50")}
             focusable={true}
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}

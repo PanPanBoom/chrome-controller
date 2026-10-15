@@ -1,19 +1,30 @@
 import { useState } from "react";
 import { Button, ButtonProps } from "./Button"
 import { cn } from "../etc/utils";
-import { View } from "react-native";
+import { GestureResponderEvent, View } from "react-native";
 
-type MenuButtonProps = Omit<ButtonProps, 'onPress'> & {
+type MenuButtonProps = ButtonProps & {
     widget: React.ReactNode;
-    containerClassName?: string
+    containerClassName?: string;
+    expanded?: boolean;
 }
 
-export const MenuButton = ({children, widget, containerClassName, ...props}: MenuButtonProps) => {
-    const [expanded, setExpanded] = useState(false);
+export const MenuButton = ({children, widget, containerClassName, onPress, expanded: expandedProp, ...props}: MenuButtonProps) => {
+    const [internalExpanded, setInternalExpanded] = useState(false);
+
+    const isControlled = expandedProp !== undefined;
+    const expanded = isControlled ? expandedProp : internalExpanded;
+
+    const handlePress = (e: GestureResponderEvent) => {
+        if(!isControlled)
+            setInternalExpanded(!internalExpanded);
+        
+        onPress?.(e);
+    }
 
     return (
         <View className={cn("relative", containerClassName)}>
-            <Button onPress={() => setExpanded(!expanded)} {...props}>
+            <Button onPress={handlePress} {...props}>
                 {children}
             </Button>
             {

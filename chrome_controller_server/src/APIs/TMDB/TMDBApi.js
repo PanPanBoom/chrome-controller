@@ -361,6 +361,7 @@ export class TMDBApi extends Api
         {
             if (await source.checkShowAvailability(id, episodeInfo))
             {
+                const showInfos = await this.getShowById(id);
                 console.log("Show available on " + source.baseUrl);
                 const videoInfo = await source.getShowVideoInfo(id, episodeInfo);
                 console.log(videoInfo);
@@ -369,6 +370,7 @@ export class TMDBApi extends Api
                 if(episodeInfo)
                     params.append('episodeInfo', encodeURIComponent(JSON.stringify(episodeInfo)));
 
+                params.append('title', encodeURIComponent(showInfos.title));
                 params.append('url', encodeURIComponent(videoInfo.url));
                 params.append('referer', encodeURIComponent(videoInfo.referer));
                 params.append('cookies', encodeURIComponent(videoInfo.cookies));
@@ -377,7 +379,7 @@ export class TMDBApi extends Api
                 params.append('startTime', startTime);
                 console.log(`Starting show at ${startTime / 1000}s`);
 
-                return `chromecontroller://play?${params}`;
+                return `chromecontrollerdebug://play?${params}`;
             }
         }
 

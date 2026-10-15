@@ -2,7 +2,7 @@ import { View } from "react-native"
 import { CustomTitle } from "./CustomTitle"
 import { CustomText } from "./CustomText"
 import { Button } from "./Button"
-import { FastForward, FileVolume, Pause, Play, Rewind } from "lucide-react-native"
+import { Captions, FastForward, FileVolume, Pause, Play, Rewind } from "lucide-react-native"
 import { colors } from "../constants"
 import { useState } from "react"
 import { usePlayerRemote } from "../hooks/usePlayerRemote"
@@ -11,6 +11,8 @@ import LinearGradient from "react-native-linear-gradient"
 import { MenuButton } from "./MenuButton"
 import { AudioTrack } from "react-native-video"
 import { AudioTracksWidget } from "./AudioTracksWidget"
+import { SubtitlesTracksWidget, SubtitlesTracksWidgetProps } from "./SubtitlesTracksWidget"
+import { MenuButtonGroup } from "./MenuButtonGroup"
 
 type VideoPlayerControlsProps = {
     title: string;
@@ -23,6 +25,9 @@ type VideoPlayerControlsProps = {
     videoRef: React.RefObject<any>;
     audioTracks: AudioTrack[];
     onSelectAudioTrack?: (track: AudioTrack) => void;
+    subtitles: SubtitlesTracksWidgetProps['subtitles'];
+    onSelectSubtitle?: (subtitle: SubtitlesTracksWidgetProps['subtitles'][number]) => void;
+    selectedSubtitle?: SubtitlesTracksWidgetProps['subtitles'][number];
 }
 
 const formatTime = (time: number) => {
@@ -35,6 +40,19 @@ const formatTime = (time: number) => {
 export const VideoPlayerControls = (props: VideoPlayerControlsProps) => {
     const [isPlaying, setIsPlaying] = useState(true);
     const { visible } = useAutoHide(5000, !isPlaying);
+
+    const buttonGroupDescription = [
+        {
+            icon: FileVolume,
+            widget: <AudioTracksWidget audioTracks={props.audioTracks} onSelectTrack={props.onSelectAudioTrack} />,
+            disabled: props.audioTracks.length <= 1
+        },
+        {
+            icon: Captions,
+            widget: <SubtitlesTracksWidget subtitles={props.subtitles} selectedSubtitle={props.selectedSubtitle} onSelectSubtitle={props.onSelectSubtitle}/>,
+            disabled: props.subtitles.length === 0
+        }
+    ]
 
     const handlePlayPause = () => {
         if (props.videoRef.current) {
@@ -100,9 +118,12 @@ export const VideoPlayerControls = (props: VideoPlayerControlsProps) => {
                         <FastForward color={colors.text} />
                     </Button>
                 </View>
-                <MenuButton onFocusStyle="bg-secondary" className="bg-secondary/50 rounded-full p-4 aspect-square justify-center items-center" containerClassName="absolute right-0" widget={<AudioTracksWidget audioTracks={props.audioTracks} onSelectTrack={props.onSelectAudioTrack} />}>
-                    <FileVolume color={colors.text} />
-                </MenuButton>
+                <MenuButtonGroup 
+                    className="absolute right-0 gap-6 flex-row"
+                    buttonsClassName="bg-secondary/50 rounded-full p-4 aspect-square justify-center items-center"
+                    buttonsFocusClassName="bg-secondary"
+                    buttons={buttonGroupDescription}
+                />
             </View>
         </LinearGradient>
     )

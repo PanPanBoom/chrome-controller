@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { state } from './state.js';
 import { parseToVTT, searchSubtitles } from "wyzie-lib";
+import webvtt from "node-webvtt";
 // import 'dotenv/config';
 
 export default function extensionRoutes(io) {
@@ -108,39 +109,38 @@ export default function extensionRoutes(io) {
                     episode: Number(episodeInfo.episode),
                 }),
                 format: ['srt'],
-                language: ['fr'],
+                language: ['fr', 'en'],
                 key: process.env.WYZIE_API_KEY
             });
 
-            console.log(data);
+            // console.log(data);
 
-            res.json(data);
-            return;
+            const checkedSubtitles = await Promise.all(
+                data.map(async (sub) => {
+                    try {
+                        const response = await fetch(sub.url);
+                        const srtText = await response.text();
 
-            // const checkedSubtitles = await Promise.all(
-            //     data.map(async (sub) => {
-            //         try {
-            //             const response = await fetch(sub.url);
-            //             const srtText = await response.text();
+                        const matches = [...srtText.matchAll(/(\d{2}):(\d{2}):(\d{2})[,\.]\d{3}/g)];
+                        if (!matches.length) return null;
 
-            //             const matches = [...srtText.matchAll(/(\d{2}):(\d{2}):(\d{2})[,\.]\d{3}/g)];
-            //             if (!matches.length) return null;
+                        const [_, hours, minutes, seconds] = matches[matches.length - 1];
+                        const subDuration = Number(hours) * 3600 + Number(minutes) * 60 + Number(seconds);
 
-            //             const [_, hours, minutes, seconds] = matches[matches.length - 1];
-            //             const subDuration = Number(hours) * 3600 + Number(minutes) * 60 + Number(seconds);
+                        // Écart de moins de 10s entre la vidéo et la dernière ligne du SRT
+                        const diff = Math.abs(targetDuration - subDuration);
+                        return diff <= 10 ? sub : null;
+                    } catch {
+                        return null;
+                    }
+                })
+            );
 
-            //             // Écart de moins de 60s entre la vidéo et la dernière ligne du SRT
-            //             const diff = Math.abs(targetDuration - subDuration);
-            //             return diff <= 60 ? sub : null;
-            //         } catch {
-            //             return null;
-            //         }
-            //     })
-            // );
+            const validSubtitles = checkedSubtitles.filter(Boolean);
 
-            // const validSubtitles = checkedSubtitles.filter(Boolean);
+            console.log("Subtitles: ", validSubtitles);
 
-            // res.json(validSubtitles.length ? validSubtitles : data);
+            res.json(validSubtitles.length ? validSubtitles : data);
 
         } catch (err) {
             console.log(err.message);
@@ -152,13 +152,12 @@ export default function extensionRoutes(io) {
         console.log('Subtitles proxy');
         try {
             const url = decodeURIComponent(req.query.url);
-            const text = await parseToVTT(url);
-            // const base64Vtt = Buffer.from(text).toString('base64');
+            const vttFile = await parseToVTT(url);
+            const parsedVtt = webvtt.parse(vttFile);
 
-            console.log(text);
-
-            // res.json({ base64: base64Vtt });
-            res.send(text);
+            console.log(parsedVtt.cues);
+            
+            res.json(parsedVtt.cues);
         } catch (err) {
             res.status(500).send('Proxy subtitles error: ' + err);
         }
