@@ -1,14 +1,18 @@
 import { useEffect, useRef, useState } from "react";
-import Video, { VideoRef } from "react-native-video";
+import Video, { ISO639_1, SelectedTrackType, TextTrackType, VideoRef, AudioTrack } from "react-native-video";
 import { MediaRecord } from "theintrodb";
 import { tidbClient } from "../src/TIDBClient";
 import { View } from "react-native";
 import { CustomText } from "./CustomText";
 import { Button } from "./Button"
 import { useKeepAwake } from "@sayem314/react-native-keep-awake";
+import { VideoPlayerControls } from "./VideoPlayerControls";
+import { SubtitlesTracksWidgetProps } from "./SubtitlesTracksWidget";
+import { SubtitlesDisplayer } from "./SubtitlesDisplayer";
 
 export type VideoInfo = {
   showId: string;
+  title: string;
   episodeInfo: {
     season: number;
     episode: number;
@@ -31,8 +35,14 @@ const skipButtonLabels = {
 
 export const VideoPlayer = ({ videoInfo, onVideoEnd }: { videoInfo: VideoInfo, onVideoEnd: () => void }) => {
     const [videoDuration, setVideoDuration] = useState(0);
+    const [progress, setProgress] = useState(0);
     const [tidbInfo, setTidbInfo] = useState<MediaRecord | null>(null);
+    const [subtitles, setSubtitles] = useState<SubtitlesTracksWidgetProps['subtitles']>([]);
+    const [selectedSubtitle, setSelectedSubtitle] = useState<SubtitlesTracksWidgetProps['subtitles'][number] | null>(null);
     const [currentMediaPart, setCurrentMediaPart] = useState<'intro' | 'recap' | 'credits' | 'preview' | null>(null);
+    const [audioTracks, setAudioTracks] = useState<AudioTrack[]>([]);
+    const [selectedAudioTrack, setSelectedAudioTrack] = useState<AudioTrack | null>(null);
+    const [isFinished, setIsFinished] = useState(false);
     const videoRef = useRef<VideoRef>(null);
 
     useKeepAwake();
@@ -40,6 +50,8 @@ export const VideoPlayer = ({ videoInfo, onVideoEnd }: { videoInfo: VideoInfo, o
     const handleLoad = (data: { duration: number }) => {
         console.log("Video loaded: ", data);
         setVideoDuration(data.duration);
+        setSelectedSubtitle(null);
+        setSubtitles([]);
 
         tidbClient.getMedia({
             tmdbId: Number(videoInfo.showId.split('/')[1]),
@@ -60,6 +72,7 @@ export const VideoPlayer = ({ videoInfo, onVideoEnd }: { videoInfo: VideoInfo, o
     }
 
     const handleProgress = (progress: { currentTime: number }) => {
+        setProgress(progress.currentTime);
         fetch(`${videoInfo.serverIp}/updateStartTime`, {
             method: 'PUT',
             headers: {
@@ -88,24 +101,49 @@ export const VideoPlayer = ({ videoInfo, onVideoEnd }: { videoInfo: VideoInfo, o
     }
 
     const handleEnd = () => {
-        onVideoEnd();
-        fetch(`${videoInfo.serverIp}/showEnd`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                showId: videoInfo.showId,
-                episodeInfo: videoInfo.episodeInfo
-            })
-        });
+        setIsFinished(true);
+
+        setTimeout(() => {
+            onVideoEnd();
+            fetch(`${videoInfo.serverIp}/showEnd`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    showId: videoInfo.showId,
+                    episodeInfo: videoInfo.episodeInfo
+                })
+            });
+        }, 500);
     }
+
+    useEffect(() => {
+        if(videoDuration === 0)
+            return;
+
+        const params = new URLSearchParams();
+        params.append('showId', videoInfo.showId.split('/')[1]);
+        params.append('episodeInfo', encodeURIComponent(JSON.stringify(videoInfo.episodeInfo)));
+        params.append('duration', videoDuration + '');
+
+        fetch(`${videoInfo.serverIp}/extension/subtitles?${params}`)
+            .then(res => res.json())
+            .then(data => {
+                console.log("Subtitles: ", data);
+                if(data && data.length > 0)
+                    setSubtitles([{ id: 'disabled', display: 'Désactivé', language: '' as ISO639_1, release: '', url: '' }, ...data]);
+                else
+                    setSubtitles([]);
+            })
+            .catch(err => console.log('Subtitles error:', err));
+    }, [videoDuration]);
     
     return (
         <View>
             <Video
                 ref={videoRef}
-                source={{
+                source={isFinished ? undefined : {
                     uri: videoInfo.url,
                     type: videoInfo.extension,
                     startPosition: videoInfo.startTime,
@@ -115,30 +153,54 @@ export const VideoPlayer = ({ videoInfo, onVideoEnd }: { videoInfo: VideoInfo, o
                         'User-Agent': videoInfo.userAgent
                     },
                     bufferConfig: {
-                        minBufferMs: 30000,
-                        maxBufferMs: 60000,
-                        bufferForPlaybackMs: 5000,
-                        bufferForPlaybackAfterRebufferMs: 8000,
+                        minBufferMs: 15000,
+                        maxBufferMs: 30000,
+                        bufferForPlaybackMs: 2500,
+                        bufferForPlaybackAfterRebufferMs: 5000,
                     }
                 }}
                 onLoad={handleLoad}
-                onError={(error) => console.log("ExoPlayer error:", error.error)}
+                onError={(error) => console.log("ExoPlayer error:", JSON.stringify(error))}
                 onBuffer={({ isBuffering }) => console.log(isBuffering ? "Buffering..." : "Playing")}
-                progressUpdateInterval={1 * 1000}
+                progressUpdateInterval={0.25 * 1000}
                 onProgress={handleProgress}
                 onEnd={handleEnd}
                 style={{width: '100%', height: '100%'}}
-                controls={true}
                 resizeMode='contain'
                 reportBandwidth={true}
+                onAudioTracks={(e) => {
+                    setAudioTracks(e.audioTracks)
+                    setSelectedAudioTrack(e.audioTracks.find(track => track.selected) ?? null);
+                }}
+                selectedAudioTrack={selectedAudioTrack ? { type: SelectedTrackType.INDEX, value: selectedAudioTrack.index } : { type: SelectedTrackType.SYSTEM }}
+                paused={isFinished}
                 // controlsStyles={{
                 //     hideFullscreen: true
                 // }}
             />
+            <SubtitlesDisplayer 
+                subtitles={selectedSubtitle}
+                progress={progress}
+                serverIp={videoInfo.serverIp}
+                className="absolute bottom-[10%] left-[5%] right-[5%]"
+            />
+            <VideoPlayerControls 
+                title={videoInfo.title}
+                episodeInfo={videoInfo.episodeInfo ?? undefined}
+                duration={videoDuration}
+                currentTime={progress}
+                videoRef={videoRef}
+                audioTracks={audioTracks}
+                onSelectAudioTrack={(track) => setSelectedAudioTrack(track)}
+                subtitles={subtitles}
+                selectedSubtitle={selectedSubtitle ?? undefined}
+                onSelectSubtitle={(subtitle) => setSelectedSubtitle(subtitle.id === 'disabled' ? null : subtitle)}
+            />
             {
                 currentMediaPart &&
                 <Button
-                    className="absolute bottom-[25%] right-[5%]"
+                    className="absolute bottom-[25%] right-[5%] bg-primary/50"
+                    onFocusClassName="bg-primary"
                     onPress={handleSkip}
                     hasTVPreferredFocus={true}
                     >

@@ -140,7 +140,7 @@ export class NakastreamSource extends Source
                 url: videoUrl,
                 referer: await this.getShowUrl(id, episodeInfo),
                 cookies: this.clearanceCookie,
-                userAgent: this.userAgent
+                userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36'
             }
         } catch (err) {
             console.error("Error fetching nakastream source: ", err);

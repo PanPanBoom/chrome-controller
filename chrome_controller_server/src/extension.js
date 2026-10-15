@@ -1,5 +1,8 @@
 import { Router } from 'express';
 import { state } from './state.js';
+import { parseToVTT, searchSubtitles } from "wyzie-lib";
+import webvtt from "node-webvtt";
+// import 'dotenv/config';
 
 export default function extensionRoutes(io) {
     const router = Router();
@@ -90,7 +93,75 @@ export default function extensionRoutes(io) {
     router.get('/videoEnabled', (req, res) => {
         io.emit('command', { action: 'IS_VIDEO_ENABLED' });
         res.send({ status: 'ok' });
+    });
+
+    router.get('/subtitles', async (req, res) => {
+        console.log("Fetching subtitles...");
+        const episodeInfo = req.query.episodeInfo ? JSON.parse(decodeURIComponent(req.query.episodeInfo)) : null;
+        const targetDuration = Number(req.query.duration);
+
+        try {
+            console.log("Getting subtitles list...");
+            const data = await searchSubtitles({
+                tmdb_id: Number(req.query.showId),
+                ...(episodeInfo?.season != null && {
+                    season: Number(episodeInfo.season),
+                    episode: Number(episodeInfo.episode),
+                }),
+                format: ['srt'],
+                language: ['fr', 'en'],
+                key: process.env.WYZIE_API_KEY
+            });
+
+            // console.log(data);
+
+            const checkedSubtitles = await Promise.all(
+                data.map(async (sub) => {
+                    try {
+                        const response = await fetch(sub.url);
+                        const srtText = await response.text();
+
+                        const matches = [...srtText.matchAll(/(\d{2}):(\d{2}):(\d{2})[,\.]\d{3}/g)];
+                        if (!matches.length) return null;
+
+                        const [_, hours, minutes, seconds] = matches[matches.length - 1];
+                        const subDuration = Number(hours) * 3600 + Number(minutes) * 60 + Number(seconds);
+
+                        // Écart de moins de 10s entre la vidéo et la dernière ligne du SRT
+                        const diff = Math.abs(targetDuration - subDuration);
+                        return diff <= 10 ? sub : null;
+                    } catch {
+                        return null;
+                    }
+                })
+            );
+
+            const validSubtitles = checkedSubtitles.filter(Boolean);
+
+            console.log("Subtitles: ", validSubtitles);
+
+            res.json(validSubtitles.length ? validSubtitles : data);
+
+        } catch (err) {
+            console.log(err.message);
+            res.status(500).json({ error: err.message });
+        }
     })
+
+    router.get('/proxy-subtitles', async (req, res) => {
+        console.log('Subtitles proxy');
+        try {
+            const url = decodeURIComponent(req.query.url);
+            const vttFile = await parseToVTT(url);
+            const parsedVtt = webvtt.parse(vttFile);
+
+            console.log(parsedVtt.cues);
+            
+            res.json(parsedVtt.cues);
+        } catch (err) {
+            res.status(500).send('Proxy subtitles error: ' + err);
+        }
+    });
 
     return router;
 }

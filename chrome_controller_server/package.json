@@ -23,6 +23,7 @@
     "googleapis": "^171.4.0",
     "got-scraping": "^4.2.1",
     "loudness": "^0.4.2",
+    "node-webvtt": "^2.0.0",
     "patchright": "^1.62.1",
     "playwright": "^1.62.1",
     "playwright-extra": "^4.3.6",
@@ -32,6 +33,7 @@
     "puppeteer-extra": "^3.3.6",
     "puppeteer-extra-plugin-adblocker": "^2.13.6",
     "socket.io": "^4.8.3",
-    "streaming-availability": "^4.4.0"
+    "streaming-availability": "^4.4.0",
+    "wyzie-lib": "^2.5.3"
   }
 }
