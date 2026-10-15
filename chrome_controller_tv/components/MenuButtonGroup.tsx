@@ -24,7 +24,7 @@ export const MenuButtonGroup = (props: MenuButtonGroupsProps) => {
                 props.buttons.map((button, index) => (
                     <MenuButton
                         key={index}
-                        onFocusStyle={props.buttonsFocusClassName ?? ""}
+                        onFocusClassName={props.buttonsFocusClassName ?? ""}
                         className={props.buttonsClassName}
                         widget={button.widget}
                         disabled={button.disabled}

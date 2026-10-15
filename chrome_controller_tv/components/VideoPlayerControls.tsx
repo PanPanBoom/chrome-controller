@@ -108,13 +108,13 @@ export const VideoPlayerControls = (props: VideoPlayerControlsProps) => {
             </View>
             <View className="flex-row items-center justify-center relative">
                 <View className="flex-row items-center gap-6">
-                    <Button onFocusStyle="bg-secondary" className="bg-secondary/50 rounded-full p-4 aspect-square justify-center items-center" onPress={() => handleSeek(-10)}>
+                    <Button onFocusClassName="bg-secondary" className="bg-secondary/50 rounded-full p-4 aspect-square justify-center items-center" onPress={() => handleSeek(-10)}>
                         <Rewind color={colors.text} />
                     </Button>
-                    <Button onFocusStyle="bg-primary" className="bg-primary/50 rounded-full p-8" hasTVPreferredFocus={true} onPress={handlePlayPause}>
-                        {isPlaying ? <Pause color={colors.text}/> : <Play color={colors.text}/>}
+                    <Button onFocusClassName="bg-primary" onFocusStyle={{ boxShadow: [{offsetX: 0, offsetY: 0, blurRadius: 24, spreadDistance: 4, color: colors.primary}]}} className="bg-primary/50 rounded-full p-6" style={{outlineColor: colors.text, outlineWidth: 3, outlineOffset: 5}} hasTVPreferredFocus={true} onPress={handlePlayPause}>
+                        {isPlaying ? <Pause color={colors.text} size={40}/> : <Play color={colors.text} size={40} />}
                     </Button>
-                    <Button onFocusStyle="bg-secondary" className="bg-secondary/50 rounded-full p-4 aspect-square justify-center items-center" onPress={() => handleSeek(10)}>
+                    <Button onFocusClassName="bg-secondary" className="bg-secondary/50 rounded-full p-4 aspect-square justify-center items-center" onPress={() => handleSeek(10)}>
                         <FastForward color={colors.text} />
                     </Button>
                 </View>

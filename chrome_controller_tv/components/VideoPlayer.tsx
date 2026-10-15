@@ -119,6 +119,9 @@ export const VideoPlayer = ({ videoInfo, onVideoEnd }: { videoInfo: VideoInfo, o
     }
 
     useEffect(() => {
+        if(videoDuration === 0)
+            return;
+
         const params = new URLSearchParams();
         params.append('showId', videoInfo.showId.split('/')[1]);
         params.append('episodeInfo', encodeURIComponent(JSON.stringify(videoInfo.episodeInfo)));
@@ -197,7 +200,7 @@ export const VideoPlayer = ({ videoInfo, onVideoEnd }: { videoInfo: VideoInfo, o
                 currentMediaPart &&
                 <Button
                     className="absolute bottom-[25%] right-[5%] bg-primary/50"
-                    onFocusStyle="bg-primary"
+                    onFocusClassName="bg-primary"
                     onPress={handleSkip}
                     hasTVPreferredFocus={true}
                     >

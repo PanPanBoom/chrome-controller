@@ -22,7 +22,7 @@ export const SubtitlesTracksWidget = (props: SubtitlesTracksWidgetProps) => {
         <>
             {
                 props.subtitles?.map((subtitle, index) => (
-                    <Button key={subtitle.id} className="p-2 justify-between flex-row shadow-none" onFocusStyle="bg-background-hover/30" onPress={() => props.onSelectSubtitle?.(subtitle)} hasTVPreferredFocus={isSelected(subtitle, index)}>
+                    <Button key={subtitle.id} className="p-2 justify-between flex-row shadow-none" onFocusClassName="bg-background-hover/30" onPress={() => props.onSelectSubtitle?.(subtitle)} hasTVPreferredFocus={isSelected(subtitle, index)}>
                         <CustomText numberOfLines={1} className="text-black flex-1" style={{marginRight: 40}}>{subtitle.display} { subtitle?.release?.length > 0 ? `(${subtitle.release})` : '' }</CustomText>
                         {isSelected(subtitle, index) && <Check color="black"/>}
                     </Button>
