@@ -37,19 +37,21 @@ function AppContent() {
     Linking.addEventListener('url', ({ url }) => {
       const params = new URL(url);
 
-      const videoUrl = params.searchParams.get('url');
-      const extension = videoUrl?.match(/\.(mp4|webm|mkv|mov|avi|flv|wmv|m4v|mpg|mpeg|3gp|ogv|m3u8|mpd)(\?|$)/i);
+      const videoUrl = decodeURIComponent(params.searchParams.get('url') ?? "");
+      const extension = params.searchParams.get('type');
+      const extensionViaUrl = videoUrl?.match(/\.(mp4|webm|mkv|mov|avi|flv|wmv|m4v|mpg|mpeg|3gp|ogv|m3u8|mpd)(\?|$)/i);
+      console.log("Extension: " + extension);
       const episodeInfo = params.searchParams.get('episodeInfo');
 
       setVideoInfo({
         showId: params.searchParams.get('showId') ?? "",
         title: decodeURIComponent(params.searchParams.get('title') ?? ""),
         episodeInfo: episodeInfo ? JSON.parse(decodeURIComponent(episodeInfo)) : null,
-        url: decodeURIComponent(params.searchParams.get('url') ?? ""),
+        url: videoUrl,
         referer: decodeURIComponent(params.searchParams.get('referer') ?? ""),
         cookies: decodeURIComponent(params.searchParams.get('cookies') ?? ""),
         userAgent: decodeURIComponent(params.searchParams.get('userAgent') ?? ""),
-        extension: extension ? extension[1] : "m3u8",
+        extension: extension ?? (extensionViaUrl ? extensionViaUrl[1] : undefined),
         serverIp: decodeURIComponent(params.searchParams.get('serverIp') ?? ""),
         startTime: Number(params.searchParams.get('startTime') ?? 0)
       });

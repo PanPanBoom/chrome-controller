@@ -374,6 +374,9 @@ export class TMDBApi extends Api
                 params.append('url', encodeURIComponent(videoInfo.url));
                 params.append('referer', encodeURIComponent(videoInfo.referer));
                 params.append('cookies', encodeURIComponent(videoInfo.cookies));
+                if(videoInfo.type)
+                    params.append('type', videoInfo.type);
+
                 params.append('userAgent', encodeURIComponent(videoInfo.userAgent));
                 params.append('serverIp', encodeURIComponent(state.serverIp));
                 params.append('startTime', startTime);

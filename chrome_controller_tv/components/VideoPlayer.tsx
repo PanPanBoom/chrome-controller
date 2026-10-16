@@ -21,7 +21,7 @@ export type VideoInfo = {
   referer: string;
   cookies: string;
   userAgent: string;
-  extension: string;
+  extension?: string;
   serverIp: string;
   startTime: number;
 }

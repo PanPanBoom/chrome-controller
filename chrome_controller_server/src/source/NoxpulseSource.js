@@ -1,5 +1,4 @@
 import { Source } from "./Source.js";
-import puppeteer from 'puppeteer';
 
 export class NoxpulseSource extends Source
 {
@@ -39,7 +38,9 @@ export class NoxpulseSource extends Source
 
         return {
             url: watchData.source.url,
-            referer: this.baseUrl
+            referer: this.baseUrl,
+            userAgent: this.userAgent,
+            type: watchData.source.type
         }
     }
 
