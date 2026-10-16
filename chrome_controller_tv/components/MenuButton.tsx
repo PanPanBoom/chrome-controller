@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Button, ButtonProps } from "./Button"
 import { cn } from "../etc/utils";
-import { GestureResponderEvent, View } from "react-native";
+import { GestureResponderEvent, Pressable, ScrollView, View } from "react-native";
 
 type MenuButtonProps = ButtonProps & {
     widget: React.ReactNode;
@@ -9,8 +9,10 @@ type MenuButtonProps = ButtonProps & {
     expanded?: boolean;
 }
 
-export const MenuButton = ({children, widget, containerClassName, onPress, expanded: expandedProp, ...props}: MenuButtonProps) => {
+export const MenuButton = ({children, widget, containerClassName, onPress, expanded: expandedProp, onFocus, onBlur, ...props}: MenuButtonProps) => {
     const [internalExpanded, setInternalExpanded] = useState(false);
+    const [buttonFocused, setButtonFocused] = useState(false);
+    const buttonRef = useRef<View>(null);
 
     const isControlled = expandedProp !== undefined;
     const expanded = isControlled ? expandedProp : internalExpanded;
@@ -22,16 +24,34 @@ export const MenuButton = ({children, widget, containerClassName, onPress, expan
         onPress?.(e);
     }
 
+    console.log("focus button:", buttonFocused);
+
     return (
         <View className={cn("relative", containerClassName)}>
-            <Button onPress={handlePress} {...props}>
+            <Button
+                ref={buttonRef}
+                onPress={handlePress} 
+                onFocus={(e) => {
+                    setButtonFocused(true);
+                    onFocus?.(e);
+                }} 
+                onBlur={(e) => {
+                    setButtonFocused(false);
+                    onBlur?.(e);
+                }} 
+                {...props}>
                 {children}
             </Button>
             {
                 expanded &&
-                <View className="absolute bottom-full right-0 mb-2 w-64 rounded-xl border border-gray-300 bg-secondary p-2 shadow-lg">
+                <ScrollView className="absolute bottom-full right-0 mb-2 w-64 rounded-xl border border-gray-300 bg-secondary p-2 shadow-lg max-h-48">
                     {widget}
-                </View>
+                    <Pressable 
+                        focusable={!buttonFocused}
+                        onFocus={() => buttonRef.current?.requestTVFocus?.()}
+                        className="opacity-0 h-1"
+                    />
+                </ScrollView>
             }
         </View>
     )
