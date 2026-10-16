@@ -101,7 +101,7 @@ export default function Show()
             </View>
             <Tabs tabs={{
                 "Aperçu": <ShowOverview showData={showData} />,
-                ...('seasons' in showData && {"Saisons": <SeriesSeasons seasons={showData.seasons} showId={showData.id} />}),
+                ...('seasons' in showData && {"Saisons": <SeriesSeasons seasons={showData.seasons} showId={showData.id} currentSeason={showData.currentEpisodeInfo?.season}/>}),
                 "Commentaires": <ShowReviews showId={showData.id} />
             }}/>
         </ScrollView>

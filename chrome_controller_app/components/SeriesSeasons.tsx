@@ -14,9 +14,9 @@ import { cn } from "@/etc/utils";
 import { IconTextLabel } from "./ui/IconTextLabel";
 import { ShowCasting } from "./ShowCasting";
 
-export const SeriesSeasons = ({ seasons, showId }: { seasons: SeriesDTO["seasons"], showId: string }) => {
+export const SeriesSeasons = ({ seasons, showId, currentSeason = 1 }: { seasons: SeriesDTO["seasons"], showId: string, currentSeason?: number }) => {
     const { server } = useContext(AppContext);
-    const [selectedSeasonIndex, setSelectedSeasonIndex] = useState(seasons.findIndex(season => season.season_number === 1));
+    const [selectedSeasonIndex, setSelectedSeasonIndex] = useState(seasons.findIndex(season => season.season_number === currentSeason));
     const [seasonData, setSeasonData] = useState<SeasonDTO | null>(null);
 
     useEffect(() => {
