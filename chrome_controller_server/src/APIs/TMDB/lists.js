@@ -1,3 +1,5 @@
+import { getLastMonthRange, toYMD } from "../../utils.js";
+
 export const baseListsFilters = {
     "Pépites méconnues": {
         'sort_by': 'vote_average.desc',
@@ -10,8 +12,21 @@ export const baseListsFilters = {
         sort_by: 'popularity.desc',
         without_genres: '18,27,53,99',
         "vote_average.gte": 6.5
+    },
+    'Le caaaaatch': {
+        'with_genres': 18,
+        'sort_by': 'popularity.desc',
+        'with_keywords': 206441
+    },
+    'Casse-tête & Stratégie': {
+        // 'with_genres': '53,9648',
+        'with_keywords': '316|2157',
+        'vote_count.gte': 1000,
+        'sort_by': 'popularity.desc'
     }
 }
+
+const { start, end } = getLastMonthRange();
 
 export const specificListsFilters = {
     "movie": {
@@ -21,10 +36,15 @@ export const specificListsFilters = {
             'vote_count.gte': 1000
         },
         "Sortis le mois dernier": {
-            'primary_release_date.gte': new Date(new Date().setDate(new Date().getDate() - 30)).toISOString().split('T')[0],
-            'primary_release_date.lte': new Date().toISOString().split('T')[0],
+            'primary_release_date.gte': toYMD(start),
+            'primary_release_date.lte': toYMD(end),
             'sort_by': 'popularity.desc',
             'with_release_type': '2|3'
+        },
+        "Classiques du cinéma": {
+            'sort_by': 'vote_average.desc',
+            'vote_count.gte': 10000,
+            'without_genres': '99,10755'
         }
     },
     "tv": {
@@ -37,6 +57,19 @@ export const specificListsFilters = {
             with_networks: 49,
             sort_by: 'popularity.desc',
             "vote_average.gte": 8
+        },
+        'Classiques de la télé': {
+            'sort_by': 'vote_average.desc',
+            'vote_count.gte': 2800,
+            'without_genres': '16,99,10767,10763',
+            'with_original_language': 'en'
+        },
+        'Formats courts': {
+            'with_genres': 35,
+            'without_genres': '18,10759,16,10767',
+            'vote_count.gte': 1500,
+            'with_original_language': 'en',
+            'sort_by': 'popularity.desc'
         }
     }
 };
