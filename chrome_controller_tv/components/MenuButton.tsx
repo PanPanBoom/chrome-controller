@@ -24,8 +24,6 @@ export const MenuButton = ({children, widget, containerClassName, onPress, expan
         onPress?.(e);
     }
 
-    console.log("focus button:", buttonFocused);
-
     return (
         <View className={cn("relative", containerClassName)}>
             <Button

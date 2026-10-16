@@ -127,9 +127,7 @@ export default function extensionRoutes(io) {
                         const [_, hours, minutes, seconds] = matches[matches.length - 1];
                         const subDuration = Number(hours) * 3600 + Number(minutes) * 60 + Number(seconds);
 
-                        // Écart de moins de 10s entre la vidéo et la dernière ligne du SRT
-                        const diff = Math.abs(targetDuration - subDuration);
-                        return diff <= 10 ? sub : null;
+                        return subDuration / targetDuration >= 0.95 && subDuration <= targetDuration + 60 ? sub : null;
                     } catch {
                         return null;
                     }
@@ -138,7 +136,7 @@ export default function extensionRoutes(io) {
 
             const validSubtitles = checkedSubtitles.filter(Boolean);
 
-            console.log("Subtitles: ", validSubtitles);
+            // console.log("Subtitles: ", validSubtitles);
 
             res.json(validSubtitles.length ? validSubtitles : data);
 
