@@ -355,8 +355,9 @@ export class TMDBApi extends Api
         return null;
     }
 
-    async getShowIntent(id, episodeInfo = null, startTime = 0)
+    async getShowIntent(id, episodeInfo = null, startTime = 0, audioLanguage = 'fr')
     {
+        console.log('get show intent:', audioLanguage);
         for (const source of this.sources)
         {
             if (await source.checkShowAvailability(id, episodeInfo))
@@ -380,9 +381,10 @@ export class TMDBApi extends Api
                 params.append('userAgent', encodeURIComponent(videoInfo.userAgent));
                 params.append('serverIp', encodeURIComponent(state.serverIp));
                 params.append('startTime', startTime);
+                params.append('audioLanguage', audioLanguage);
                 console.log(`Starting show at ${startTime / 1000}s`);
 
-                return `chromecontroller://play?${params}`;
+                return `chromecontrollerdebug://play?${params}`;
             }
         }
 

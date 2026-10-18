@@ -24,6 +24,7 @@ export type VideoInfo = {
   extension?: string;
   serverIp: string;
   startTime: number;
+  audioLanguage: ISO639_1;
 }
 
 const skipButtonLabels = {
@@ -50,8 +51,6 @@ export const VideoPlayer = ({ videoInfo, onVideoEnd }: { videoInfo: VideoInfo, o
     const handleLoad = (data: { duration: number }) => {
         console.log("Video loaded: ", data);
         setVideoDuration(data.duration);
-        setSelectedSubtitle(null);
-        setSubtitles([]);
 
         tidbClient.getMedia({
             tmdbId: Number(videoInfo.showId.split('/')[1]),
@@ -61,6 +60,8 @@ export const VideoPlayer = ({ videoInfo, onVideoEnd }: { videoInfo: VideoInfo, o
         })
         .then((tidbInfos) => setTidbInfo(tidbInfos))
         .catch((error) => console.log("TIDB Error:", error));
+
+        videoRef.current?.seek?.(1200);
     }
 
     const handleSkip = () => {
@@ -112,7 +113,8 @@ export const VideoPlayer = ({ videoInfo, onVideoEnd }: { videoInfo: VideoInfo, o
                 },
                 body: JSON.stringify({
                     showId: videoInfo.showId,
-                    episodeInfo: videoInfo.episodeInfo
+                    episodeInfo: videoInfo.episodeInfo,
+                    audioLanguage: selectedAudioTrack?.language
                 })
             });
         }, 500);
@@ -138,6 +140,13 @@ export const VideoPlayer = ({ videoInfo, onVideoEnd }: { videoInfo: VideoInfo, o
             })
             .catch(err => console.log('Subtitles error:', err));
     }, [videoDuration]);
+
+    useEffect(() => {
+        setSelectedSubtitle(null);
+        setSelectedAudioTrack(null);
+        setSubtitles([]);
+        setAudioTracks([]);
+    }, [videoInfo]);
     
     return (
         <View>
@@ -169,8 +178,12 @@ export const VideoPlayer = ({ videoInfo, onVideoEnd }: { videoInfo: VideoInfo, o
                 resizeMode='contain'
                 reportBandwidth={true}
                 onAudioTracks={(e) => {
-                    setAudioTracks(e.audioTracks)
-                    setSelectedAudioTrack(e.audioTracks.find(track => track.selected) ?? null);
+                    console.log('new audio tracks');
+                    if(audioTracks.length === 0 || selectedAudioTrack === null)
+                    {
+                        setAudioTracks(e.audioTracks);
+                        setSelectedAudioTrack(e.audioTracks.find(track => track.language === videoInfo.audioLanguage) ?? null);
+                    }
                 }}
                 selectedAudioTrack={selectedAudioTrack ? { type: SelectedTrackType.INDEX, value: selectedAudioTrack.index } : { type: SelectedTrackType.SYSTEM }}
                 paused={isFinished}
@@ -192,6 +205,7 @@ export const VideoPlayer = ({ videoInfo, onVideoEnd }: { videoInfo: VideoInfo, o
                 videoRef={videoRef}
                 audioTracks={audioTracks}
                 onSelectAudioTrack={(track) => setSelectedAudioTrack(track)}
+                selectedAudioTrack={selectedAudioTrack ?? undefined}
                 subtitles={subtitles}
                 selectedSubtitle={selectedSubtitle ?? undefined}
                 onSelectSubtitle={(subtitle) => setSelectedSubtitle(subtitle.id === 'disabled' ? null : subtitle)}

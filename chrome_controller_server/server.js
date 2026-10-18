@@ -134,13 +134,14 @@ app.put('/updateStartTime', (req, res) => {
 
 app.post('/showEnd', async (req, res) => {
     state.serverIp = `http://${req.socket.localAddress?.replace(/^::ffff:/, '')}:${req.socket.localPort}`;
-    const { showId, episodeInfo } = req.body;
+    const { showId, episodeInfo, audioLanguage } = req.body;
+    console.log(audioLanguage);
     if(episodeInfo)
     {
         const nextEpisodeInfo = await ApiManager.apis.tmdb.getNextEpisodeInfo(showId, episodeInfo);
         if(nextEpisodeInfo)
         {
-            state.currentDevice.castShow('tmdb', showId, nextEpisodeInfo);
+            state.currentDevice.castShow('tmdb', showId, nextEpisodeInfo, 0, audioLanguage);
             res.send({ status: 'ok' });
             return;
         }

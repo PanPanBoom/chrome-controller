@@ -13,6 +13,7 @@ import { AudioTrack } from "react-native-video"
 import { AudioTracksWidget } from "./AudioTracksWidget"
 import { SubtitlesTracksWidget, SubtitlesTracksWidgetProps } from "./SubtitlesTracksWidget"
 import { MenuButtonGroup } from "./MenuButtonGroup"
+import { useMediaKeys } from "../hooks/useMediaKeys"
 
 type VideoPlayerControlsProps = {
     title: string;
@@ -25,6 +26,7 @@ type VideoPlayerControlsProps = {
     videoRef: React.RefObject<any>;
     audioTracks: AudioTrack[];
     onSelectAudioTrack?: (track: AudioTrack) => void;
+    selectedAudioTrack?: AudioTrack;
     subtitles: SubtitlesTracksWidgetProps['subtitles'];
     onSelectSubtitle?: (subtitle: SubtitlesTracksWidgetProps['subtitles'][number]) => void;
     selectedSubtitle?: SubtitlesTracksWidgetProps['subtitles'][number];
@@ -39,12 +41,18 @@ const formatTime = (time: number) => {
 
 export const VideoPlayerControls = (props: VideoPlayerControlsProps) => {
     const [isPlaying, setIsPlaying] = useState(true);
-    const { visible } = useAutoHide(5000, !isPlaying);
+    const { visible, poke } = useAutoHide(5000, !isPlaying);
+
+    useMediaKeys({
+        onPress: (key) => handleSeek(key === "forward" ? 15 : -15),
+        onHold: (key) => handleSeek(key === "forward" ? 10 : -10),
+        onHoldStart: () => poke()
+    })
 
     const buttonGroupDescription = [
         {
             icon: FileVolume,
-            widget: <AudioTracksWidget audioTracks={props.audioTracks} onSelectTrack={props.onSelectAudioTrack} />,
+            widget: <AudioTracksWidget audioTracks={props.audioTracks} onSelectTrack={props.onSelectAudioTrack} selectedTrack={props.selectedAudioTrack} />,
             disabled: props.audioTracks.length <= 1
         },
         {

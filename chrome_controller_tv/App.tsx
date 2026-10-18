@@ -15,6 +15,7 @@ import { CustomText } from './components/CustomText';
 import { CustomTitle } from './components/CustomTitle';
 import { useEffect, useState } from 'react';
 import { VideoInfo, VideoPlayer } from './components/VideoPlayer';
+import { ISO639_1 } from 'react-native-video';
 
 function App() {
   const isDarkMode = useColorScheme() === 'dark';
@@ -53,7 +54,8 @@ function AppContent() {
         userAgent: decodeURIComponent(params.searchParams.get('userAgent') ?? ""),
         extension: extension ?? (extensionViaUrl ? extensionViaUrl[1] : undefined),
         serverIp: decodeURIComponent(params.searchParams.get('serverIp') ?? ""),
-        startTime: Number(params.searchParams.get('startTime') ?? 0)
+        startTime: Number(params.searchParams.get('startTime') ?? 0),
+        audioLanguage: (params.searchParams.get('audioLanguage') ?? 'fr') as ISO639_1
       });
     })
   }, []);

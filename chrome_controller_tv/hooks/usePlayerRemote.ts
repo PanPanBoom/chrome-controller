@@ -12,12 +12,6 @@ export function usePlayerRemote({ onTogglePlay, onSeek }: {
             case "playPause":
                 onTogglePlay();
                 break;
-            case "rewind":
-                onSeek(-10);
-                break;
-            case "fastForward":
-                onSeek(10);
-                break;
         }
     });
 }
