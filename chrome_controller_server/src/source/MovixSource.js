@@ -4,8 +4,8 @@ export class MovixSource extends Source
 {
     constructor()
     {
-        super('https://movix.luxe', '/watch');
-        this.apiUrl = "https://api.movix.luxe/api";
+        super('https://movix.dog', '/watch');
+        this.apiUrl = "https://api.movix.dog/api";
     }
 
     async getShowUrl(id, episodeInfo = null)
