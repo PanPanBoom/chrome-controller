@@ -10,10 +10,10 @@ import { useAutoHide } from "../hooks/useAutoHide"
 import LinearGradient from "react-native-linear-gradient"
 import { MenuButton } from "./MenuButton"
 import { AudioTrack } from "react-native-video"
-import { AudioTracksWidget } from "./AudioTracksWidget"
-import { SubtitlesTracksWidget, SubtitlesTracksWidgetProps } from "./SubtitlesTracksWidget"
 import { MenuButtonGroup } from "./MenuButtonGroup"
 import { useMediaKeys } from "../hooks/useMediaKeys"
+import { Subtitles } from "./SubtitlesDisplayer"
+import { ItemsSelectionWidget } from "./ItemsSelectionWidget"
 
 type VideoPlayerControlsProps = {
     title: string;
@@ -27,9 +27,9 @@ type VideoPlayerControlsProps = {
     audioTracks: AudioTrack[];
     onSelectAudioTrack?: (track: AudioTrack) => void;
     selectedAudioTrack?: AudioTrack;
-    subtitles: SubtitlesTracksWidgetProps['subtitles'];
-    onSelectSubtitle?: (subtitle: SubtitlesTracksWidgetProps['subtitles'][number]) => void;
-    selectedSubtitle?: SubtitlesTracksWidgetProps['subtitles'][number];
+    subtitles: Subtitles[];
+    onSelectSubtitle?: (subtitle: Subtitles) => void;
+    selectedSubtitle?: Subtitles;
 }
 
 const formatTime = (time: number) => {
@@ -52,23 +52,22 @@ export const VideoPlayerControls = (props: VideoPlayerControlsProps) => {
     const buttonGroupDescription = [
         {
             icon: FileVolume,
-            widget: <AudioTracksWidget audioTracks={props.audioTracks} onSelectTrack={props.onSelectAudioTrack} selectedTrack={props.selectedAudioTrack} />,
+            widget: ({close}: {close: () => void}) => <ItemsSelectionWidget items={props.audioTracks} onSelection={(i) => { props.onSelectAudioTrack?.(i); close(); }} selectedItem={props.selectedAudioTrack} />,
             disabled: props.audioTracks.length <= 1
         },
         {
             icon: Captions,
-            widget: <SubtitlesTracksWidget subtitles={props.subtitles} selectedSubtitle={props.selectedSubtitle} onSelectSubtitle={props.onSelectSubtitle}/>,
+            widget: ({close}: {close: () => void}) => <ItemsSelectionWidget items={props.subtitles} onSelection={(i) => { props.onSelectSubtitle?.(i); close(); }} selectedItem={props.selectedSubtitle} />,
             disabled: props.subtitles.length === 0
         }
     ]
 
     const handlePlayPause = () => {
         if (props.videoRef.current) {
-            if (isPlaying) {
+            if (isPlaying)
                 props.videoRef.current.pause();
-            } else {
+            else
                 props.videoRef.current.resume();
-            }
         }
 
         setIsPlaying(!isPlaying);

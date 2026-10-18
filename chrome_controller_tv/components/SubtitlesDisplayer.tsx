@@ -1,11 +1,18 @@
 import { useEffect, useState } from "react";
-import { SubtitlesTracksWidgetProps } from "./SubtitlesTracksWidget";
 import { View } from "react-native";
 import { CustomText } from "./CustomText";
 import { cn } from "../etc/utils";
+import { ISO639_1 } from "react-native-video";
+
+export type Subtitles = {
+    id: string;
+    title: string;
+    language: ISO639_1;
+    url: string;
+};
 
 type SubtitlesDisplayerProps = {
-    subtitles: SubtitlesTracksWidgetProps['subtitles'][number] | null;
+    subtitles: Subtitles | null;
     progress: number;
     serverIp: string;
     className?: string;

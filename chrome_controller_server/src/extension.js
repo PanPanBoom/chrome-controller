@@ -113,10 +113,17 @@ export default function extensionRoutes(io) {
                 key: process.env.WYZIE_API_KEY
             });
 
+            const subtitles = data.map(subtitle => ({
+                id: subtitle.id,
+                title: `${subtitle.display} ${subtitle.release ? `(${subtitle.release})` : ''}`,
+                language: subtitle.language,
+                url: subtitle.url
+            }));
+
             // console.log(data);
 
             const checkedSubtitles = await Promise.all(
-                data.map(async (sub) => {
+                subtitles.map(async (sub) => {
                     try {
                         const response = await fetch(sub.url);
                         const srtText = await response.text();
@@ -138,7 +145,7 @@ export default function extensionRoutes(io) {
 
             // console.log("Subtitles: ", validSubtitles);
 
-            res.json(validSubtitles.length ? validSubtitles : data);
+            res.json(validSubtitles.length ? validSubtitles : subtitles);
 
         } catch (err) {
             console.log(err.message);

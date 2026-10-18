@@ -384,7 +384,7 @@ export class TMDBApi extends Api
                 params.append('audioLanguage', audioLanguage);
                 console.log(`Starting show at ${startTime / 1000}s`);
 
-                return `chromecontrollerdebug://play?${params}`;
+                return `chromecontroller://play?${params}`;
             }
         }
 

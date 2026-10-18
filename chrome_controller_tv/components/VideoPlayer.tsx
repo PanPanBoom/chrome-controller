@@ -2,13 +2,12 @@ import { useEffect, useRef, useState } from "react";
 import Video, { ISO639_1, SelectedTrackType, TextTrackType, VideoRef, AudioTrack } from "react-native-video";
 import { MediaRecord } from "theintrodb";
 import { tidbClient } from "../src/TIDBClient";
-import { View } from "react-native";
+import { BackHandler, View } from "react-native";
 import { CustomText } from "./CustomText";
 import { Button } from "./Button"
 import { useKeepAwake } from "@sayem314/react-native-keep-awake";
 import { VideoPlayerControls } from "./VideoPlayerControls";
-import { SubtitlesTracksWidgetProps } from "./SubtitlesTracksWidget";
-import { SubtitlesDisplayer } from "./SubtitlesDisplayer";
+import { Subtitles, SubtitlesDisplayer } from "./SubtitlesDisplayer";
 
 export type VideoInfo = {
   showId: string;
@@ -38,8 +37,8 @@ export const VideoPlayer = ({ videoInfo, onVideoEnd }: { videoInfo: VideoInfo, o
     const [videoDuration, setVideoDuration] = useState(0);
     const [progress, setProgress] = useState(0);
     const [tidbInfo, setTidbInfo] = useState<MediaRecord | null>(null);
-    const [subtitles, setSubtitles] = useState<SubtitlesTracksWidgetProps['subtitles']>([]);
-    const [selectedSubtitle, setSelectedSubtitle] = useState<SubtitlesTracksWidgetProps['subtitles'][number] | null>(null);
+    const [subtitles, setSubtitles] = useState<Subtitles[]>([]);
+    const [selectedSubtitle, setSelectedSubtitle] = useState<Subtitles | null>(null);
     const [currentMediaPart, setCurrentMediaPart] = useState<'intro' | 'recap' | 'credits' | 'preview' | null>(null);
     const [audioTracks, setAudioTracks] = useState<AudioTrack[]>([]);
     const [selectedAudioTrack, setSelectedAudioTrack] = useState<AudioTrack | null>(null);
@@ -60,8 +59,6 @@ export const VideoPlayer = ({ videoInfo, onVideoEnd }: { videoInfo: VideoInfo, o
         })
         .then((tidbInfos) => setTidbInfo(tidbInfos))
         .catch((error) => console.log("TIDB Error:", error));
-
-        videoRef.current?.seek?.(1200);
     }
 
     const handleSkip = () => {
@@ -121,6 +118,15 @@ export const VideoPlayer = ({ videoInfo, onVideoEnd }: { videoInfo: VideoInfo, o
     }
 
     useEffect(() => {
+        const sub = BackHandler.addEventListener("hardwareBackPress", () => {
+            onVideoEnd();
+            return true;
+        });
+
+        return () => sub.remove();
+    }, []);
+
+    useEffect(() => {
         if(videoDuration === 0)
             return;
 
@@ -134,7 +140,7 @@ export const VideoPlayer = ({ videoInfo, onVideoEnd }: { videoInfo: VideoInfo, o
             .then(data => {
                 console.log("Subtitles: ", data);
                 if(data && data.length > 0)
-                    setSubtitles([{ id: 'disabled', display: 'Désactivé', language: '' as ISO639_1, release: '', url: '' }, ...data]);
+                    setSubtitles([{ id: 'disabled', title: 'Désactivé', language: '' as ISO639_1, url: '' }, ...data]);
                 else
                     setSubtitles([]);
             })
@@ -147,6 +153,10 @@ export const VideoPlayer = ({ videoInfo, onVideoEnd }: { videoInfo: VideoInfo, o
         setSubtitles([]);
         setAudioTracks([]);
     }, [videoInfo]);
+
+    useEffect(() => {
+        console.log(selectedSubtitle);
+    }, [selectedSubtitle]);
     
     return (
         <View>

@@ -7,7 +7,7 @@ import { useState } from "react";
 type MenuButtonGroupsProps = {
     buttons: {
         icon: LucideIcon;
-        widget: React.ReactNode;
+        widget: React.ReactNode | ((api: { close: () => void}) => React.ReactNode);
         disabled: boolean;
     }[];
     className?: string;
@@ -30,6 +30,7 @@ export const MenuButtonGroup = (props: MenuButtonGroupsProps) => {
                         disabled={button.disabled}
                         expanded={expandedIndex === index}
                         onPress={() => setExpandedIndex(expandedIndex === index ? -1 : index)}
+                        onClose={() => setExpandedIndex(-1)}
                     >
                         <button.icon color={colors.text}/>
                     </MenuButton>
