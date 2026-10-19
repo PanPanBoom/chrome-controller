@@ -137,14 +137,47 @@ export class MappleTVSource extends Source
         return url.data.stream_url
     }
 
+    async getCookies()
+    {
+        const manifestRes = await fetch(`${this.baseUrl}/site.webmanifest`, {
+            method: 'GET',
+            headers: {
+                'User-Agent': this.userAgent,
+                'Referer': "https://mapple.fun/",
+                'Origin': this.baseUrl
+            }
+        });
+
+        if(manifestRes.status !== 200)
+        {
+            console.log(`Error ${manifestRes.status} while fetching manifest: ${manifestRes.statusText}`);
+            return;
+        }
+
+        console.log('Cookies: ', manifestRes.headers.getSetCookie());
+
+        this.baseHeaders = {
+            "accept": "*/*",
+            "content-type": "application/json",
+            "Referer": this.baseUrl + '/',
+            "Origin": this.baseUrl,
+            "cookie": manifestRes.headers.getSetCookie().map(cookie => cookie.split(';')[0]).join(';'),
+            "User-Agent": this.userAgent
+        };
+
+    }
+
     async getShowVideoInfo(id, episodeInfo = null)
     {
         super.getShowVideoInfo(id, episodeInfo);
         if(id === this.lastIdFetched && episodeInfo === this.lastEpisodeFetched)
             return { url: this.lastIntentFetched };
 
+        await this.getCookies();
+
         const resToken = await fetch(`${this.apiUrl}/request-token`, {
-            method: 'POST'
+            method: 'POST',
+            headers: this.baseHeaders
         });
 
         if(resToken.status !== 200)
@@ -156,22 +189,12 @@ export class MappleTVSource extends Source
 
         const tokenData = await resToken.json();
 
-        const rawCookies = resToken.headers.get('set-cookie');
-        const dynamicCookie = rawCookies ? rawCookies.split(';')[0] : '';
-
         const [ mediaType, realId ] = id.split('/');
 
         const token = tokenData.token;
         console.log("Token reçu:", token);
 
-        this.baseHeaders = {
-            "accept": "*/*",
-            "content-type": "application/json",
-            "Referer": this.baseUrl,
-            "cookie": dynamicCookie
-        };
-
-        const initRes = await fetch(`${this.apiUrl}/playback-init`, {
+        const initRes = await fetch(`${this.apiUrl}/media-session`, {
             headers: this.baseHeaders,
             "body": JSON.stringify({
                 "mediaId": realId,
@@ -185,6 +208,7 @@ export class MappleTVSource extends Source
         if(initRes.status !== 200)
         {
             console.log(`Error ${initRes.status} while fetching video source: ${initRes.statusText}`);
+            console.log(await initRes.text());
             return { url: "" };
         }
 
