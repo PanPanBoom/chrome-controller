@@ -55,7 +55,7 @@ export const SeriesSeasons = ({ seasons, showId, currentSeason = 1 }: { seasons:
                     <ShowCasting cast={seasonData.cast} />
                     <CustomTitle>Episodes</CustomTitle>
                     {
-                        seasonData.episodes.map(episode => <Episode key={episode.id} episode={episode} showId={showId} />)
+                        seasonData.episodes.map((episode, index) => <Episode key={episode.id} episode={episode} showId={showId} zBase={seasonData.episodes.length - index} />)
                     }
                 </>
             }   

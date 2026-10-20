@@ -341,6 +341,29 @@ export class TMDBApi extends Api
         return false;
     }
 
+    async findAvailableSources(id, episodeInfo, onFound)
+    {
+        const availableSources = [];
+
+        await Promise.all(this.sources.map(async (source) => {
+            try
+            {
+                if(await source.checkShowAvailability(id, episodeInfo))
+                {
+                    availableSources.push(source);
+                    onFound?.(source);
+                }
+            }
+
+            catch(e)
+            {
+                console.log(`Source ${source.baseUrl} failed:`, e);
+            }
+        }));
+
+        return availableSources;
+    }
+
     async getShowLink(id, episodeInfo = null)
     {
         for (const source of this.sources)
@@ -355,39 +378,54 @@ export class TMDBApi extends Api
         return null;
     }
 
-    async getShowIntent(id, episodeInfo = null, startTime = 0, audioLanguage = 'fr')
+    async getShowIntent(id, episodeInfo = null, startTime = 0, sourceName = null, audioLanguage = 'fr')
     {
-        console.log('get show intent:', audioLanguage);
+        if(sourceName)
+        {
+            const source = this.sources.find(source => source.name === sourceName);
+            if(await source.checkShowAvailability(id, episodeInfo))
+                return this.getIntentFromSource(id, episodeInfo, startTime, source, audioLanguage);
+            else
+                return null;
+        }
+
         for (const source of this.sources)
         {
             if (await source.checkShowAvailability(id, episodeInfo))
-            {
-                const showInfos = await this.getShowById(id);
-                console.log("Show available on " + source.baseUrl);
-                const videoInfo = await source.getShowVideoInfo(id, episodeInfo);
-                console.log(videoInfo);
-                const params = new URLSearchParams();
-                params.append('showId', id);
-                if(episodeInfo)
-                    params.append('episodeInfo', encodeURIComponent(JSON.stringify(episodeInfo)));
-
-                params.append('title', encodeURIComponent(showInfos.title));
-                params.append('url', encodeURIComponent(videoInfo.url));
-                params.append('referer', encodeURIComponent(videoInfo.referer));
-                params.append('cookies', encodeURIComponent(videoInfo.cookies));
-                if(videoInfo.type)
-                    params.append('type', videoInfo.type);
-
-                params.append('userAgent', encodeURIComponent(videoInfo.userAgent));
-                params.append('serverIp', encodeURIComponent(state.serverIp));
-                params.append('startTime', startTime);
-                params.append('audioLanguage', audioLanguage);
-                console.log(`Starting show at ${startTime / 1000}s`);
-
-                return `chromecontroller://play?${params}`;
-            }
+                return this.getIntentFromSource(id, episodeInfo, startTime, source, audioLanguage);
         }
 
         return null;
+    }
+
+    async getIntentFromSource(id, episodeInfo = null, startTime = 0, source = null, audioLanguage = 'fr')
+    {
+        const showInfos = await this.getShowById(id);
+        console.log("Show available on " + source.baseUrl);
+
+        const videoInfo = await source.getShowVideoInfo(id, episodeInfo);
+        console.log(videoInfo);
+
+        const params = new URLSearchParams();
+
+        params.append('showId', id);
+        if(episodeInfo)
+            params.append('episodeInfo', encodeURIComponent(JSON.stringify(episodeInfo)));
+
+        params.append('title', encodeURIComponent(showInfos.title));
+        params.append('url', encodeURIComponent(videoInfo.url));
+        params.append('referer', encodeURIComponent(videoInfo.referer));
+        params.append('cookies', encodeURIComponent(videoInfo.cookies));
+        if(videoInfo.type)
+            params.append('type', videoInfo.type);
+
+        params.append('userAgent', encodeURIComponent(videoInfo.userAgent));
+        params.append('serverIp', encodeURIComponent(state.serverIp));
+        params.append('startTime', startTime);
+        params.append('audioLanguage', audioLanguage);
+
+        console.log(`Starting show at ${startTime / 1000}s`);
+
+        return `chromecontroller://play?${params}`;
     }
 }

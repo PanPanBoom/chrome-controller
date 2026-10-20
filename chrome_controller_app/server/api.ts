@@ -1,11 +1,11 @@
-const sendCommand = async (ip: string, command: string, init?: RequestInit) => {
+const sendCommand = async (ip: string, command: string, init?: RequestInit) => await fetch(`http://${ip}:3000/${command}`, init);
+
+export const sendPing = async (ip: string) => {
     const controller = new AbortController();
     setTimeout(() => controller.abort(), 5000);
 
-    return await fetch(`http://${ip}:3000/${command}`, {...init, signal: controller.signal});
+    return await sendCommand(ip, "remote/ping", { signal: controller.signal });
 }
-
-export const sendPing = async (ip: string) => await sendCommand(ip, 'remote/ping');
 
 export const getCommands = async (ip: string) => await sendCommand(ip, 'remote/config/commands');
 
@@ -57,13 +57,13 @@ export const sendAppLaunch = async (ip: string, url: string) => await sendComman
     body: JSON.stringify({ url })
 });
 
-export const sendShowCast = async (ip: string, platform: string, id: string, episodeInfo: {season: number, episode: number} | null = null, startTime: number = 0) => {
+export const sendShowCast = async (ip: string, platform: string, id: string, episodeInfo: {season: number, episode: number} | null = null, startTime: number = 0, source: string | null = null) => {
     return await sendCommand(ip, 'extension/castShow', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ id, platform, episodeInfo, startTime })
+        body: JSON.stringify({ id, platform, episodeInfo, startTime, source })
     });
 }
 
@@ -118,14 +118,35 @@ export const getShowReviews = async (ip: string, showId: string) => {
     return await sendCommand(ip, `remote/reviews?${params}`);
 }
 
-export const isShowAvailable = async (ip: string, showId: string, episodeInfo: {season: number, episode: number} | null = null) => {
+export const isShowAvailable = async (ip: string, onMessage: (m: any) => void, showId: string, episodeInfo: {season: number, episode: number} | null = null) => {
     const params = new URLSearchParams();
     
     params.append("showId", showId);
     if(episodeInfo)
         params.append("episodeInfo", encodeURIComponent(JSON.stringify(episodeInfo)));
     
-    return await sendCommand(ip, `remote/isShowAvailable?${params}`);
+    const res = await sendCommand(ip, `remote/isShowAvailable?${params}`);
+    const reader = res.body!.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+
+    while (true)
+    {
+        const { done, value } = await reader.read();
+        if(done)
+            break;
+
+        buffer += decoder.decode(value, { stream: true });
+
+        let i;
+        while((i = buffer.indexOf('\n')) >= 0)
+        {
+            const line = buffer.slice(0, i).trim();
+            buffer = buffer.slice(i + 1);
+            if(line)
+                onMessage(JSON.parse(line));
+        }
+    }
 }
 
 export const sendZoom = async (ip: string, zoomValue: number) => await sendCommand(ip, 'extension/zoom', {

@@ -4,7 +4,7 @@ export class NoxpulseSource extends Source
 {
     constructor()
     {
-        super("https://noxpulse.cc/", "watch");
+        super("NoxPulse (VF)", "https://noxpulse.cc/", "watch");
     }
 
     getShowUrl(id, episodeInfo = null)

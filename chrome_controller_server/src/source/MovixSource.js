@@ -4,7 +4,7 @@ export class MovixSource extends Source
 {
     constructor()
     {
-        super('https://movix.dog', '/watch');
+        super('Movix (VF)', 'https://movix.dog', '/watch');
         this.apiUrl = "https://api.movix.dog/api";
     }
 

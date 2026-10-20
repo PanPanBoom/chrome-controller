@@ -1,13 +1,10 @@
-import { View, Image, Pressable, Animated, Dimensions, ActivityIndicator } from "react-native";
+import { View, Image, Pressable, Animated } from "react-native";
 import { CustomText } from "./ui/CustomText";
 import { CustomTitle } from "./ui/CustomTitle";
 import { useContext, useRef, useState } from "react";
 import { ChevronRight } from "lucide-react-native";
 import { colors } from "@/constants/colors";
 import { cn } from "@/etc/utils";
-import { Button } from "./ui/Button";
-import { sendShowCast } from "@/server/api";
-import { AppContext } from "@/contexts/appContext";
 import { WatchButton } from "./WatchButton";
 
 type EpisodeProps = {
@@ -22,6 +19,7 @@ type EpisodeProps = {
         season_number: number;
     },
     showId: string;
+    zBase: number;
 }
 
 const AnimatedChevron = Animated.createAnimatedComponent(ChevronRight);
@@ -29,10 +27,14 @@ const AnimatedChevron = Animated.createAnimatedComponent(ChevronRight);
 export const Episode = (props: EpisodeProps) => {
     const [expanded, setExpanded] = useState(false);
     const [contentHeight, setContentHeight] = useState(0);
+    const [overflowVisible, setOverflowVisible] = useState(false);
     const expandAnimation = useRef(new Animated.Value(0)).current;
     const rotateAnimation = useRef(new Animated.Value(0)).current;
 
     const handlePress = () => {
+        if(expanded)
+            setOverflowVisible(false);
+
         Animated.parallel([
             Animated.timing(expandAnimation, {
                 toValue: expanded ? 0 : contentHeight + 16,
@@ -43,7 +45,11 @@ export const Episode = (props: EpisodeProps) => {
                 duration: 200,
                 useNativeDriver: true
             })
-        ]).start();
+        ]).start(({ finished }) => {
+            if(!expanded && finished)
+                setOverflowVisible(true);
+        });
+        
         setExpanded(prev => !prev)
     }
 
@@ -56,6 +62,7 @@ export const Episode = (props: EpisodeProps) => {
         <Pressable 
             className={cn("flex-row gap-4 rounded-xl items-center p-2", expanded && "bg-background-light")} 
             onPress={handlePress}
+            style={{ zIndex: props.zBase }}
         >
             {
                 props.episode?.img?.length > 0 &&
@@ -65,7 +72,7 @@ export const Episode = (props: EpisodeProps) => {
             }
             <View className="flex-1">
                 <CustomTitle className="text-lg" numberOfLines={expanded ? 5 : 1}>{props.episode.episode_number}. {props.episode.title}</CustomTitle>
-                <Animated.View style={{ height: contentHeight === 0 ? undefined : expandAnimation, overflow: 'hidden' }}>
+                <Animated.View style={{ height: contentHeight === 0 ? undefined : expandAnimation, overflow: overflowVisible ? 'visible' : 'hidden' }}>
                     <View className="flex gap-2" onLayout={e => {
                         if (contentHeight === 0) {
                             setContentHeight(e.nativeEvent.layout.height)

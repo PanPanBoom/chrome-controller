@@ -7,7 +7,7 @@ export class NakastreamSource extends Source
 {
     constructor()
     {
-        super("https://naka.cx", "/player?id=");
+        super("Naka (Multi)", "https://naka.cx", "/player?id=");
         this.clearanceCookie = "";
     }
 

@@ -45,7 +45,7 @@ export class MappleTVSource extends Source
 {
     constructor()
     {
-        super("https://mapple.fun", "/watch");
+        super("Mapple (VO)", "https://mapple.fun", "/watch");
         this.apiUrl = this.baseUrl + '/api/'
         this.baseHeaders = {};
         this.lastIdFetched = null;

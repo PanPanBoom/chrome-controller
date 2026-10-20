@@ -84,11 +84,29 @@ export default function remoteRoutes(io) {
         .then(data => res.json(data));
     });
 
-    router.get('/isShowAvailable', (req, res) => {
+    router.get('/isShowAvailable', async (req, res) => {
         const episodeInfo = req.query.episodeInfo;
 
-        ApiManager.apis.tmdb.checkShowAvailability(req.query.showId, episodeInfo && JSON.parse(decodeURIComponent(episodeInfo)))
-        .then(data => res.json(data));
+        res.setHeader('Content-Type', 'application/x-ndjson; charset=utf-8');
+        res.setHeader('Cache-Control', 'no-cache, no-transform');
+        res.flushHeaders();
+        const send = (obj) => res.write(JSON.stringify(obj) + '\n');
+
+        // console.log(id, episodeInfo);
+        
+        let first = true;
+        const sources = await ApiManager.apis.tmdb.findAvailableSources(req.query.showId, episodeInfo && JSON.parse(decodeURIComponent(episodeInfo)), () => {
+            if(first)
+            {
+                first = false;
+                send({ type: 'availability', available: true });
+            }
+        });
+
+        if(first)
+            send({ type: 'availability', available: false });
+        send({ type: 'sources', sources: sources.map((s) => s.name)});
+        res.end();
     })
 
     router.post('/videoUpdate', (req, res) => {
