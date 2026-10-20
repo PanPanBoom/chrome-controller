@@ -14,20 +14,20 @@ export const VideoControlsPanel = ({className, ...props}: ViewProps) => {
     const { server } = useContext(AppContext);
     const { commands } = useContext(RemoteContext);
     
-    const [isDisabled, setIsDisabled] = useState(true);
+    const [isDisabled, setIsDisabled] = useState(false);
     const [isPaused, setIsPaused] = useState(false);
     const buttonsStyle = "bg-background-light flex-1 justify-center items-center active:bg-background-hover h-full rounded-none aspect-auto";
     const iconColor = colors.text;
 
-    useEffect(() => {
-        socketClient.on('videoEnabled', () => {
-            setIsDisabled(false);
-            setIsPaused(false);
-        });
-        socketClient.on('videoDisabled', () => setIsDisabled(true));
+    // useEffect(() => {
+    //     socketClient.on('videoEnabled', () => {
+    //         setIsDisabled(false);
+    //         setIsPaused(false);
+    //     });
+    //     socketClient.on('videoDisabled', () => setIsDisabled(true));
 
-        getIsVideoEnabled(server.ip);
-    }, []);
+    //     getIsVideoEnabled(server.ip);
+    // }, []);
 
     const handlePlayPauseClick = () => {
         sendKeyPress(server.ip, commands.videoControls.playPause, commands?.directions?.shortPress).then(() => setIsPaused(prev => !prev));
