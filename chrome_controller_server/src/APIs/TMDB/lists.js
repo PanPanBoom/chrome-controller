@@ -1,4 +1,4 @@
-import { getLastMonthRange, toYMD } from "../../utils.js";
+import { getLastMonthRange, toYMD, addDays } from "../../utils.js";
 
 export const baseListsFilters = {
     "Pépites méconnues": {
@@ -27,12 +27,22 @@ export const baseListsFilters = {
 }
 
 const { start, end } = getLastMonthRange();
+const today = new Date();
 
 export const specificListsFilters = {
     "movie": {
+        "Actuellement au cinéma": {
+            'include_adult': false,
+            'include_video': false,
+            'sort_by': 'popularity.desc',
+            'with_release_type': '2|3',
+            'release_date.gte': toYMD(addDays(today, -44)),
+            'release_date.lte': toYMD(addDays(today, 1)),
+            'region': 'FR'
+        },
         "Blockbusters de l'année": {
             'sort_by': 'revenue.desc',
-            'primary_release_year': (new Date()).getFullYear(),
+            'primary_release_year': today.getFullYear(),
             'vote_count.gte': 1000
         },
         "Sortis le mois dernier": {
@@ -48,6 +58,13 @@ export const specificListsFilters = {
         }
     },
     "tv": {
+        "En cours de diffusion": {
+            'include_adult': false,
+            'sort_by': 'popularity.desc',
+            'air_date.lte': toYMD(addDays(today, 7)),
+            'air_date.gte': toYMD(today),
+            'without_genres': '10767,10763,10764,10766'
+        },
         "Anime": {
             with_genres: 16,
             with_original_language: 'ja',

@@ -8,3 +8,9 @@ export const getLastMonthRange = () => {
         end: new Date(now.getFullYear(), now.getMonth(), 0),       // jour 0 = dernier jour du mois précédent
     };
 };
+
+export const addDays = (date, days) => {
+    const d = new Date(date);
+    d.setDate(d.getDate() + days);
+    return d;
+};

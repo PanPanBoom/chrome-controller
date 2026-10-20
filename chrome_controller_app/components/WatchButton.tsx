@@ -78,7 +78,7 @@ export const WatchButton = ({ showId, episodeInfo, nextStartTime = 0, shouldChec
                 </CustomText>
             </Button>
             <View className="relative">
-                <Button className={cn("bg-primary rounded-none flex-1", expand ? 'rounded-tr-3xl' : 'rounded-e-full')} disabled={sources.length < 2} onPress={() => setExpand(!expand)}>
+                <Button className={cn("bg-primary rounded-none flex-1", expand ? 'rounded-tr-3xl' : 'rounded-e-full')} disabled={sources.length === 0} onPress={() => setExpand(!expand)}>
                     {
                         expand ?
                         <ChevronUp color={colors.background} /> :
