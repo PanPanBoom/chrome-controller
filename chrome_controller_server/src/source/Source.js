@@ -4,7 +4,7 @@ export class Source
     {
         this.baseUrl = baseUrl;
         this.watchUrl = baseUrl + endWatchUrl;
-        this.userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36';
+        this.userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36 OPR/137.0.0.0';
         this.name = name;
     }
 

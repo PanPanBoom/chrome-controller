@@ -139,18 +139,16 @@ export class MappleTVSource extends Source
 
     async getCookies()
     {
-        const manifestRes = await fetch(`${this.baseUrl}/site.webmanifest`, {
+        const manifestRes = await fetch(`${this.baseUrl}`, {
             method: 'GET',
             headers: {
-                'User-Agent': this.userAgent,
-                'Referer': "https://mapple.fun/",
-                'Origin': this.baseUrl
+                'User-Agent': this.userAgent
             }
         });
 
         if(manifestRes.status !== 200)
         {
-            console.log(`Error ${manifestRes.status} while fetching manifest: ${manifestRes.statusText}`);
+            console.log(`Error ${manifestRes.status} while fetching cookies: ${manifestRes.statusText}`);
             return;
         }
 

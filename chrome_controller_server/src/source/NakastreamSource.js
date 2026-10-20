@@ -131,6 +131,7 @@ export class NakastreamSource extends Source
             });
     
             const source = JSON.parse(resSource.body);
+            console.log(source);
     
             const videoUrl = this.baseUrl + source.url;
     
