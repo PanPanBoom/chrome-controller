@@ -77,11 +77,10 @@ export default function Apps()
             .then(dataFetched => setSearchedShows(dataFetched));
     }
 
-    const handleChangeText = (newText: string) =>   {
-        setInput(newText);
-        if(newText.length === 0)
+    useEffect(() => {
+        if(input.length === 0)
             setSearchedShows([]);
-    }
+    }, [input]);
         
     return (
         <ScrollScreen className="gap-3">
@@ -92,7 +91,7 @@ export default function Apps()
             <SearchBar
                 value={input}
                 onSearch={handleSearch}
-                onChangeText={handleChangeText}
+                onChangeText={setInput}
                 onClear={() => setInput("")}
             />
             <ShowCarousel
