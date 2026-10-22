@@ -1,13 +1,13 @@
 import { Api } from "../Api.js";
 import 'dotenv/config';
 import { NakastreamSource } from "../../source/NakastreamSource.js";
-// import { NakanimeSource } from "../../source/NakanimeSource.js";
 import { NoxpulseSource } from "../../source/NoxpulseSource.js";
 import { MappleTVSource } from "../../source/MappleTVSource.js";
 import { state } from "../../state.js";
 import { getAllShows, getShowsByFilter, getShowById } from "../../db.js";
 import { baseListsFilters, specificListsFilters } from "./lists.js";
 import { MovixSource } from "../../source/MovixSource.js";
+import { NakanimeSource } from "../../source/NakanimeSource.js";
 
 const dateParser = (dateString) => {
     if (!dateString) return null;
@@ -41,10 +41,11 @@ export class TMDBApi extends Api
         this.platform = 'tmdb';
         this.sources = [
             // new StreamoSource(),
-            new NakastreamSource(),
-            new MovixSource(),
-            new NoxpulseSource(),
-            new MappleTVSource(),
+            new NakanimeSource(),
+            // new NakastreamSource(),
+            // new MovixSource(),
+            // new NoxpulseSource(),
+            // new MappleTVSource(),
         ]
     }
 
@@ -348,16 +349,19 @@ export class TMDBApi extends Api
         await Promise.all(this.sources.map(async (source) => {
             try
             {
-                if(await source.checkShowAvailability(id, episodeInfo))
+                const fetchedSources = await source.checkShowAvailability(id, episodeInfo);
+                if(fetchedSources)
                 {
-                    availableSources.push(source);
-                    onFound?.(source);
+                    for(const sourceNameWithLanguage of fetchedSources)
+                        availableSources.push(sourceNameWithLanguage);
+
+                    onFound?.();
                 }
             }
 
             catch(e)
             {
-                console.log(`Source ${source.baseUrl} failed:`, e);
+                console.log(`Source ${source.name} failed:`, e);
             }
         }));
 
@@ -383,7 +387,7 @@ export class TMDBApi extends Api
         if(sourceName)
         {
             const source = this.sources.find(source => source.name === sourceName);
-            if(await source.checkShowAvailability(id, episodeInfo))
+            if(await source.checkShowAvailability(id, episodeInfo, audioLanguage))
                 return this.getIntentFromSource(id, episodeInfo, startTime, source, audioLanguage);
             else
                 return null;
@@ -403,7 +407,7 @@ export class TMDBApi extends Api
         const showInfos = await this.getShowById(id);
         console.log("Show available on " + source.baseUrl);
 
-        const videoInfo = await source.getShowVideoInfo(id, episodeInfo);
+        const videoInfo = await source.getShowVideoInfo(id, episodeInfo, audioLanguage);
         console.log(videoInfo);
 
         const params = new URLSearchParams();

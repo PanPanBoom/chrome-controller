@@ -7,7 +7,7 @@ export class NakastreamSource extends Source
 {
     constructor()
     {
-        super("Naka (Multi)", "https://naka.cx", "/player?id=");
+        super("Naka", "https://naka.cx", "/player?id=");
         this.clearanceCookie = "";
     }
 
@@ -65,7 +65,7 @@ export class NakastreamSource extends Source
                     accept: 'application/json',
                     Authorization: `Bearer ${loginData.token}`,
                     'User-Agent': this.userAgent,
-                    'Cookie': `cf_clearance=${this.clearanceCookie}`,
+                    'Cookie': `${this.clearanceCookie}`,
                     Referer: this.baseUrl + '/'
                 };
     
@@ -113,11 +113,13 @@ export class NakastreamSource extends Source
         return `${this.watchUrl}${await this.getNakaId(id)}${id.includes('tv') ? `&season=${episodeInfo?.season ?? 1}&episode=${episodeInfo?.episode ?? 1}` : ""}`;
     }
 
-    async getShowVideoInfo(id, episodeInfo)
+    async fetchSource(id, episodeInfo)
     {
-        super.getShowVideoInfo(id, episodeInfo);
-        try {
+        try
+        {
             const nakaId = await this.getNakaId(id);
+            if(!nakaId)
+                return null;
     
             console.log("Fetching nakastream source...");
     
@@ -131,21 +133,34 @@ export class NakastreamSource extends Source
             });
     
             const source = JSON.parse(resSource.body);
-            console.log(source);
-    
-            const videoUrl = this.baseUrl + source.url;
-    
-            console.log('Source nakastream: ' + videoUrl);
-    
-            return {
-                url: videoUrl,
-                referer: await this.getShowUrl(id, episodeInfo),
-                cookies: this.clearanceCookie,
-                userAgent: this.userAgent
-            }
-        } catch (err) {
+            
+            return source;
+        }
+
+        catch(e)
+        {
             console.error("Error fetching nakastream source: ", err);
             return null;
+        }
+    }
+
+    async getShowVideoInfo(id, episodeInfo)
+    {
+        super.getShowVideoInfo(id, episodeInfo);
+
+        const source = await this.fetchSource(id, episodeInfo);
+        if(!source)
+            return { url : ""};
+
+        const videoUrl = this.baseUrl + source.url;
+
+        console.log('Source nakastream: ' + videoUrl);
+
+        return {
+            url: videoUrl,
+            referer: await this.getShowUrl(id, episodeInfo),
+            cookies: this.clearanceCookie,
+            userAgent: this.userAgent
         }
     }
 
@@ -155,26 +170,38 @@ export class NakastreamSource extends Source
         try
         {
             await this.login();
-    
-            const [ mediaType, realId ] = id.split("/");
-    
-            const res = await gotScraping.get(`${this.baseUrl}/api/v1/streaming/check/${realId}?type=${mediaType}`, {
-                headers: this.headers,
-                headerGeneratorOptions: {
-                    browsers: [{ name: 'chrome', minVersion: 110 }],
-                    devices: ['desktop'],
-                    operatingSystems: ['windows']
-                }
-            });
+
+            const source = await this.fetchSource(id, episodeInfo);
+            console.log(source);
             
-            const availabilty = JSON.parse(res.body);
+            return source ?
+                [{
+                    name: this.name,
+                    language: source.audioTracks.length >= 2 ? 'Multi' : source.audioTracks[0].lang
+                }] :
+                null;
     
-            console.log(availabilty);
+            // const [ mediaType, realId ] = id.split("/");
     
-            return availabilty.available;
+            // const res = await gotScraping.get(`${this.baseUrl}/api/v1/streaming/check/${realId}?type=${mediaType}`, {
+            //     headers: this.headers,
+            //     headerGeneratorOptions: {
+            //         browsers: [{ name: 'chrome', minVersion: 110 }],
+            //         devices: ['desktop'],
+            //         operatingSystems: ['windows']
+            //     }
+            // });
+            
+            // const availabilty = JSON.parse(res.body);
+    
+            // console.log(availabilty);
+
+            // await this.getShowVideoInfo(id, episodeInfo);
+    
+            // return availabilty.available;
         } catch (err) {
             console.error("Error checking show availability: ", err);
-            return false;
+            return null;
         }
     }
 }

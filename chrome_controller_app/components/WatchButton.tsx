@@ -21,7 +21,10 @@ type WatchButtonProps = ViewProps & {
 export const WatchButton = ({ showId, episodeInfo, nextStartTime = 0, shouldCheck = true, className, ...props }: WatchButtonProps) => {
     const { server } = useContext(AppContext);
     const [isAvailable, setIsAvailable] = useState<boolean | null>(null);
-    const [sources, setSources] = useState([]);
+    const [sources, setSources] = useState<{
+        name: string,
+        language: string
+    }[]>([]);
     const [expand, setExpand] = useState(false);
 
     useEffect(() => {
@@ -52,8 +55,6 @@ export const WatchButton = ({ showId, episodeInfo, nextStartTime = 0, shouldChec
             );
         }
     }, [shouldCheck]);
-
-    console.log(sources);
 
     return (
         <View className={cn("flex-row gap-[1px] z-50", className)}>
@@ -90,8 +91,8 @@ export const WatchButton = ({ showId, episodeInfo, nextStartTime = 0, shouldChec
                     <View className="absolute bg-primary w-32 top-full right-0 p-2 rounded-b-2xl border-t border-background">
                         {
                             sources.map(source => 
-                                <Button key={source} className="bg-transparent" onPress={() => sendShowCast(server.ip, 'tmdb', showId, episodeInfo, nextStartTime, source)}>
-                                    <CustomText className="text-background">{source}</CustomText>
+                                <Button key={source.name + source.language} className="bg-transparent" onPress={() => sendShowCast(server.ip, 'tmdb', showId, episodeInfo, nextStartTime, source.name, source.language)}>
+                                    <CustomText className="text-background">{source.name} ({source.language})</CustomText>
                                 </Button>
                             )
                         }

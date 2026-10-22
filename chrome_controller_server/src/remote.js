@@ -105,7 +105,7 @@ export default function remoteRoutes(io) {
 
         if(first)
             send({ type: 'availability', available: false });
-        send({ type: 'sources', sources: sources.map((s) => s.name)});
+        send({ type: 'sources', sources});
         res.end();
     })
 

@@ -45,7 +45,7 @@ export class MappleTVSource extends Source
 {
     constructor()
     {
-        super("Mapple (VO)", "https://mapple.fun", "/watch");
+        super("Mapple", "https://mapple.fun", "/watch");
         this.apiUrl = this.baseUrl + '/api/'
         this.baseHeaders = {};
         this.lastIdFetched = null;
@@ -173,23 +173,23 @@ export class MappleTVSource extends Source
 
         await this.getCookies();
 
-        const resToken = await fetch(`${this.apiUrl}/request-token`, {
+        const sessionRes = await fetch(`${this.apiUrl}/ui/session`, {
             method: 'POST',
             headers: this.baseHeaders
         });
 
-        if(resToken.status !== 200)
+        if(sessionRes.status !== 200)
         {
-            console.log(`Error ${resToken.status} while fetching token: ${resToken.statusText}`);
-            console.log(resToken.body);
+            console.log(`Error ${sessionRes.status} while fetching session: ${sessionRes.statusText}`);
+            console.log(sessionRes.body);
             return { url: '' };
         }
 
-        const tokenData = await resToken.json();
+        const session = await sessionRes.json();
 
         const [ mediaType, realId ] = id.split('/');
 
-        const token = tokenData.token;
+        const token = session.token;
         console.log("Token reçu:", token);
 
         const initRes = await fetch(`${this.apiUrl}/media-session`, {
@@ -235,6 +235,11 @@ export class MappleTVSource extends Source
         super.checkShowAvailability(id, episodeInfo);
         const videoInfo = await this.getShowVideoInfo(id, episodeInfo);
 
-        return videoInfo.url !== "";
+        return videoInfo.url !== "" ?
+            [{
+                name: this.name,
+                language: 'VO'
+            }] : 
+            null;
     }
 }

@@ -57,13 +57,13 @@ export const sendAppLaunch = async (ip: string, url: string) => await sendComman
     body: JSON.stringify({ url })
 });
 
-export const sendShowCast = async (ip: string, platform: string, id: string, episodeInfo: {season: number, episode: number} | null = null, startTime: number = 0, source: string | null = null) => {
+export const sendShowCast = async (ip: string, platform: string, id: string, episodeInfo: {season: number, episode: number} | null = null, startTime: number = 0, source: string | null = null, language: string | null = null) => {
     return await sendCommand(ip, 'extension/castShow', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ id, platform, episodeInfo, startTime, source })
+        body: JSON.stringify({ id, platform, episodeInfo, startTime, source, language })
     });
 }
 

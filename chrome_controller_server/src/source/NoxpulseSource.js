@@ -1,10 +1,11 @@
+import { language } from "googleapis/build/src/apis/language/index.js";
 import { Source } from "./Source.js";
 
 export class NoxpulseSource extends Source
 {
     constructor()
     {
-        super("NoxPulse (VF)", "https://noxpulse.cc/", "watch");
+        super("NoxPulse", "https://noxpulse.cc/", "watch");
     }
 
     getShowUrl(id, episodeInfo = null)
@@ -18,8 +19,22 @@ export class NoxpulseSource extends Source
 
         else
             return `${this.watchUrl}/${id}`;
+    }
 
-        return url;
+    async fetchSource(id, episodeInfo)
+    {
+        const [ mediaType, realId ] = id.split("/");
+        const res = await fetch(`https://api.noxpulse.cc/watch/${mediaType === "tv" ? "series" : mediaType}/${realId}${mediaType === "tv" ? `/${episodeInfo?.season ?? 1}/${episodeInfo?.episode ?? 1}` : ""}`);
+        
+        if(res.status !== 200)
+        {
+            console.log(`Error ${res.status} fetching url: ${res.statusText}`);
+            return "";
+        }
+        
+        const watchData = await res.json();
+
+        console.log(watchData);
     }
 
     async getShowVideoInfo(id, episodeInfo = null)
@@ -47,10 +62,16 @@ export class NoxpulseSource extends Source
     async checkShowAvailability(id, episodeInfo = null)
     {
         super.checkShowAvailability(id, episodeInfo);
+        await this.fetchSource(id, episodeInfo);
         const [ mediaType, realId ] = id.split("/");
 
         const res = await fetch(`https://api.noxpulse.cc/watch/${mediaType === "tv" ? "series" : mediaType}/${realId}${mediaType === "tv" ? `/${episodeInfo?.season ?? 1}/${episodeInfo?.episode ?? 1}` : ""}`);
         
-        return res.status == 200;
+        return res.status == 200 ? 
+        [{
+            name: this.name,
+            language: 'VF'
+        }] : 
+        null;
     }
 }

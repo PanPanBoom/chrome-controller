@@ -2,29 +2,30 @@ import patchright from 'patchright';
 
 export class ScrappingBrowser {
     static #contextPromise = null;
+    static #idleTimer = null;
 
     static async getContext() {
         if (!this.#contextPromise) {
             console.log("Creating ScrappingBrowser...");
-            this.#contextPromise = (async () => {
-                const browser = await patchright.chromium.launch({
+            this.#contextPromise = patchright.chromium.launchPersistentContext('./profile', {
                     channel: 'chrome',
                     headless: false,
+                    viewport: { width: 1920, height: 1080 },
                     args: [
-                        '--headless=new',
-                        '--disable-blink-features=AutomationControlled'
+                        '--disable-blink-features=AutomationControlled',
+                        '--window-position=-32000,-32000'
                     ]
                 });
-
-                const context = await browser.newContext({
-                    viewport: { width: 1920, height: 1080 },
-                    userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36'
-                });
-
-                return context;
-            })();
         }
-        return await this.#contextPromise;
+
+        clearTimeout(this.#idleTimer);
+        this.#idleTimer = setTimeout(async () => {
+            const context = await this.#contextPromise;
+            this.#contextPromise = null;
+            await context.close();
+        }, 5 * 60_000)
+
+        return this.#contextPromise;
     }
 
     static async getNewPage() {

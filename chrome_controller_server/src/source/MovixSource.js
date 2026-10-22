@@ -4,7 +4,7 @@ export class MovixSource extends Source
 {
     constructor()
     {
-        super('Movix (VF)', 'https://movix.dog', '/watch');
+        super('Movix', 'https://movix.dog', '/watch');
         this.apiUrl = "https://api.movix.dog/api";
     }
 
@@ -14,21 +14,28 @@ export class MovixSource extends Source
         return `${this.watchUrl}/${id}${id.includes("tv") ? `/s/${episodeInfo?.season ?? 1}/e/${episodeInfo?.episode ?? 1}` : ''}`;
     }
 
-    async getShowVideoInfo(id, episodeInfo = null)
+    async fetchSource(id, episodeInfo)
     {
-        super.getShowVideoInfo(id, episodeInfo);
-
         const res = await fetch(`${this.apiUrl}/purstream/${id}/stream${id.includes('tv') ? `?season=${episodeInfo?.season ?? 1}&episode=${episodeInfo?.episode ?? 1}` : ''}`);
         if(res.status !== 200)
         {
             console.log(`Error ${res.status} fetching Movix purstream: ${JSON.stringify(res.body)}`);
-            return { url: '' };
+            return null;
         }
 
         const showData = await res.json();
 
+        return showData.sources[0];
+    }
+
+    async getShowVideoInfo(id, episodeInfo = null)
+    {
+        super.getShowVideoInfo(id, episodeInfo);
+
+        const source = await this.fetchSource(id, episodeInfo);
+
         return {
-            url: showData.sources?.[0]?.url
+            url: source ? source.url : ''
         }
     }
 
@@ -36,6 +43,13 @@ export class MovixSource extends Source
     {
         super.checkShowAvailability(id, episodeInfo);
 
-        return (await this.getShowVideoInfo(id, episodeInfo)).url !== "";
+        console.log(source);
+
+        return source ?
+            [{
+                name: this.name,
+                language: source.name.split('| ')[2]
+            }] :
+            null;
     }
 }
