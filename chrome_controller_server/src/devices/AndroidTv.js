@@ -4,6 +4,7 @@ import { io } from '../io.js';
 import fs from 'fs';
 import { ApiManager } from "../APIs/ApiManager.js";
 import { remoteConstants } from "../constants.js";
+import { serverLog } from '../utils.js'
 
 export class AndroidTv extends Device {
     constructor(ip)
@@ -12,12 +13,12 @@ export class AndroidTv extends Device {
         this.currentApp = null;
         this.lastInputSent = "";
 
-        console.log("NOUVELLE INSTANCE TV");
+        serverLog("NOUVELLE INSTANCE TV");
     }
 
     async init()
     {
-        console.log(`Connecting to TV at ${this.ip}...`);
+        serverLog(`Connecting to TV at ${this.ip}...`);
         
         let cert = {};
 
@@ -28,7 +29,7 @@ export class AndroidTv extends Device {
         
         catch(e)
         {
-            console.log("No certificate found, starting pairing process...");
+            serverLog("No certificate found, starting pairing process...");
         }
 
         this.remote = new AndroidRemote(this.ip, {
@@ -38,8 +39,8 @@ export class AndroidTv extends Device {
             cert: cert,
         });
 
-        console.log(`Connected to TV at ${this.ip}`);
-        console.log(this.remote);
+        serverLog(`Connected to TV at ${this.ip}`);
+        serverLog(this.remote);
 
         this.remote.on('secret', () => {
             io.emit('tvCodeRequest');
@@ -48,7 +49,7 @@ export class AndroidTv extends Device {
         this.remote.on('ready', () => {
             let cert = this.remote.getCertificate();
 
-            fs.writeFile('cert.json', JSON.stringify(cert), (e) => console.log(e));
+            fs.writeFile('cert.json', JSON.stringify(cert), (e) => serverLog(e));
 
             io.emit('videoEnabled');
         });
@@ -58,20 +59,20 @@ export class AndroidTv extends Device {
         });
 
         this.remote.on('current_app', (current_app) => {
-            console.log('updating current app');
+            serverLog('updating current app');
             this.currentApp = current_app;
         });
 
         this.remote.on('input', () => {
-            console.log("Show keyboard");
+            serverLog("Show keyboard");
             io.emit('keyboard');
         });
 
         this.remote.on('volume', (volume) => {
-            console.log(volume);
+            serverLog(volume);
             if(this.isMuted !== volume.muted)
             {
-                console.log("muteChanged");
+                serverLog("muteChanged");
                 io.emit('muteChanged', { muted: volume.muted });
                 this.isMuted = volume.muted;
             }
@@ -134,6 +135,6 @@ export class AndroidTv extends Device {
         client?.destroy();
 
         this.remote = null;
-        console.log("AndroidTV connection closed");
+        serverLog("AndroidTV connection closed");
     }
 }

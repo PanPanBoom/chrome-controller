@@ -1,5 +1,6 @@
 import { Source } from "./Source.js";
 import crypto from 'crypto';
+import { serverLog } from '../utils.js'
 
 function hasLeadingZeroBits(hash, bits) {
   const fullBytes = Math.floor(bits / 8);
@@ -22,7 +23,7 @@ function solvePoW(challenge, difficulty) {
   let nonce = 0;
   const startTime = Date.now();
 
-  console.log(`Recherche du nonce (difficulté: ${difficulty})...`);
+  serverLog(`Recherche du nonce (difficulté: ${difficulty})...`);
 
   while (nonce <= 50000000) { // Sécurité comme dans leur script
     // On crée le hash SHA-256 natif
@@ -31,7 +32,7 @@ function solvePoW(challenge, difficulty) {
 
     if (hasLeadingZeroBits(hash, difficulty)) {
       const elapsed = Date.now() - startTime;
-      console.log(`Nonce trouvé en ${elapsed}ms : ${nonce}`);
+      serverLog(`Nonce trouvé en ${elapsed}ms : ${nonce}`);
       return nonce.toString();
     }
 

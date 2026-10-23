@@ -1,6 +1,9 @@
 import { Source } from "./Source.js";
 import { ScrappingBrowser } from "../ScrappingBrowser.js";
-import { execSync } from 'child_process';
+import { execFile } from 'child_process';
+import { promisify } from "util";
+
+const execFileAsync = promisify(execFile);
 
 function generateXorKey(url) {
     const salt = "nkapiv1";
@@ -100,7 +103,7 @@ export class NakanimeSource extends Source
 
         this.lastTmdbId = tmdbId;
 
-        console.log(this.tmdbApi);
+        this.log(this.tmdbApi);
 
         const tmdbInfos = await this.tmdbApi.getShowById(tmdbId);
 
@@ -169,24 +172,51 @@ export class NakanimeSource extends Source
         });
     }
 
-    extractUrlFromSources(sources, language = null)
+    async extractUrlFromSources(sources, language = null)
     {
         const filteredSources = language ? sources.filter(source => source.language === language) : sources;
 
-        for(const source of filteredSources)
-        {
+        if(filteredSources.length === 0)
+            return null;
+
+        const controller = new AbortController();
+        
+        const attempts = filteredSources.map(async (source) => {
             try
             {
-                return execSync(`yt-dlp -q --no-warnings -g ${source.url}`).toString().trim();
+                const { stdout } = await execFileAsync(
+                    'yt-dlp',
+                    ['-q', '--no-warnings', '-g', source.url],
+                { signal: controller.signal, timeout: 30000 }
+                );
+
+                const url = stdout.trim();
+                if(!url)
+                    throw new Error('Empty output');
+
+                return url;
             }
     
             catch(e)
             {
-                this.log(`Impossible to extract url from ${source.host}: ${e}`);
+                if(!controller.signal.aborted)
+                    this.log(`Impossible to extract url from ${source.host}: ${e}`);
+
+                throw e;
             }
+        });
+
+        try
+        {
+            const url = await Promise.any(attempts);
+            controller.abort();
+            return url;
         }
-        
-        return "";
+
+        catch(e)
+        {
+            return null;
+        }
     }
 
     async fetchVideoInfo(id, episodeInfo = null, language = null)
@@ -197,7 +227,7 @@ export class NakanimeSource extends Source
 
         const sources = await this.fetchSources(nakaId, episodeInfo);
 
-        return { url: this.extractUrlFromSources(sources, language) };
+        return { url: await this.extractUrlFromSources(sources, language) };
     }
 
     async fetchAvailability(id, episodeInfo = null, language = null)
@@ -221,14 +251,15 @@ export class NakanimeSource extends Source
             }
         }
 
-        const urls = languages
-            .map(lang => ({lang, url: this.extractUrlFromSources(sources, lang)}))
-            .filter(urlByLang => urlByLang.url !== "");
+        const urls = await Promise.all(languages
+            .map(async (lang) => ({lang, url: await this.extractUrlFromSources(sources, lang)})));
+            
+        const filteredUrls = urls.filter(urlByLang => urlByLang.url !== null);
 
-        this.log(urls, language);
+        this.log(filteredUrls, language);
 
-        return urls.length > 0 ? 
-            urls.map(url => ({
+        return filteredUrls.length > 0 ? 
+            filteredUrls.map(url => ({
                 name: this.name,
                 language: url.lang
             })) : 

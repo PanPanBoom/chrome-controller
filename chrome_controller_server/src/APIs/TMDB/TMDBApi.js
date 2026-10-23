@@ -8,6 +8,7 @@ import { getAllShows, getShowsByFilter, getShowById } from "../../db.js";
 import { baseListsFilters, specificListsFilters } from "./lists.js";
 import { MovixSource } from "../../source/MovixSource.js";
 import { NakanimeSource } from "../../source/NakanimeSource.js";
+import { serverLog } from '../../utils.js'
 
 const dateParser = (dateString) => {
     if (!dateString) return null;
@@ -361,9 +362,11 @@ export class TMDBApi extends Api
 
             catch(e)
             {
-                console.log(`Source ${source.name} failed:`, e);
+                serverLog(`Source ${source.name} failed:`, e);
             }
         }));
+
+        serverLog('Sources found');
 
         return availableSources;
     }
@@ -374,7 +377,7 @@ export class TMDBApi extends Api
         {
             if (await source.checkShowAvailability(id, episodeInfo))
             {
-                console.log("Show available on " + source.baseUrl);
+                serverLog("Show available on " + source.baseUrl);
                 return await source.getShowUrl(id, episodeInfo);
             }
         }
@@ -405,10 +408,10 @@ export class TMDBApi extends Api
     async getIntentFromSource(id, episodeInfo = null, startTime = 0, source = null, audioLanguage = 'fr')
     {
         const showInfos = await this.getShowById(id);
-        console.log("Show available on " + source.baseUrl);
+        serverLog("Show available on " + source.baseUrl);
 
         const videoInfo = await source.getShowVideoInfo(id, episodeInfo, audioLanguage);
-        console.log(videoInfo);
+        serverLog(videoInfo);
 
         const params = new URLSearchParams();
 
@@ -428,7 +431,7 @@ export class TMDBApi extends Api
         params.append('startTime', startTime);
         params.append('audioLanguage', audioLanguage);
 
-        console.log(`Starting show at ${startTime / 1000}s`);
+        serverLog(`Starting show at ${startTime / 1000}s`);
 
         return `chromecontroller://play?${params}`;
     }

@@ -1,4 +1,5 @@
 import { Source } from "./Source.js";
+import { serverLog } from '../utils.js'
 
 export class StreamoSource extends Source
 {
@@ -16,7 +17,7 @@ export class StreamoSource extends Source
 
     async getShowVideoInfo(id, episodeInfo = null)
     {
-        console.log('Fetching token...');
+        serverLog('Fetching token...');
         const tokenRes = await fetch(`https://streamotv.org/api/kenma-token?server=${encodeURIComponent("https://streamo.zentlify.qzz.io")}`, {
                 method: 'GET',
                 headers: {
@@ -25,13 +26,13 @@ export class StreamoSource extends Source
             });
         if(tokenRes.status !== 200)
         {
-            console.log(`Error ${tokenRes.status} while fetching token: ${tokenRes.statusText}`);
+            serverLog(`Error ${tokenRes.status} while fetching token: ${tokenRes.statusText}`);
             return { url: '' };
         }
 
         const token = await tokenRes.json();
 
-        console.log('Fetching sources...');
+        serverLog('Fetching sources...');
 
         const urlRes = await fetch(`https://streamo.zentlify.qzz.io/api/streams/daydream/${id}`, {
             method: 'GET',
@@ -42,7 +43,7 @@ export class StreamoSource extends Source
 
         if(urlRes.status !== 200)
         {
-            console.log(`Error ${urlRes.status} while fetching sources: ${urlRes.statusText}`, {
+            serverLog(`Error ${urlRes.status} while fetching sources: ${urlRes.statusText}`, {
                 method: 'GET'
             });
             return { url: '' };

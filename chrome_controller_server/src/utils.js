@@ -14,3 +14,9 @@ export const addDays = (date, days) => {
     d.setDate(d.getDate() + days);
     return d;
 };
+
+export const serverLog = (...logs) => {
+    const pad = (n, size = 2) => String(n).padStart(size, '0');
+    const time = new Date();
+    console.log(`[${pad(time.getHours())}:${pad(time.getMinutes())}:${pad(time.getSeconds())}.${pad(time.getMilliseconds(), 3)}]`, ...logs);
+}

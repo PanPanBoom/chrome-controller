@@ -2,20 +2,21 @@ import { Router } from 'express';
 import { state } from './state.js';
 import { parseToVTT, searchSubtitles } from "wyzie-lib";
 import webvtt from "node-webvtt";
+import { serverLog } from './utils.js';
 // import 'dotenv/config';
 
 export default function extensionRoutes(io) {
     const router = Router();
 
     router.get('/fullscreen', (req, res) => {
-        console.log('Fullscreen');
+        serverLog('Fullscreen');
         io.emit('command', { action: 'FULLSCREEN' });
         res.send({ status: 'ok' });
     });
 
     router.post('/input', (req, res) => {
         const { input } = req.body;
-        console.log('Input : ' + input);
+        serverLog('Input : ' + input);
 
         state.currentDevice.sendInput(input);
 
@@ -24,7 +25,7 @@ export default function extensionRoutes(io) {
 
     router.post('/input/submit', (req, res) => {
         const { input } = req.body;
-        console.log('Submit input: ' + input);
+        serverLog('Submit input: ' + input);
 
         state.currentDevice.submitInput(input);
         res.send({status: 'ok'});
@@ -32,13 +33,13 @@ export default function extensionRoutes(io) {
 
     router.post('/open', async (req, res) => {
         const { url } = req.body;
-        console.log(`Demande d'ouverture : ${url}`);
+        serverLog(`Demande d'ouverture : ${url}`);
 
         // if(isExtensionConnected == false)
         // {
-        //     console.log("Lancement du navigateur");
+        //     serverLog("Lancement du navigateur");
         //     exec(`start opera "${url}"`, (err) => {
-        //         console.log(err);
+        //         serverLog(err);
         //     });
         // }
 
@@ -48,10 +49,10 @@ export default function extensionRoutes(io) {
 
     router.post('/castShow', async (req, res) => {
         const { id, platform, episodeInfo, startTime, source, language } = req.body;
-        console.log(language);
+        serverLog(language);
         state.serverIp = `http://${req.socket.localAddress?.replace(/^::ffff:/, '')}:${req.socket.localPort}`;
 
-        console.log(`Casting ${id} from ${platform} ${episodeInfo?.season ? `(Episode ${episodeInfo.episode} from Season ${episodeInfo.season})` : ""}`);
+        serverLog(`Casting ${id} from ${platform} ${episodeInfo?.season ? `(Episode ${episodeInfo.episode} from Season ${episodeInfo.season})` : ""}`);
 
         await state.currentDevice.castShow(platform, id, episodeInfo, startTime, source, language);
         res.send({ status: 'ok' });
@@ -59,7 +60,7 @@ export default function extensionRoutes(io) {
 
     router.post('/keypress', (req, res) => {
         const { key, direction } = req.body;
-        console.log(`Entrée : ${key}`);
+        serverLog(`Entrée : ${key}`);
 
         state.currentDevice.keyPress(key, direction);
         
@@ -74,19 +75,19 @@ export default function extensionRoutes(io) {
     });
 
     router.post('/togglePlayPause', (req, res) => {
-        console.log("Play/Pause");
+        serverLog("Play/Pause");
         io.emit('command', { action: "PLAY_PAUSE" });
         res.send({ status: 'ok' });
     });
 
     router.post('/rewind', (req, res) => {
-        console.log('rewind');
+        serverLog('rewind');
         io.emit('command', { action: 'REWIND' });
         res.send({ status: 'ok' });
     });
 
     router.post('/forward', (req, res) => {
-        console.log('forward');
+        serverLog('forward');
         io.emit('command', { action: 'FORWARD' });
         res.send({ status: 'ok' });
     });
@@ -97,12 +98,12 @@ export default function extensionRoutes(io) {
     });
 
     router.get('/subtitles', async (req, res) => {
-        console.log("Fetching subtitles...");
+        serverLog("Fetching subtitles...");
         const episodeInfo = req.query.episodeInfo ? JSON.parse(decodeURIComponent(req.query.episodeInfo)) : null;
         const targetDuration = Number(req.query.duration);
 
         try {
-            console.log("Getting subtitles list...");
+            serverLog("Getting subtitles list...");
             const data = await searchSubtitles({
                 tmdb_id: Number(req.query.showId),
                 ...(episodeInfo?.season != null && {
@@ -121,7 +122,7 @@ export default function extensionRoutes(io) {
                 url: subtitle.url
             }));
 
-            // console.log(data);
+            // serverLog(data);
 
             const checkedSubtitles = await Promise.all(
                 subtitles.map(async (sub) => {
@@ -135,7 +136,7 @@ export default function extensionRoutes(io) {
                         const [_, hours, minutes, seconds] = matches[matches.length - 1];
                         const subDuration = Number(hours) * 3600 + Number(minutes) * 60 + Number(seconds);
 
-                        return subDuration / targetDuration >= 0.95 && subDuration <= targetDuration + 60 ? sub : null;
+                        return subDuration / targetDuration >= 0.95 && subDuration <= targetDuration + 60 ? { fiability: subDuration / targetDuration, ...sub} : null;
                     } catch {
                         return null;
                     }
@@ -143,25 +144,27 @@ export default function extensionRoutes(io) {
             );
 
             const validSubtitles = checkedSubtitles.filter(Boolean);
+            validSubtitles.sort((a, b) => b.fiability - a.fiability);
+            console.log(validSubtitles);
 
-            // console.log("Subtitles: ", validSubtitles);
+            // serverLog("Subtitles: ", validSubtitles);
 
             res.json(validSubtitles.length ? validSubtitles : subtitles);
 
         } catch (err) {
-            console.log(err.message);
+            serverLog(err.message);
             res.status(500).json({ error: err.message });
         }
     })
 
     router.get('/proxy-subtitles', async (req, res) => {
-        console.log('Subtitles proxy');
+        serverLog('Subtitles proxy');
         try {
             const url = decodeURIComponent(req.query.url);
             const vttFile = await parseToVTT(url);
             const parsedVtt = webvtt.parse(vttFile);
 
-            console.log(parsedVtt.cues);
+            serverLog(parsedVtt.cues);
             
             res.json(parsedVtt.cues);
         } catch (err) {

@@ -1,5 +1,6 @@
 import { getShowById } from "../db.js";
 import { FetcherWithCache } from "../FetcherWithCache.js";
+import { serverLog } from '../utils.js'
 
 export class Api extends FetcherWithCache
 {
@@ -31,7 +32,7 @@ export class Api extends FetcherWithCache
             lastFetch: Date.now()
         }
 
-        console.log(`${this.platform}.${identifier}${filter !== "" ? '.' + filter : ""}: data added to cache`);
+        serverLog(`${this.platform}.${identifier}${filter !== "" ? '.' + filter : ""}: data added to cache`);
     }
 
     async fetchWithCache(identifier, filter, fetcher)
@@ -39,11 +40,11 @@ export class Api extends FetcherWithCache
         const cachedData = this.getCache(identifier, filter);
         if(cachedData !== null)
         {
-            console.log(`${this.platform}.${identifier}${filter !== "" ? '.' + filter : ""}: cached data`);
+            serverLog(`${this.platform}.${identifier}${filter !== "" ? '.' + filter : ""}: cached data`);
             return cachedData; 
         }
 
-        console.log(`${this.platform}.${identifier}${filter !== "" ? '.' + filter : ""}: no cached data`);
+        serverLog(`${this.platform}.${identifier}${filter !== "" ? '.' + filter : ""}: no cached data`);
 
         let data = await fetcher();
         this.addToCache(identifier, filter, data);

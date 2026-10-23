@@ -3,6 +3,7 @@ import loudness from 'loudness';
 import { io } from '../io.js';
 import { ApiManager } from "../APIs/ApiManager.js";
 import { remoteConstants } from "../constants.js";
+import { serverLog } from '../utils.js'
 
 export class Extension extends Device
 {
@@ -57,7 +58,7 @@ export class Extension extends Device
     {
         const isMuted = await loudness.getMuted();
 
-        console.log(isMuted ? "Demute" : "Mute");
+        serverLog(isMuted ? "Demute" : "Mute");
         await loudness.setMuted(!isMuted);
         io.emit('muteChanged', { muted: !isMuted });
         
@@ -65,7 +66,7 @@ export class Extension extends Device
 
     async handleVolume(volumeValue)
     {
-        console.log("volume");
+        serverLog("volume");
         const vol = await loudness.getVolume();
         await loudness.setVolume(vol + volumeValue);
     }

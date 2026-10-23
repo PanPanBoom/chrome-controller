@@ -56,8 +56,6 @@ export class NetflixApi extends Api
 
     async searchShowsByTitle(title, filter)
     {
-        console.log(filter);
-
         const searchResult = await this.apiClient.showsApi.searchShowsByFilters({
             keyword: title,
             outputLanguage: 'fr',

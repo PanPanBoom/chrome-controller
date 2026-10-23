@@ -8,6 +8,7 @@ import 'dotenv/config';
 import { ApiManager } from "./APIs/ApiManager.js";
 import Bonjour from 'bonjour';
 import { state } from "./state.js";
+import { serverLog } from './utils.js'
 
 const bonjour = new Bonjour();
 
@@ -34,7 +35,7 @@ export default function remoteRoutes(io) {
     });
 
     router.get('/apps', (req, res) => {
-        console.log('Apps demandées');
+        serverLog('Apps demandées');
         res.json(apps.map(app => ({
             ...app,
             filters: ApiManager.getFilters(app.name.toLowerCase())
@@ -42,18 +43,18 @@ export default function remoteRoutes(io) {
     });
     
     router.get('/config/commands', (req, res) => {
-        console.log(`Constantes chargées : ${JSON.stringify(remoteConstants)}`);
+        serverLog(`Constantes chargées : ${JSON.stringify(remoteConstants)}`);
         res.json(remoteConstants);
     });
     
     router.get('/keyboard', (req, res) => {
-        console.log("Trigger le clavier sur l'application");
+        serverLog("Trigger le clavier sur l'application");
         io.emit('keyboard');
         res.send({ status : 'ok' });
     });
 
     router.get('/topShows', (req, res) => {
-        console.log('Shows demandés');
+        serverLog('Shows demandés');
         ApiManager.getTopShows(req.query.platform.toLowerCase(), req.query.showType)
         .then(data => res.json(data));
     });
@@ -64,7 +65,7 @@ export default function remoteRoutes(io) {
     });
 
     router.get('/searchShow', (req, res) => {
-        console.log('Recherche de show: ' + req.query.search);
+        serverLog('Recherche de show: ' + req.query.search);
         ApiManager.searchShowsByTitle(req.query.platform.toLowerCase(), req.query.search, req.query.filter)
         .then(data => res.json(data));
     });
@@ -92,7 +93,7 @@ export default function remoteRoutes(io) {
         res.flushHeaders();
         const send = (obj) => res.write(JSON.stringify(obj) + '\n');
 
-        // console.log(id, episodeInfo);
+        // serverLog(id, episodeInfo);
         
         let first = true;
         const sources = await ApiManager.apis.tmdb.findAvailableSources(req.query.showId, episodeInfo && JSON.parse(decodeURIComponent(episodeInfo)), () => {
@@ -111,7 +112,7 @@ export default function remoteRoutes(io) {
 
     router.post('/videoUpdate', (req, res) => {
         const { onVideoPage } = req.body;
-        console.log('update video : ' + onVideoPage);
+        serverLog('update video : ' + onVideoPage);
         io.emit(`video${onVideoPage ? 'Enabled' : 'Disabled'}`);
 
         res.send({ status: 'ok' });
@@ -132,16 +133,16 @@ export default function remoteRoutes(io) {
             });
         });
 
-        console.log('Recherche des appareils sur le réseau local...');
+        serverLog('Recherche des appareils sur le réseau local...');
 
         setTimeout(() => {
             bonjourBrower.stop();
-            console.log(state?.currentDevice?.ip);
+            serverLog(state?.currentDevice?.ip);
             const orderedDevices = [
                 devices.splice(devices.findIndex(device => device.ip === state?.currentDevice?.ip), 1)[0],
                 ...devices
             ];
-            console.log(orderedDevices);
+            serverLog(orderedDevices);
             res.json(orderedDevices);
         }, 3000);
     });

@@ -1,3 +1,5 @@
+import { serverLog } from "./utils.js";
+
 export class FetcherWithCache
 {
     constructor()
@@ -26,7 +28,7 @@ export class FetcherWithCache
             lastFetch: Date.now()
         }
 
-        console.log(`${id}${key !== "" ? '.' + key : ""}: data added to cache`);
+        serverLog(`${id}${key !== "" ? '.' + key : ""}: data added to cache`);
     }
 
     async fetchWithCache(id, key, fetcher)
@@ -34,11 +36,11 @@ export class FetcherWithCache
         const cachedData = this.getCache(id, key);
         if(cachedData !== null)
         {
-            console.log(`${id}${key !== "" ? '.' + key : ""}: cached data`);
+            serverLog(`${id}${key !== "" ? '.' + key : ""}: cached data`);
             return cachedData; 
         }
 
-        console.log(`${id}${key !== "" ? '.' + key : ""}: no cached data`);
+        serverLog(`${id}${key !== "" ? '.' + key : ""}: no cached data`);
 
         let data = await fetcher();
         this.addToCache(id, key, data);

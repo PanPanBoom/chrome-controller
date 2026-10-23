@@ -1,4 +1,5 @@
 import { FetcherWithCache } from "../FetcherWithCache.js";
+import { serverLog } from "../utils.js";
 
 export class Source extends FetcherWithCache
 {
@@ -18,7 +19,7 @@ export class Source extends FetcherWithCache
 
     async getShowUrl(id, episodeInfo = null, language)
     {
-        console.log(`Getting ${id} ${id.includes("tv") ? `(Episode ${episodeInfo?.episode ?? 1} from season ${episodeInfo?.season ?? 1}) ` : ""}URL from ${this.baseUrl}...`);
+        this.log(`Getting ${id} ${id.includes("tv") ? `(Episode ${episodeInfo?.episode ?? 1} from season ${episodeInfo?.season ?? 1}) ` : ""}URL from ${this.name}...`);
         return this.fetchWithCache(this.generateIdentifier(id, episodeInfo, language), 'url', () => this.fetchUrl(id, episodeInfo, language));
     }
 
@@ -29,7 +30,7 @@ export class Source extends FetcherWithCache
 
     async getShowVideoInfo(id, episodeInfo = null, language)
     {
-        console.log(`Getting ${id} ${id.includes("tv") ? `(Episode ${episodeInfo?.episode ?? 1} from season ${episodeInfo?.season ?? 1}) ` : ""}source video from ${this.baseUrl}...`);
+        this.log(`Getting ${id} ${id.includes("tv") ? `(Episode ${episodeInfo?.episode ?? 1} from season ${episodeInfo?.season ?? 1}) ` : ""}source video from ${this.name}...`);
         return this.fetchWithCache(this.generateIdentifier(id, episodeInfo, language), 'videoInfo', () => this.fetchVideoInfo(id, episodeInfo, language));
     }
 
@@ -40,7 +41,7 @@ export class Source extends FetcherWithCache
 
     async checkShowAvailability(id, episodeInfo = null, language)
     {
-        console.log(`Checking if ${id} ${id.includes("tv") ? `(Episode ${episodeInfo?.episode ?? 1} from season ${episodeInfo?.season ?? 1}) ` : ""}is available on ${this.baseUrl}...`);
+        this.log(`Checking if ${id} ${id.includes("tv") ? `(Episode ${episodeInfo?.episode ?? 1} from season ${episodeInfo?.season ?? 1}) ` : ""}is available on ${this.name}...`);
         return this.fetchWithCache(this.generateIdentifier(id, episodeInfo, language), 'availability', () => this.fetchAvailability(id, episodeInfo, language));
     }
 
@@ -51,7 +52,6 @@ export class Source extends FetcherWithCache
 
     log(log)
     {
-        const time = new Date();
-        console.log(`[${time.getUTCHours()}:${time.getUTCMinutes()}:${time.getUTCSeconds()}:${time.getUTCMilliseconds()}] ${this.name}:`, log);
+        serverLog(`${this.name}:`, log);
     }
 }

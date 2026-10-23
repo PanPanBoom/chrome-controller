@@ -7,6 +7,7 @@ import { state } from './src/state.js';
 import { Extension } from './src/devices/Extension.js';
 import { AndroidTv } from './src/devices/AndroidTv.js';
 import { io, app, server } from './src/io.js';
+import { serverLog } from './src/utils.js'
 
 process.on('uncaughtException', (err) => {
     console.error("uncaughtException:", err.message);
@@ -27,13 +28,13 @@ io.on("connection", (socket) => {
         if(role === "extension")
         {
             isExtensionConnected = true;
-            console.log("Navigateur détecté");
+            serverLog("Navigateur détecté");
         }
     });
 
     socket.on('disconnect', () => {
         isExtensionConnected = false;
-        console.log("Deconnexion de l'extension");
+        serverLog("Deconnexion de l'extension");
     });
 })
 
@@ -45,7 +46,7 @@ app.use('/remote', remoteRoutes(io));
 app.post('/volume', async (req, res) => {
     const { volumeValue } = req.body;
 
-    console.log(`Volume : ${volumeValue > 0 ? "+" : ""}${volumeValue}`);
+    serverLog(`Volume : ${volumeValue > 0 ? "+" : ""}${volumeValue}`);
 
     state.currentDevice.handleVolume(volumeValue);
     
@@ -65,7 +66,7 @@ app.post('/addFavorite', async (req, res) => {
     showApiData.title = currentShowTitle;
     
     saveShow(showApiData);
-    console.log(`${currentShowTitle} added to favorites`);
+    serverLog(`${currentShowTitle} added to favorites`);
     
     res.send({ status: 'ok' });
 });
@@ -73,7 +74,7 @@ app.post('/addFavorite', async (req, res) => {
 app.delete('/removeFavorite', async (req, res) => {
     removeShowByTitle(currentShowTitle);
 
-    console.log(`${currentShowTitle} removed from favorites`);
+    serverLog(`${currentShowTitle} removed from favorites`);
     
     res.send({ status: 'ok' });
 });
@@ -81,7 +82,7 @@ app.delete('/removeFavorite', async (req, res) => {
 app.post('/showUpdate', async (req, res) => {
     const { title } = req.body;
     currentShowTitle = title.split('(')[0].trimEnd();
-    console.log('new show sent by extension:', title);
+    serverLog('new show sent by extension:', title);
     if(title === "")
         io.emit('disabledFavorite');
     else
@@ -111,7 +112,7 @@ app.post('/connectTv', async (req, res) => {
 app.post('/tvCode', async (req, res) => {
     const { code } = req.body;
 
-    console.log(`Received code: ${code}`);
+    serverLog(`Received code: ${code}`);
 
     if (!state.currentDevice)
         return res.status(400).send({ status: 'error', message: 'No device connected' });
@@ -122,7 +123,7 @@ app.post('/tvCode', async (req, res) => {
 });
 
 app.put('/updateStartTime', (req, res) => {
-    console.log(req.body);
+    serverLog(req.body);
     const { showId, nextStartTime, episodeInfo, percentageWatched } = req.body;
 
     upsertNextStartTime(showId, episodeInfo, nextStartTime, percentageWatched);
@@ -150,5 +151,5 @@ app.post('/showEnd', async (req, res) => {
 })
 
 server.listen(3000, '0.0.0.0', () => {
-    console.log('Serveur actif sur localhost:3000');
+    serverLog('Serveur actif sur localhost:3000');
 });

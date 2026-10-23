@@ -1,4 +1,5 @@
 import patchright from 'patchright';
+import { serverLog } from './utils.js'
 
 export class ScrappingBrowser {
     static #contextPromise = null;
@@ -6,7 +7,7 @@ export class ScrappingBrowser {
 
     static async getContext() {
         if (!this.#contextPromise) {
-            console.log("Creating ScrappingBrowser...");
+            serverLog("Creating ScrappingBrowser...");
             this.#contextPromise = patchright.chromium.launchPersistentContext('./profile', {
                     channel: 'chrome',
                     headless: false,
@@ -29,7 +30,7 @@ export class ScrappingBrowser {
     }
 
     static async getNewPage() {
-        console.log("Opening new page");
+        serverLog("Opening new page");
         const context = await this.getContext();
         return await context.newPage();
     }
