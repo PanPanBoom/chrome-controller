@@ -53,9 +53,8 @@ export class MappleTVSource extends Source
         this.lastIntentFetched = null;
     }
 
-    getShowUrl(id, episodeInfo = null)
+    fetchUrl(id, episodeInfo = null)
     {
-        super.getShowUrl(id, episodeInfo);
         return `${this.watchUrl}/${id}${id.includes('tv') ? `-${episodeInfo?.season ?? 1}-${episodeInfo?.episode ?? 1}` : ''}`;
     }
 
@@ -79,7 +78,7 @@ export class MappleTVSource extends Source
         
         if(challengeRes.status !== 200)
         {
-            console.log(`Error ${challengeRes.status} while resolving challenge: ${challengeRes.statusText}`);
+            this.log(`Error ${challengeRes.status} while resolving challenge: ${challengeRes.statusText}`);
             return "";
         }
 
@@ -90,7 +89,7 @@ export class MappleTVSource extends Source
 
     async getVideoUrlFromSource(mediaId, episodeInfo, mediaType, requestToken, videoToken, source)
     {
-        console.log('Fetching for source ' + source);
+        this.log('Fetching for source ' + source);
     
         const encryptRes = await fetch(`${this.apiUrl}/encrypt`, {
             headers: this.baseHeaders,
@@ -109,7 +108,7 @@ export class MappleTVSource extends Source
 
         if(encryptRes.status !== 200)
         {
-            console.log(`Source ${source} not available, error ${encryptRes.status} while encrypting: ${encryptRes.statusText}`);
+            this.log(`Source ${source} not available, error ${encryptRes.status} while encrypting: ${encryptRes.statusText}`);
             return "";
         }
 
@@ -122,7 +121,7 @@ export class MappleTVSource extends Source
 
         if(urlRes.status !== 200)
         {
-            console.log(`Source ${source} not available, error ${urlRes.status} while getting url: ${urlRes.statusText}`);
+            this.log(`Source ${source} not available, error ${urlRes.status} while getting url: ${urlRes.statusText}`);
             return "";
         }
 
@@ -130,7 +129,7 @@ export class MappleTVSource extends Source
 
         if(!url.success)
         {
-            console.log(`Source ${source} does not have content`);
+            this.log(`Source ${source} does not have content`);
             return "";
         }
 
@@ -148,11 +147,11 @@ export class MappleTVSource extends Source
 
         if(manifestRes.status !== 200)
         {
-            console.log(`Error ${manifestRes.status} while fetching cookies: ${manifestRes.statusText}`);
+            this.log(`Error ${manifestRes.status} while fetching cookies: ${manifestRes.statusText}`);
             return;
         }
 
-        console.log('Cookies: ', manifestRes.headers.getSetCookie());
+        this.log('Cookies: ', manifestRes.headers.getSetCookie());
 
         this.baseHeaders = {
             "accept": "*/*",
@@ -165,9 +164,8 @@ export class MappleTVSource extends Source
 
     }
 
-    async getShowVideoInfo(id, episodeInfo = null)
+    async fetchVideoInfo(id, episodeInfo = null)
     {
-        super.getShowVideoInfo(id, episodeInfo);
         if(id === this.lastIdFetched && episodeInfo === this.lastEpisodeFetched)
             return { url: this.lastIntentFetched };
 
@@ -180,8 +178,7 @@ export class MappleTVSource extends Source
 
         if(sessionRes.status !== 200)
         {
-            console.log(`Error ${sessionRes.status} while fetching session: ${sessionRes.statusText}`);
-            console.log(sessionRes.body);
+            this.log(`Error ${sessionRes.status} while fetching session: ${sessionRes.statusText}`);
             return { url: '' };
         }
 
@@ -190,7 +187,7 @@ export class MappleTVSource extends Source
         const [ mediaType, realId ] = id.split('/');
 
         const token = session.token;
-        console.log("Token reçu:", token);
+        this.log("Token reçu:", token);
 
         const initRes = await fetch(`${this.apiUrl}/media-session`, {
             headers: this.baseHeaders,
@@ -205,8 +202,8 @@ export class MappleTVSource extends Source
 
         if(initRes.status !== 200)
         {
-            console.log(`Error ${initRes.status} while fetching video source: ${initRes.statusText}`);
-            console.log(await initRes.text());
+            this.log(`Error ${initRes.status} while fetching video source: ${initRes.statusText}`);
+            this.log(await initRes.text());
             return { url: "" };
         }
 
@@ -230,15 +227,14 @@ export class MappleTVSource extends Source
         return { url: "" };
     }
 
-    async checkShowAvailability(id, episodeInfo = null)
+    async fetchAvailability(id, episodeInfo = null)
     {
-        super.checkShowAvailability(id, episodeInfo);
         const videoInfo = await this.getShowVideoInfo(id, episodeInfo);
 
         return videoInfo.url !== "" ?
             [{
                 name: this.name,
-                language: 'VO'
+                language: 'VOSTFR'
             }] : 
             null;
     }

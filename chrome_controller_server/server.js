@@ -1,6 +1,4 @@
 import express from 'express';
-import http from 'http';
-import { Server } from 'socket.io';
 import remoteRoutes from './src/remote.js';
 import extensionRoutes from './src/extension.js';
 import { ApiManager } from './src/APIs/ApiManager.js';
@@ -8,6 +6,7 @@ import { getShowByTitle, removeShowById, removeShowByTitle, saveShow, upsertNext
 import { state } from './src/state.js';
 import { Extension } from './src/devices/Extension.js';
 import { AndroidTv } from './src/devices/AndroidTv.js';
+import { io, app, server } from './src/io.js';
 
 process.on('uncaughtException', (err) => {
     console.error("uncaughtException:", err.message);
@@ -17,12 +16,11 @@ process.on('unhandledRejection', (reason, promise) => {
     console.error("Promesse rejetée non gérée:", reason);
 });
 
-const app = express();
-const server = http.createServer(app);
-export const io = new Server(server, { cors: { origin: "*" } });
 let currentShowTitle = "";
 
 let isExtensionConnected = false;
+
+state.currentDevice = new Extension();
 
 io.on("connection", (socket) => {
     socket.on('identify', (role) => {

@@ -8,9 +8,8 @@ export class MovixSource extends Source
         this.apiUrl = "https://api.movix.dog/api";
     }
 
-    async getShowUrl(id, episodeInfo = null)
+    async fetchUrl(id, episodeInfo = null)
     {
-        super.getShowUrl(id, episodeInfo)
         return `${this.watchUrl}/${id}${id.includes("tv") ? `/s/${episodeInfo?.season ?? 1}/e/${episodeInfo?.episode ?? 1}` : ''}`;
     }
 
@@ -19,7 +18,7 @@ export class MovixSource extends Source
         const res = await fetch(`${this.apiUrl}/purstream/${id}/stream${id.includes('tv') ? `?season=${episodeInfo?.season ?? 1}&episode=${episodeInfo?.episode ?? 1}` : ''}`);
         if(res.status !== 200)
         {
-            console.log(`Error ${res.status} fetching Movix purstream: ${JSON.stringify(res.body)}`);
+            this.log(`Error ${res.status} fetching Movix purstream: ${JSON.stringify(res.body)}`);
             return null;
         }
 
@@ -28,10 +27,8 @@ export class MovixSource extends Source
         return showData.sources[0];
     }
 
-    async getShowVideoInfo(id, episodeInfo = null)
+    async fetchVideoInfo(id, episodeInfo = null)
     {
-        super.getShowVideoInfo(id, episodeInfo);
-
         const source = await this.fetchSource(id, episodeInfo);
 
         return {
@@ -39,11 +36,9 @@ export class MovixSource extends Source
         }
     }
 
-    async checkShowAvailability(id, episodeInfo = null)
+    async fetchAvailability(id, episodeInfo = null)
     {
-        super.checkShowAvailability(id, episodeInfo);
-
-        console.log(source);
+        const source = await this.fetchSource(id, episodeInfo);
 
         return source ?
             [{

@@ -1,5 +1,4 @@
 import { Source } from "./Source.js";
-import { ApiManager } from '../APIs/ApiManager.js';
 import { ScrappingBrowser } from "../ScrappingBrowser.js";
 import { execSync } from 'child_process';
 
@@ -41,17 +40,16 @@ function decryptPayload(arrayBuffer, url) {
 
 export class NakanimeSource extends Source
 {
-    constructor()
+    constructor(tmdbApi)
     {
         super('Nakanime', "https://nakanime.tv", "/anime");
-        this.lastTmdbId = null;
-        this.lastNakaId = null;
-        this.lastAnimeData = null;
+        this.TTL = 72 * 60 * 60 * 1000; // 3 days
+        this.tmdbApi = tmdbApi;
     }
 
     async fetchAndDecryptAPI(endpointUrl, fetchOptions)
     {
-        console.log(`Récupération de : ${endpointUrl}`);
+        this.log(`Récupération de : ${endpointUrl}`);
         
         const response = await fetch(`${this.baseUrl}${endpointUrl}`, fetchOptions);
 
@@ -59,14 +57,12 @@ export class NakanimeSource extends Source
             throw new Error(`Erreur réseau: ${response.status}`);
         }
 
-        // ⚠️ CRITIQUE : Il faut récupérer la réponse brute en binaire, pas en texte !
         const arrayBuffer = await response.arrayBuffer();
-        console.log(arrayBuffer.byteLength, response.headers.get('content-encoding'));
+        this.log(arrayBuffer.byteLength, response.headers.get('content-encoding'));
 
-        // On déchiffre la réponse en passant le buffer ET l'URL exacte
         const data = decryptPayload(arrayBuffer, endpointUrl);
         
-        console.log("JSON déchiffré avec succès !");
+        this.log("JSON déchiffré avec succès !");
         return data;
     }
 
@@ -85,24 +81,28 @@ export class NakanimeSource extends Source
             const data = JSON.parse(json);
 
             this.lastAnimeData = data.anime;
+
+            await page.close();
             
             return this.lastAnimeData;
         }
 
         catch(e)
         {
-            console.log(e);
+            this.log(e);
         }
     }
 
     async getNakaId(tmdbId)
     {
-        if(tmdbId === this.tmdbId && this.nakaId)
-            return this.nakaId;
+        if(tmdbId === this.tmdbId && this.lastNakaId)
+            return this.lastNakaId;
 
         this.lastTmdbId = tmdbId;
 
-        const tmdbInfos = await ApiManager.apis.tmdb.getShowById(tmdbId);
+        console.log(this.tmdbApi);
+
+        const tmdbInfos = await this.tmdbApi.getShowById(tmdbId);
 
         const params = new URLSearchParams();
         params.append('q', tmdbInfos.title);
@@ -123,16 +123,15 @@ export class NakanimeSource extends Source
             show.poster_url.split('w500/')[1] === tmdbInfos.img.split('original/')[1],
             show.overview === tmdbInfos.overview,
             show.title === tmdbInfos.title
-        ].filter(Boolean).length > 3);
+        ].filter(Boolean).length >= 3);
 
         this.lastNakaId = nakaShow?.id ?? -1;
 
         return this.lastNakaId;
     }
 
-    async getShowUrl(id, episodeInfo = null)
+    async fetchUrl(id, episodeInfo = null)
     {
-        super.getShowUrl(id, episodeInfo);
         const nakaId = await this.getNakaId(id);
         
         return `${this.watchUrl}/${nakaId}/${id.includes('tv') ? `season/${episodeInfo?.season ?? 1}/episode/${episodeInfo?.episode ?? 1}` : 'watch'}`;
@@ -146,7 +145,7 @@ export class NakanimeSource extends Source
             return nakaShow.episodesList[0].id;
 
         const seasonId = nakaShow.seasons.find(season => season.number === (episodeInfo?.season ?? 1)).id;
-        console.log("seasonid:", seasonId);
+        this.log("seasonid:", seasonId);
         
         return nakaShow.episodesList.find(episode => episode.seasonId === seasonId && episode.number === (episodeInfo?.episode ?? 1)).id;
     }
@@ -183,17 +182,15 @@ export class NakanimeSource extends Source
     
             catch(e)
             {
-                console.log(`Impossible to extract url from ${source.host}: ${e}`);
+                this.log(`Impossible to extract url from ${source.host}: ${e}`);
             }
         }
         
         return "";
     }
 
-    async getShowVideoInfo(id, episodeInfo = null, language = null)
+    async fetchVideoInfo(id, episodeInfo = null, language = null)
     {
-        super.getShowVideoInfo(id, episodeInfo);
-
         const nakaId = await this.getNakaId(id);
         if(nakaId < 0)
             return { url: ''}
@@ -203,10 +200,8 @@ export class NakanimeSource extends Source
         return { url: this.extractUrlFromSources(sources, language) };
     }
 
-    async checkShowAvailability(id, episodeInfo = null, language = null)
+    async fetchAvailability(id, episodeInfo = null, language = null)
     {
-        super.checkShowAvailability(id, episodeInfo);
-
         const nakaId = await this.getNakaId(id);
         if(nakaId < 0)
             return null;
@@ -230,7 +225,7 @@ export class NakanimeSource extends Source
             .map(lang => ({lang, url: this.extractUrlFromSources(sources, lang)}))
             .filter(urlByLang => urlByLang.url !== "");
 
-        console.log(urls, language);
+        this.log(urls, language);
 
         return urls.length > 0 ? 
             urls.map(url => ({

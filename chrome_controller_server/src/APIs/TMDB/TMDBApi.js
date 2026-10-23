@@ -41,11 +41,11 @@ export class TMDBApi extends Api
         this.platform = 'tmdb';
         this.sources = [
             // new StreamoSource(),
-            new NakanimeSource(),
-            // new NakastreamSource(),
-            // new MovixSource(),
-            // new NoxpulseSource(),
-            // new MappleTVSource(),
+            new NakastreamSource(),
+            new MovixSource(),
+            new NakanimeSource(this),
+            new NoxpulseSource(),
+            new MappleTVSource(),
         ]
     }
 

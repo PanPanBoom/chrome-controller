@@ -1,6 +1,6 @@
 import { Device } from "./Device.js";
 import loudness from 'loudness';
-import { io } from '../../server.js';
+import { io } from '../io.js';
 import { ApiManager } from "../APIs/ApiManager.js";
 import { remoteConstants } from "../constants.js";
 

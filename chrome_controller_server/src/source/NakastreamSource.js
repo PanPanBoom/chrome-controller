@@ -45,7 +45,7 @@ export class NakastreamSource extends Source
                     await ScrappingBrowser.close();
                 }
     
-                console.log("Logging in...");
+                this.log("Logging in...");
     
                 const loginRes = await gotScraping.post(`${this.baseUrl}/api/v1/auth/login`, {
                     json: {
@@ -85,7 +85,7 @@ export class NakastreamSource extends Source
         {
             await this.login();
     
-            console.log("Fetching nakastream id...");
+            this.log("Fetching nakastream id...");
     
             const showRes = await gotScraping.get(`${this.baseUrl}/api/v1/browse/by-tmdb/${id}`, {
                 headers: this.headers,
@@ -98,18 +98,17 @@ export class NakastreamSource extends Source
     
             const showData = JSON.parse(showRes.body);
     
-            console.log("Nakastream id: " + showData.id);
+            this.log("Nakastream id: " + showData.id);
     
             return showData.id;
         } catch(err) {
-            console.log('Error fetching nakastream id: ', err);
+            this.log('Error fetching nakastream id: ', err);
             return null;
         }
     }
 
-    async getShowUrl(id, episodeInfo = null)
+    async fetchUrl(id, episodeInfo = null)
     {
-        super.getShowUrl(id, episodeInfo);
         return `${this.watchUrl}${await this.getNakaId(id)}${id.includes('tv') ? `&season=${episodeInfo?.season ?? 1}&episode=${episodeInfo?.episode ?? 1}` : ""}`;
     }
 
@@ -121,7 +120,7 @@ export class NakastreamSource extends Source
             if(!nakaId)
                 return null;
     
-            console.log("Fetching nakastream source...");
+            this.log("Fetching nakastream source...");
     
             const resSource = await gotScraping.get(`${this.baseUrl}/api/v1/streaming/source/${nakaId}${id.includes("tv") ? `?season=${episodeInfo?.season ?? 1}&episode=${episodeInfo?.episode ?? 1}` : ""}`, {
                 headers: this.headers,
@@ -144,17 +143,15 @@ export class NakastreamSource extends Source
         }
     }
 
-    async getShowVideoInfo(id, episodeInfo)
+    async fetchVideoInfo(id, episodeInfo)
     {
-        super.getShowVideoInfo(id, episodeInfo);
-
         const source = await this.fetchSource(id, episodeInfo);
         if(!source)
             return { url : ""};
 
         const videoUrl = this.baseUrl + source.url;
 
-        console.log('Source nakastream: ' + videoUrl);
+        this.log('Source nakastream: ' + videoUrl);
 
         return {
             url: videoUrl,
@@ -164,41 +161,21 @@ export class NakastreamSource extends Source
         }
     }
 
-    async checkShowAvailability(id, episodeInfo = null)
+    async fetchAvailability(id, episodeInfo = null)
     {
-        super.checkShowAvailability(id, episodeInfo);
         try
         {
             await this.login();
 
             const source = await this.fetchSource(id, episodeInfo);
-            console.log(source);
+            this.log(source);
             
             return source ?
                 [{
                     name: this.name,
-                    language: source.audioTracks.length >= 2 ? 'Multi' : source.audioTracks[0].lang
+                    language: source?.audioTracks ? 'Multi' : `VO${source.subtitles ? 'STFR' : ''}`
                 }] :
                 null;
-    
-            // const [ mediaType, realId ] = id.split("/");
-    
-            // const res = await gotScraping.get(`${this.baseUrl}/api/v1/streaming/check/${realId}?type=${mediaType}`, {
-            //     headers: this.headers,
-            //     headerGeneratorOptions: {
-            //         browsers: [{ name: 'chrome', minVersion: 110 }],
-            //         devices: ['desktop'],
-            //         operatingSystems: ['windows']
-            //     }
-            // });
-            
-            // const availabilty = JSON.parse(res.body);
-    
-            // console.log(availabilty);
-
-            // await this.getShowVideoInfo(id, episodeInfo);
-    
-            // return availabilty.available;
         } catch (err) {
             console.error("Error checking show availability: ", err);
             return null;

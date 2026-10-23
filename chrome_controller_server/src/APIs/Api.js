@@ -1,12 +1,12 @@
 import { getShowById } from "../db.js";
+import { FetcherWithCache } from "../FetcherWithCache.js";
 
-export class Api
+export class Api extends FetcherWithCache
 {
     constructor()
     {
-        this.cache = {};
+        super();
         this.apiClient = null;
-        this.TTL = 6 * 60 * 60 * 1000;
         this.filters = [];
         this.platform = "none";
     }
