@@ -26,13 +26,6 @@ export type VideoInfo = {
   audioLanguage: ISO639_1;
 }
 
-const skipButtonLabels = {
-    'intro': 'le générique',
-    'recap': 'le récap',
-    'credits': 'les credits',
-    'preview': 'la preview'
-}
-
 export const VideoPlayer = ({ videoInfo, onVideoEnd }: { videoInfo: VideoInfo, onVideoEnd: () => void }) => {
     const [videoDuration, setVideoDuration] = useState(0);
     const [progress, setProgress] = useState(0);
@@ -219,18 +212,9 @@ export const VideoPlayer = ({ videoInfo, onVideoEnd }: { videoInfo: VideoInfo, o
                 subtitles={subtitles}
                 selectedSubtitle={selectedSubtitle ?? undefined}
                 onSelectSubtitle={(subtitle) => setSelectedSubtitle(subtitle.id === 'disabled' ? null : subtitle)}
+                currentMediaPart={currentMediaPart}
+                handleSkip={handleSkip}
             />
-            {
-                currentMediaPart &&
-                <Button
-                    className="absolute bottom-[25%] right-[5%] bg-primary/50"
-                    onFocusClassName="bg-primary"
-                    onPress={handleSkip}
-                    hasTVPreferredFocus={true}
-                    >
-                    <CustomText>{`Passer ${skipButtonLabels[currentMediaPart]}`}</CustomText>
-                </Button>
-            }
         </View>
     )
 }

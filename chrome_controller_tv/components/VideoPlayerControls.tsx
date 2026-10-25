@@ -30,14 +30,23 @@ type VideoPlayerControlsProps = {
     subtitles: Subtitles[];
     onSelectSubtitle?: (subtitle: Subtitles) => void;
     selectedSubtitle?: Subtitles;
-}
+    currentMediaPart: 'intro' | 'recap' | 'credits' | 'preview' | null;
+    handleSkip: () => void;
+};
 
 const formatTime = (time: number) => {
     const hours = Math.floor(time / 3600);
     const minutes = Math.floor((time % 3600) / 60);
     const seconds = Math.floor(time % 60);
     return `${hours > 0 ? `${hours}:` : ''}${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
-}
+};
+
+const skipButtonLabels = {
+    'intro': 'le générique',
+    'recap': 'le récap',
+    'credits': 'les credits',
+    'preview': 'la preview'
+};
 
 export const VideoPlayerControls = (props: VideoPlayerControlsProps) => {
     const [isPlaying, setIsPlaying] = useState(true);
@@ -85,53 +94,66 @@ export const VideoPlayerControls = (props: VideoPlayerControlsProps) => {
         onSeek: handleSeek
     });
 
-    if(!visible)
-        return null;
-
     return (
-        <LinearGradient colors={['rgba(0,0,0,0)', 'rgba(0,0,0,1)']} className="absolute bottom-0 left-0 right-0 py-6 px-14 gap-4">
-            <View>
-                <View className="flex-row justify-between items-end">
+        <>
+            {
+                props.currentMediaPart &&
+                <Button
+                    className="bg-primary/50 absolute bottom-[30%] right-[5%]"
+                    onFocusClassName="bg-primary"
+                    onPress={props.handleSkip}
+                    hasTVPreferredFocus={true}
+                    >
+                    <CustomText>{`Passer ${skipButtonLabels[props.currentMediaPart]}`}</CustomText>
+                </Button>
+            }
+            {
+                visible &&
+                <LinearGradient colors={['rgba(0,0,0,0)', 'rgba(0,0,0,1)']} className="absolute bottom-0 left-0 right-0 py-6 px-14 gap-4">
                     <View>
-                        <CustomTitle className="text-5xl leading-snug" adjustsFontSizeToFit>{props.title}</CustomTitle>
-                        {
-                            props.episodeInfo &&
+                        <View className="flex-row justify-between items-end">
+                            <View>
+                                <CustomTitle className="text-5xl leading-snug" adjustsFontSizeToFit>{props.title}</CustomTitle>
+                                {
+                                    props.episodeInfo &&
+                                    <CustomText className="text-secondary">
+                                        {props.episodeInfo ? `Saison ${props.episodeInfo.season} - Episode ${props.episodeInfo.episode}` : "Informations sur l'épisode"}
+                                    </CustomText>
+                                }
+                            </View>
                             <CustomText className="text-secondary">
-                                {props.episodeInfo ? `Saison ${props.episodeInfo.season} - Episode ${props.episodeInfo.episode}` : "Informations sur l'épisode"}
+                                {formatTime(props.currentTime)} / {formatTime(props.duration)}
                             </CustomText>
-                        }
+                        </View>
                     </View>
-                    <CustomText className="text-secondary">
-                        {formatTime(props.currentTime)} / {formatTime(props.duration)}
-                    </CustomText>
-                </View>
-            </View>
-            <View className="bg-secondary rounded-full h-2 flex-row">
-                <View className="bg-primary rounded-full relative" style={{ width: `${(props.currentTime / props.duration) * 100}%` }}>
-                    <View className="absolute right-0 top-1/2 w-0 items-center justify-center">
-                        <View className="w-4 rounded-full aspect-square bg-white -translate-y-1/2" />
+                    <View className="bg-secondary rounded-full h-2 flex-row">
+                        <View className="bg-primary rounded-full relative" style={{ width: `${(props.currentTime / props.duration) * 100}%` }}>
+                            <View className="absolute right-0 top-1/2 w-0 items-center justify-center">
+                                <View className="w-4 rounded-full aspect-square bg-white -translate-y-1/2" />
+                            </View>
+                        </View>
                     </View>
-                </View>
-            </View>
-            <View className="flex-row items-center justify-center relative">
-                <View className="flex-row items-center gap-6">
-                    <Button onFocusClassName="bg-secondary" className="bg-secondary/50 rounded-full p-4 aspect-square justify-center items-center" onPress={() => handleSeek(-10)}>
-                        <Rewind color={colors.text} />
-                    </Button>
-                    <Button onFocusClassName="bg-primary" onFocusStyle={{ boxShadow: [{offsetX: 0, offsetY: 0, blurRadius: 24, spreadDistance: 4, color: colors.primary}]}} className="bg-primary/50 rounded-full p-6" style={{outlineColor: colors.text, outlineWidth: 3, outlineOffset: 5}} hasTVPreferredFocus={true} onPress={handlePlayPause}>
-                        {isPlaying ? <Pause color={colors.text} size={40}/> : <Play color={colors.text} size={40} />}
-                    </Button>
-                    <Button onFocusClassName="bg-secondary" className="bg-secondary/50 rounded-full p-4 aspect-square justify-center items-center" onPress={() => handleSeek(10)}>
-                        <FastForward color={colors.text} />
-                    </Button>
-                </View>
-                <MenuButtonGroup 
-                    className="absolute right-0 gap-6 flex-row"
-                    buttonsClassName="bg-secondary/50 rounded-full p-4 aspect-square justify-center items-center"
-                    buttonsFocusClassName="bg-secondary"
-                    buttons={buttonGroupDescription}
-                />
-            </View>
-        </LinearGradient>
+                    <View className="flex-row items-center justify-center relative">
+                        <View className="flex-row items-center gap-6">
+                            <Button onFocusClassName="bg-secondary" className="bg-secondary/50 rounded-full p-4 aspect-square justify-center items-center" onPress={() => handleSeek(-10)}>
+                                <Rewind color={colors.text} />
+                            </Button>
+                            <Button onFocusClassName="bg-primary" onFocusStyle={{ boxShadow: [{offsetX: 0, offsetY: 0, blurRadius: 24, spreadDistance: 4, color: colors.primary}]}} className="bg-primary/50 rounded-full p-6" style={{outlineColor: colors.text, outlineWidth: 3, outlineOffset: 5}} hasTVPreferredFocus={true} onPress={handlePlayPause}>
+                                {isPlaying ? <Pause color={colors.text} size={40}/> : <Play color={colors.text} size={40} />}
+                            </Button>
+                            <Button onFocusClassName="bg-secondary" className="bg-secondary/50 rounded-full p-4 aspect-square justify-center items-center" onPress={() => handleSeek(10)}>
+                                <FastForward color={colors.text} />
+                            </Button>
+                        </View>
+                        <MenuButtonGroup 
+                            className="absolute right-0 gap-6 flex-row"
+                            buttonsClassName="bg-secondary/50 rounded-full p-4 aspect-square justify-center items-center"
+                            buttonsFocusClassName="bg-secondary"
+                            buttons={buttonGroupDescription}
+                        />
+                    </View>
+                </LinearGradient>
+            }
+        </>
     )
 }
