@@ -123,8 +123,10 @@ app.post('/tvCode', async (req, res) => {
 });
 
 app.put('/updateStartTime', (req, res) => {
-    serverLog(req.body);
     const { showId, nextStartTime, episodeInfo, percentageWatched } = req.body;
+    
+    if(percentageWatched % 25 === 0)
+        serverLog(req.body);
 
     upsertNextStartTime(showId, episodeInfo, nextStartTime, percentageWatched);
 

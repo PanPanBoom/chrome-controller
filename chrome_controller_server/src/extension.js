@@ -54,7 +54,7 @@ export default function extensionRoutes(io) {
 
         serverLog(`Casting ${id} from ${platform} ${episodeInfo?.season ? `(Episode ${episodeInfo.episode} from Season ${episodeInfo.season})` : ""}`);
 
-        await state.currentDevice.castShow(platform, id, episodeInfo, startTime, source, language);
+        await state.currentDevice.castShow(platform, id, episodeInfo, source, startTime, language);
         res.send({ status: 'ok' });
     });
 
@@ -145,7 +145,6 @@ export default function extensionRoutes(io) {
 
             const validSubtitles = checkedSubtitles.filter(Boolean);
             validSubtitles.sort((a, b) => b.fiability - a.fiability);
-            console.log(validSubtitles);
 
             // serverLog("Subtitles: ", validSubtitles);
 

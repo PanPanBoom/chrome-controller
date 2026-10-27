@@ -61,7 +61,6 @@ export class NakanimeSource extends Source
         }
 
         const arrayBuffer = await response.arrayBuffer();
-        this.log(arrayBuffer.byteLength, response.headers.get('content-encoding'));
 
         const data = decryptPayload(arrayBuffer, endpointUrl);
         
@@ -71,9 +70,6 @@ export class NakanimeSource extends Source
 
     async getAnimeData(nakaId)
     {
-        if(nakaId === this.lastNakaId && this.lastAnimeData)
-            return this.lastAnimeData;
-
         try
         {
             const page = await ScrappingBrowser.getNewPage();
@@ -83,11 +79,9 @@ export class NakanimeSource extends Source
             const json = await page.locator('script#anime-data').textContent();
             const data = JSON.parse(json);
 
-            this.lastAnimeData = data.anime;
-
             await page.close();
             
-            return this.lastAnimeData;
+            return data.anime;
         }
 
         catch(e)
@@ -98,13 +92,6 @@ export class NakanimeSource extends Source
 
     async getNakaId(tmdbId)
     {
-        if(tmdbId === this.tmdbId && this.lastNakaId)
-            return this.lastNakaId;
-
-        this.lastTmdbId = tmdbId;
-
-        this.log(this.tmdbApi);
-
         const tmdbInfos = await this.tmdbApi.getShowById(tmdbId);
 
         const params = new URLSearchParams();
@@ -128,9 +115,7 @@ export class NakanimeSource extends Source
             show.title === tmdbInfos.title
         ].filter(Boolean).length >= 3);
 
-        this.lastNakaId = nakaShow?.id ?? -1;
-
-        return this.lastNakaId;
+        return nakaShow?.id ?? -1;
     }
 
     async fetchUrl(id, episodeInfo = null)

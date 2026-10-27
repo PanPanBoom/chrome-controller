@@ -91,7 +91,7 @@ export class AndroidTv extends Device {
         this.remote.sendAppLink(url);
     }
 
-    async castShow(platform, id, episodeInfo = null, startTime = 0, source = null, audioLanguage = 'fr')
+    async castShow(platform, id, episodeInfo = null, source = null, startTime = 0, audioLanguage = 'fr')
     {
         const finalEpisodeInfo = id.includes('tv') && !episodeInfo ? { season: 1, episode: 1 } : episodeInfo;
 

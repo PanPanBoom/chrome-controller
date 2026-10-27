@@ -1,14 +1,8 @@
 import { Api } from "../Api.js";
 import 'dotenv/config';
-import { NakastreamSource } from "../../source/NakastreamSource.js";
-import { NoxpulseSource } from "../../source/NoxpulseSource.js";
-import { MappleTVSource } from "../../source/MappleTVSource.js";
-import { state } from "../../state.js";
 import { getAllShows, getShowsByFilter, getShowById } from "../../db.js";
 import { baseListsFilters, specificListsFilters } from "./lists.js";
-import { MovixSource } from "../../source/MovixSource.js";
-import { NakanimeSource } from "../../source/NakanimeSource.js";
-import { serverLog } from '../../utils.js'
+import { ShowScrapper } from "../../source/ShowScrapper.js";
 
 const dateParser = (dateString) => {
     if (!dateString) return null;
@@ -40,14 +34,7 @@ export class TMDBApi extends Api
         ];
         this.imageBaseUrl = "https://image.tmdb.org/t/p/original";
         this.platform = 'tmdb';
-        this.sources = [
-            // new StreamoSource(),
-            new NakastreamSource(),
-            new MovixSource(),
-            new NakanimeSource(this),
-            new NoxpulseSource(),
-            new MappleTVSource(),
-        ]
+        this.scrapper = new ShowScrapper(this);
     }
 
     async fetchApi(endpoint)
@@ -77,6 +64,7 @@ export class TMDBApi extends Api
     async getLists(filter)
     {
         const lists = await super.getLists(filter);
+
         return {
             "Reprendre": await Promise.all((filter === "all" ? getAllShows() : getShowsByFilter(filter)).map((show) => this.getShowMinimalById(show.id))),
             ...lists
@@ -100,10 +88,40 @@ export class TMDBApi extends Api
             return [];
         }));
 
+        // serverLog(await this.getListById(84979, filter));
+
         return {
             ...Object.fromEntries(specificListsArray.flat()),
+            ...(await this.getListById(84979, filter)),
             ...Object.fromEntries(baseListsArray)
         }
+    }
+
+    async getListById(listId, filter)
+    {
+        const get = async (page) => {
+            const params = new URLSearchParams();
+            params.append('language', 'fr-FR');
+            params.append('page', page);
+
+            const res = await this.fetchApi(`list/${listId}?${params}`);
+            return await res.json();
+        }
+
+        const first = await get(1);
+        const last = Math.ceil(first.item_count / first.items.length);
+
+        const rest = await Promise.all(Array.from({ length: Math.max(0, last - 1) }, (_, i) => get(i + 2)));
+
+        const items = [first, ...rest].flatMap((r) => r.items).map(show => this.formatForCarousel(
+            `${show.media_type}/${show.id}`,
+            show.title ?? show.name,
+            this.imageBaseUrl + show.backdrop_path,
+            show.overview,
+            show.media_type
+        ));
+
+        return { [first.name]: filter === 'all' ? items : items.filter(item => item.media_type === filter) };
     }
 
     async discoverShows(filter, paramsObject)
@@ -336,103 +354,24 @@ export class TMDBApi extends Api
 
     async checkShowAvailability(id, episodeInfo)
     {
-        for (const source of this.sources)
-            if (await source.checkShowAvailability(id, episodeInfo))
-                return true;
-
-        return false;
+        return await this.scrapper.checkShowAvailability(id, episodeInfo);
     }
 
     async findAvailableSources(id, episodeInfo, onFound)
     {
-        const availableSources = [];
-
-        await Promise.all(this.sources.map(async (source) => {
-            try
-            {
-                const fetchedSources = await source.checkShowAvailability(id, episodeInfo);
-                if(fetchedSources)
-                {
-                    for(const sourceNameWithLanguage of fetchedSources)
-                        availableSources.push(sourceNameWithLanguage);
-
-                    onFound?.();
-                }
-            }
-
-            catch(e)
-            {
-                serverLog(`Source ${source.name} failed:`, e);
-            }
-        }));
-
-        serverLog('Sources found');
-
-        return availableSources;
+        return await this.scrapper.findAvailableSources(id, episodeInfo, onFound);
     }
 
-    async getShowLink(id, episodeInfo = null)
+    async getShowLink(id, episodeInfo = null, sourceName = null)
     {
-        for (const source of this.sources)
-        {
-            if (await source.checkShowAvailability(id, episodeInfo))
-            {
-                serverLog("Show available on " + source.baseUrl);
-                return await source.getShowUrl(id, episodeInfo);
-            }
-        }
-
-        return null;
+        return await this.scrapper.getShowLink(id, episodeInfo, sourceName);
     }
 
     async getShowIntent(id, episodeInfo = null, startTime = 0, sourceName = null, audioLanguage = 'fr')
     {
-        if(sourceName)
-        {
-            const source = this.sources.find(source => source.name === sourceName);
-            if(await source.checkShowAvailability(id, episodeInfo, audioLanguage))
-                return this.getIntentFromSource(id, episodeInfo, startTime, source, audioLanguage);
-            else
-                return null;
-        }
-
-        for (const source of this.sources)
-        {
-            if (await source.checkShowAvailability(id, episodeInfo))
-                return this.getIntentFromSource(id, episodeInfo, startTime, source, audioLanguage);
-        }
-
-        return null;
-    }
-
-    async getIntentFromSource(id, episodeInfo = null, startTime = 0, source = null, audioLanguage = 'fr')
-    {
         const showInfos = await this.getShowById(id);
-        serverLog("Show available on " + source.baseUrl);
+        const intent = await this.scrapper.getShowIntent(id, episodeInfo, startTime, sourceName, audioLanguage);
 
-        const videoInfo = await source.getShowVideoInfo(id, episodeInfo, audioLanguage);
-        serverLog(videoInfo);
-
-        const params = new URLSearchParams();
-
-        params.append('showId', id);
-        if(episodeInfo)
-            params.append('episodeInfo', encodeURIComponent(JSON.stringify(episodeInfo)));
-
-        params.append('title', encodeURIComponent(showInfos.title));
-        params.append('url', encodeURIComponent(videoInfo.url));
-        params.append('referer', encodeURIComponent(videoInfo.referer));
-        params.append('cookies', encodeURIComponent(videoInfo.cookies));
-        if(videoInfo.type)
-            params.append('type', videoInfo.type);
-
-        params.append('userAgent', encodeURIComponent(videoInfo.userAgent));
-        params.append('serverIp', encodeURIComponent(state.serverIp));
-        params.append('startTime', startTime);
-        params.append('audioLanguage', audioLanguage);
-
-        serverLog(`Starting show at ${startTime / 1000}s`);
-
-        return `chromecontroller://play?${params}`;
+        return intent + '&title=' + showInfos.title;
     }
 }

@@ -50,8 +50,8 @@ export class Source extends FetcherWithCache
         throw new Error("Must be implemented.");
     }
 
-    log(log)
+    log(...logs)
     {
-        serverLog(`${this.name}:`, log);
+        serverLog(`${this.name}:`, ...logs);
     }
 }

@@ -1,3 +1,4 @@
+
 import { Device } from "./Device.js";
 import loudness from 'loudness';
 import { io } from '../io.js';
@@ -32,9 +33,9 @@ export class Extension extends Device
         }
     }
 
-    async castShow(platform, id, episodeInfo)
+    async castShow(platform, id, episodeInfo = null, source = null)
     {
-        const link = await ApiManager.getShowLink(platform, id, episodeInfo);
+        const link = await ApiManager.getShowLink(platform, id, episodeInfo, source);
 
         await this.openUrl(link);
     }

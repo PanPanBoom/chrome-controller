@@ -1,3 +1,4 @@
+import { serverLog } from "../utils.js";
 import { Source } from "./Source.js";
 
 export class MovixSource extends Source
@@ -43,7 +44,7 @@ export class MovixSource extends Source
         return source ?
             [{
                 name: this.name,
-                language: source.name.split('| ')[2]
+                language: source.name.split('| ')[2] ?? "Multi"
             }] :
             null;
     }

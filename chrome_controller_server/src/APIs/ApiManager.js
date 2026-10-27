@@ -47,9 +47,9 @@ export class ApiManager
         return await this.apis.tmdb.getSeasonById(showId, seasonNumber);
     }
 
-    static async getShowLink(platform, id, episodeInfo = null)
+    static async getShowLink(platform, id, episodeInfo = null, source = null)
     {
-        return await this.apis[platform].getShowLink(id, episodeInfo);
+        return await this.apis[platform].getShowLink(id, episodeInfo, source);
     }
 
     static async getShowIntent(platform, id, episodeInfo = null, startTime = 0, source = null, audioLanguage = 'fr')
