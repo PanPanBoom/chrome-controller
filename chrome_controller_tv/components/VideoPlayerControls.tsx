@@ -115,9 +115,9 @@ export const VideoPlayerControls = (props: VideoPlayerControlsProps) => {
                             <View>
                                 <CustomTitle className="text-5xl leading-snug" adjustsFontSizeToFit>{props.title}</CustomTitle>
                                 {
-                                    props.episodeInfo &&
+                                    props.episodeInfo?.season &&
                                     <CustomText className="text-secondary">
-                                        {props.episodeInfo ? `Saison ${props.episodeInfo.season} - Episode ${props.episodeInfo.episode}` : "Informations sur l'épisode"}
+                                        Saison {props.episodeInfo.season} - Episode {props.episodeInfo.episode}
                                     </CustomText>
                                 }
                             </View>

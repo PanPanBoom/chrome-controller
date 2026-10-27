@@ -146,10 +146,6 @@ export const VideoPlayer = ({ videoInfo, onVideoEnd }: { videoInfo: VideoInfo, o
         setSubtitles([]);
         setAudioTracks([]);
     }, [videoInfo]);
-
-    useEffect(() => {
-        console.log(selectedSubtitle);
-    }, [selectedSubtitle]);
     
     return (
         <View>
