@@ -58,6 +58,13 @@ export const specificListsFilters = {
         }
     },
     "tv": {
+        "Nouvel épisode aujourd'hui": {
+            'include_adult': false,
+            'sort_by': 'popularity.desc',
+            'air_date.lte': toYMD(today),
+            'air_date.gte': toYMD(today),
+            'without_genres': '10767,10763,10764,10766'
+        },
         "En cours de diffusion": {
             'include_adult': false,
             'sort_by': 'popularity.desc',

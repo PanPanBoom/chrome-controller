@@ -58,6 +58,11 @@ export const Episode = (props: EpisodeProps) => {
         outputRange: ['0deg', '90deg']
     });
 
+    const informations = [
+        props.episode.runtime ? `${props.episode.runtime}min` : null,
+        props.episode.air_date ?? null
+    ].filter(Boolean);
+
     return (
         <Pressable 
             className={cn("flex-row gap-4 rounded-xl items-center p-2", expanded && "bg-background-light")} 
@@ -79,7 +84,7 @@ export const Episode = (props: EpisodeProps) => {
                             expandAnimation.setValue(0)
                         }
                     }}>
-                        <CustomText className="text-xs text-secondary">{props.episode.runtime ? `${props.episode.runtime}min` : ''}</CustomText>
+                        <CustomText className="text-xs text-secondary">{informations.join(' | ')}</CustomText>
                         <CustomText className="text-sm text-justify">{props.episode.overview}</CustomText>
                         <WatchButton showId={props.showId} episodeInfo={{ season: props.episode.season_number, episode: props.episode.episode_number }} shouldCheck={expanded}/>
                     </View>

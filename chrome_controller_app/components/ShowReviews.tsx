@@ -23,8 +23,6 @@ export const ShowReviews = (props: ShowReviewsProps) => {
         .then(data => setReviews(data));
     }, []);
 
-    console.log(reviews);
-
     if(!reviews)
         return (
             <View>

@@ -304,7 +304,7 @@ export class TMDBApi extends Api
                         title: episode.name,
                         overview: episode.overview,
                         img: episode.still_path ? this.imageBaseUrl + episode.still_path : null,
-                        air_date: episode.air_date,
+                        air_date: dateParser(episode.air_date),
                         episode_number: episode.episode_number,
                         runtime: episode.runtime,
                         season_number: episode.season_number
