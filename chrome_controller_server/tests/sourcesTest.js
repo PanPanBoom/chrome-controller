@@ -4,7 +4,6 @@ import { MovixSource } from "../src/source/MovixSource.js";
 import { NakastreamSource } from "../src/source/NakastreamSource.js";
 import { NoxpulseSource } from "../src/source/NoxpulseSource.js";
 import { NakanimeSource } from "../src/source/NakanimeSource.js";
-import { MovieWebSource } from "../src/source/MovieWebSource.js";
 import { serverLog } from '../src/utils.js'
 
 const fightClubId = 'movie/550';
@@ -13,8 +12,7 @@ const sources = [
     new NakastreamSource(),
     new MovixSource(),
     new NoxpulseSource(),
-    new MappleTVSource(),
-    new MovieWebSource()
+    new MappleTVSource()
 ];
 
 const testSource = async (source, showId) => {
@@ -36,7 +34,7 @@ for(const source of sources)
     await testSource(source, fightClubId);
 }
 
-// const narutoId = 'tv/46260';
+const narutoId = 'tv/46260';
 
-// const animeSource = new NakanimeSource(new TMDBApi());
-// testSource(animeSource, narutoId);
+const animeSource = new NakanimeSource(new TMDBApi());
+testSource(animeSource, narutoId);
