@@ -63,14 +63,14 @@ export default function Show()
                             }
                         </View>
                         <View className="flex-row gap-2 justify-center">
-                            <RatingBox rating={showData.vote_average} />
+                            <RatingBox rating={showData.vote_average} ratersNb={showData.vote_count}/>
                             <IconTextLabel
                                 icon={Clock}
                                 text={showData.runtime ? showData.runtime >= 60 ? `${Math.floor(showData.runtime / 60)}h ${showData.runtime % 60}min` : `${showData.runtime}min` : ''}
                             />
                             <IconTextLabel
                                 icon={Tv} 
-                                text={'seasons' in showData ? `${showData.number_of_seasons} saisons (${showData.number_of_episodes} épisodes)` : ''}
+                                text={'seasons' in showData ? `${showData.number_of_seasons} saisons (${showData.number_of_episodes} ép.)` : ''}
                             />
                             <IconTextLabel 
                                 icon={Calendar}

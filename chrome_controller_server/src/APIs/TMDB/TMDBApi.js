@@ -223,6 +223,7 @@ export class TMDBApi extends Api
                         release_date: show.release_date ? dateParser(show.release_date) : dateParser(show.first_air_date),
                         runtime: show.runtime,
                         vote_average: Math.round(show.vote_average * 100) / 100,
+                        vote_count: show.vote_count,
                         cast: show?.credits?.cast?.map(castMember => ({
                             id: castMember.id,
                             name: castMember.name,
