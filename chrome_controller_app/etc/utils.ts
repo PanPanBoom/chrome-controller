@@ -36,3 +36,8 @@ export const scanNetwork = async () => {
 
     return foundServers;
   }
+
+  export const parseFRDate = (s: string): Date => {
+    const [day, month, year] = s.split('/').map(Number);
+    return new Date(year, month - 1, day);
+  }

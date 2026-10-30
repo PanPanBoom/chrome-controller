@@ -21,6 +21,7 @@ import { ShowReviews } from "@/components/ShowReviews";
 import { RatingBox } from "@/components/RatingBox";
 import { WatchButton } from "@/components/WatchButton";
 import { IconTextLabel } from "@/components/ui/IconTextLabel";
+import { parseFRDate } from "@/etc/utils";
 
 export default function Show()
 {
@@ -28,6 +29,8 @@ export default function Show()
     const { id, mediaType } = useLocalSearchParams<{ id: string; mediaType: string }>();
     const { server } = useContext(AppContext);
     const [showData, setShowData] = useState<MovieDTO | SeriesDTO | null>(null);
+
+    const released = showData ? parseFRDate(showData.release_date) <= new Date() : true;
 
     useEffect(() => {
         getShowById(server.ip, `${mediaType}/${id}`)
@@ -88,11 +91,11 @@ export default function Show()
                             }
                         </ScrollView>
                         <View className="flex-row gap-2">
-                            <WatchButton showId={showData.id} nextStartTime={showData.nextStartTime} episodeInfo={showData.currentEpisodeInfo} className="flex-1"/>
+                            <WatchButton showId={showData.id} nextStartTime={showData.nextStartTime} episodeInfo={showData.currentEpisodeInfo} release_date={showData.release_date} className="flex-1"/>
                             {
                                 showData.trailer &&
-                                <Button className="bg-transparent" onPress={() => sendShowCast(server.ip, 'youtube', showData.trailer)}>
-                                    <CustomText className="text-primary">Trailer</CustomText>
+                                <Button className={released ? "bg-transparent" : "flex-1 bg-primary rounded-full"} onPress={() => sendShowCast(server.ip, 'youtube', showData.trailer)}>
+                                    <CustomText className={released ? "text-primary" : "text-background text-lg"}>Trailer</CustomText>
                                 </Button>
                             }
                         </View>

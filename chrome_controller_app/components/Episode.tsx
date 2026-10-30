@@ -86,7 +86,7 @@ export const Episode = (props: EpisodeProps) => {
                     }}>
                         <CustomText className="text-xs text-secondary">{informations.join(' | ')}</CustomText>
                         <CustomText className="text-sm text-justify">{props.episode.overview}</CustomText>
-                        <WatchButton showId={props.showId} episodeInfo={{ season: props.episode.season_number, episode: props.episode.episode_number }} shouldCheck={expanded}/>
+                        <WatchButton showId={props.showId} episodeInfo={{ season: props.episode.season_number, episode: props.episode.episode_number }} shouldCheck={expanded} release_date={props.episode.air_date}/>
                     </View>
                 </Animated.View>
             </View>

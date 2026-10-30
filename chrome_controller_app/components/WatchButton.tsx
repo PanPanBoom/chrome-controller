@@ -6,7 +6,7 @@ import { AppContext } from "@/contexts/appContext";
 import { Ban, ChevronDown, ChevronUp, Play } from "lucide-react-native";
 import { CustomText } from "./ui/CustomText";
 import { colors } from "@/constants/colors";
-import { cn } from "@/etc/utils";
+import { cn, parseFRDate } from "@/etc/utils";
 
 type WatchButtonProps = ViewProps & {
     showId: string;
@@ -14,6 +14,7 @@ type WatchButtonProps = ViewProps & {
         season: number;
         episode: number;
     };
+    release_date?: string;
     nextStartTime?: number;
     shouldCheck?: boolean;
 }
@@ -55,6 +56,9 @@ export const WatchButton = ({ showId, episodeInfo, nextStartTime = 0, shouldChec
             );
         }
     }, [shouldCheck]);
+
+    if(props.release_date && parseFRDate(props.release_date) > new Date())
+        return null;
 
     return (
         <View className={cn("flex-row gap-[1px] z-50", className)}>
