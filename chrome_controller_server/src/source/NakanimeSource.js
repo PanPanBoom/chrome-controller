@@ -90,7 +90,7 @@ export class NakanimeSource extends Source
         }
     }
 
-    async getNakaId(tmdbId)
+    async fetchInternalId(tmdbId)
     {
         const tmdbInfos = await this.tmdbApi.getShowById(tmdbId);
 
@@ -120,7 +120,7 @@ export class NakanimeSource extends Source
 
     async fetchUrl(id, episodeInfo = null)
     {
-        const nakaId = await this.getNakaId(id);
+        const nakaId = await this.getInternalId(id);
         
         return `${this.watchUrl}/${nakaId}/${id.includes('tv') ? `season/${episodeInfo?.season ?? 1}/episode/${episodeInfo?.episode ?? 1}` : 'watch'}`;
     }
@@ -206,7 +206,7 @@ export class NakanimeSource extends Source
 
     async fetchVideoInfo(id, episodeInfo = null, language = null)
     {
-        const nakaId = await this.getNakaId(id);
+        const nakaId = await this.getInternalId(id);
         if(nakaId < 0)
             return { url: ''}
 
@@ -217,7 +217,7 @@ export class NakanimeSource extends Source
 
     async fetchAvailability(id, episodeInfo = null, language = null)
     {
-        const nakaId = await this.getNakaId(id);
+        const nakaId = await this.getInternalId(id);
         if(nakaId < 0)
             return null;
 

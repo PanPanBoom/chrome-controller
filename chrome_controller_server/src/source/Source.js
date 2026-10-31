@@ -50,6 +50,17 @@ export class Source extends FetcherWithCache
         throw new Error("Must be implemented.");
     }
 
+    async getInternalId(id)
+    {
+        this.log(`Getting internal id for ${id}`);
+        return this.fetchWithCache(id, 'internalId', () => this.fetchInternalId(id));
+    }
+
+    async fetchInternalId(id)
+    {
+        throw new Error("Must be implemented.");
+    }
+
     log(...logs)
     {
         serverLog(`${this.name}:`, ...logs);

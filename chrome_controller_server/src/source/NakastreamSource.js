@@ -79,7 +79,7 @@ export class NakastreamSource extends Source
         return true;
     }
 
-    async getNakaId(id)
+    async fetchInternalId(id)
     {
         try
         {
@@ -109,14 +109,14 @@ export class NakastreamSource extends Source
 
     async fetchUrl(id, episodeInfo = null)
     {
-        return `${this.watchUrl}${await this.getNakaId(id)}${id.includes('tv') ? `&season=${episodeInfo?.season ?? 1}&episode=${episodeInfo?.episode ?? 1}` : ""}`;
+        return `${this.watchUrl}${await this.getInternalId(id)}${id.includes('tv') ? `&season=${episodeInfo?.season ?? 1}&episode=${episodeInfo?.episode ?? 1}` : ""}`;
     }
 
     async fetchSource(id, episodeInfo)
     {
         try
         {
-            const nakaId = await this.getNakaId(id);
+            const nakaId = await this.getInternalId(id);
             if(!nakaId)
                 return null;
     
