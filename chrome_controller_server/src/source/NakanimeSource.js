@@ -70,24 +70,26 @@ export class NakanimeSource extends Source
 
     async getAnimeData(nakaId)
     {
-        try
-        {
-            const page = await ScrappingBrowser.getNewPage();
-            await page.goto(`${this.baseUrl}/anime/${nakaId}`);
-            await page.waitForTimeout(5000);
-
-            const json = await page.locator('script#anime-data').textContent();
-            const data = JSON.parse(json);
-
-            await page.close();
-            
-            return data.anime;
-        }
-
-        catch(e)
-        {
-            this.log(e);
-        }
+        return await this.fetchWithCache(nakaId, "animeData", async () => {
+            try
+            {
+                const page = await ScrappingBrowser.getNewPage();
+                await page.goto(`${this.baseUrl}/anime/${nakaId}`);
+                await page.waitForTimeout(5000);
+    
+                const json = await page.locator('script#anime-data').textContent();
+                const data = JSON.parse(json);
+    
+                await page.close();
+                
+                return data.anime;
+            }
+    
+            catch(e)
+            {
+                this.log(e);
+            }
+        });
     }
 
     async fetchInternalId(tmdbId)

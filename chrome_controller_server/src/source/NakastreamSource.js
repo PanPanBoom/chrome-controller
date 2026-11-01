@@ -95,15 +95,19 @@ export class NakastreamSource extends Source
                     operatingSystems: ['windows']
                 }
             });
+
+            if(showRes.statusCode !== 200)
+                throw new Error('Unavailable');
     
             const showData = JSON.parse(showRes.body);
+            this.log(showData);
     
             this.log("Nakastream id: " + showData.id);
     
             return showData.id;
         } catch(err) {
             this.log('Error fetching nakastream id: ', err);
-            return null;
+            return -1;
         }
     }
 
@@ -117,7 +121,7 @@ export class NakastreamSource extends Source
         try
         {
             const nakaId = await this.getInternalId(id);
-            if(!nakaId)
+            if(nakaId === -1)
                 return null;
     
             this.log("Fetching nakastream source...");
@@ -146,7 +150,7 @@ export class NakastreamSource extends Source
     async fetchVideoInfo(id, episodeInfo)
     {
         const source = await this.fetchSource(id, episodeInfo);
-        if(!source)
+        if(!source || !source.url)
             return { url : ""};
 
         const videoUrl = this.baseUrl + source.url;
