@@ -54,21 +54,13 @@ export class Api extends FetcherWithCache
 
     formatForCarousel(id, title, img, overview, media_type)
     {
-        const showFromDB = getShowById(id);
-
         return {
             id,
             title,
             img,
             overview,
             media_type,
-            platform: this.platform,
-            nextStartTime: showFromDB?.nextStartTime,
-            currentEpisodeInfo: showFromDB?.currentSeason && {
-                season: showFromDB?.currentSeason,
-                episode: showFromDB?.currentEpisode
-            },
-            percentageWatched: showFromDB?.percentageWatched
+            platform: this.platform
         }
     }
 

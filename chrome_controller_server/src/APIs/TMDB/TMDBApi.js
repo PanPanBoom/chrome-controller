@@ -52,13 +52,13 @@ export class TMDBApi extends Api
     {
         return this.fetchApi(`trending/${filter}/day?language=fr-FR`)
                 .then(res => res.json())
-                .then(data => data?.results?.map(show => this.formatForCarousel(
+                .then(data => Promise.all(data?.results?.map(async (show) => await this.formatForCarousel(
                     `${show.media_type}/${show.id}`,
                     show.title ?? show.name,
                     this.imageBaseUrl + show.backdrop_path,
                     show.overview,
                     show.media_type
-                )));
+                ))));
     }
 
     async getLists(filter)
@@ -92,7 +92,7 @@ export class TMDBApi extends Api
 
         return {
             ...Object.fromEntries(specificListsArray.flat()),
-            ...(await this.getListById(84979, filter)),
+            // ...(await this.getListById(84979, filter)),
             ...Object.fromEntries(baseListsArray)
         }
     }
@@ -113,13 +113,13 @@ export class TMDBApi extends Api
 
         const rest = await Promise.all(Array.from({ length: Math.max(0, last - 1) }, (_, i) => get(i + 2)));
 
-        const items = [first, ...rest].flatMap((r) => r.items).map(show => this.formatForCarousel(
+        const items = await Promise.all([first, ...rest].flatMap((r) => r.items).map(async (show) => await this.formatForCarousel(
             `${show.media_type}/${show.id}`,
             show.title ?? show.name,
             this.imageBaseUrl + show.backdrop_path,
             show.overview,
             show.media_type
-        ));
+        )));
 
         return { [first.name]: filter === 'all' ? items : items.filter(item => item.media_type === filter) };
     }
@@ -153,26 +153,26 @@ export class TMDBApi extends Api
         const res = await this.fetchApi(`discover/${filter}?${params}`);
         const data = await res.json();
 
-        return data?.results?.map(show => this.formatForCarousel(
+        return Promise.all(data?.results?.map(async (show) => await this.formatForCarousel(
             `${filter}/${show.id}`,
             show.title ?? show.name,
             this.imageBaseUrl + show.backdrop_path,
             show.overview,
             filter
-        ));
+        )));
     }
 
     async searchShowsByTitle(title, filter)
     {
         return this.fetchApi(`search/${filter === "all" ? "multi" : filter}?query=${title}&language=fr-FR`)
                 .then(res => res.json())
-                .then(data => data.results.filter(show => show.media_type !== "person").map(show => this.formatForCarousel(
+                .then(data => Promise.all(data.results.filter(show => show.media_type !== "person").map(async (show) => await this.formatForCarousel(
                     `${show.media_type ?? filter}/${show.id}`,
                     show.title ?? show.name,
                     this.imageBaseUrl + show.backdrop_path,
                     show.overview,
                     show.media_type ?? filter
-                )));
+                ))));
     }
 
     async getCollection(id)
@@ -198,15 +198,15 @@ export class TMDBApi extends Api
                     if(show.belongs_to_collection)
                     {
                         const collection = await this.getCollection(show.belongs_to_collection.id);
-                        showsInCollection = collection.parts
+                        showsInCollection = await Promise.all(collection.parts
                             .filter(showInCollection => showInCollection.id !== show.id)
-                            .map(showInCollection => this.formatForCarousel(
+                            .map(async (showInCollection) => await this.formatForCarousel(
                                 `${showInCollection.media_type}/${showInCollection.id}`,
                                 showInCollection.name ?? showInCollection.title,
                                 this.imageBaseUrl + showInCollection.backdrop_path,
                                 showInCollection.overview,
                                 showInCollection.media_type
-                            ));
+                            )));
                     }
 
                     const similarShows = (await this.getSimilarShows(id)).results;
@@ -255,13 +255,13 @@ export class TMDBApi extends Api
                             episode: showInDB?.currentEpisode
                         },
                         collection: showsInCollection,
-                        similars: similarShows.map(similarShow => this.formatForCarousel(
+                        similars: await Promise.all(similarShows.map(async (similarShow) => await this.formatForCarousel(
                             `${mediaType}/${similarShow.id}`,
                             similarShow.title ?? similarShow.name,
                             this.imageBaseUrl + similarShow.backdrop_path,
                             similarShow.overview,
                             mediaType
-                        ))
+                        )))
                     }
                 });
     }
@@ -272,7 +272,7 @@ export class TMDBApi extends Api
 
         return this.fetchApi(`${id}?language=fr-FR`)
                 .then(res => res.json())
-                .then(show => this.formatForCarousel(
+                .then(async (show) => await this.formatForCarousel(
                     id,
                     show.title ?? show.name,
                     this.imageBaseUrl + show.backdrop_path,
@@ -330,6 +330,22 @@ export class TMDBApi extends Api
                 })));
     }
 
+    async getEpisode(id, episodeInfo)
+    {
+        return this.fetchApi(`${id}/season/${episodeInfo?.season ?? 1}/episode/${episodeInfo?.episode ?? 1}`)
+            .then(res => res.json())
+            .then(episode => ({
+                id: episode.id,
+                title: episode.name,
+                overview: episode.overview,
+                img: episode.still_path ? this.imageBaseUrl + episode.still_path : null,
+                air_date: dateParser(episode.air_date),
+                episode_number: episode.episode_number,
+                runtime: episode.runtime,
+                season_number: episode.season_number
+            }));
+    }
+
     async getNextEpisodeInfo(showId, episodeInfo)
     {
         const endpoints = [
@@ -374,5 +390,27 @@ export class TMDBApi extends Api
         const intent = await this.scrapper.getShowIntent(id, episodeInfo, startTime, sourceName, audioLanguage);
 
         return intent + '&title=' + showInfos.title;
+    }
+
+    async formatForCarousel(id, title, img, overview, media_type)
+    {
+        const base = super.formatForCarousel(id, title, img, overview, media_type);
+        const showFromDB = getShowById(id);
+
+        if(showFromDB?.currentEpisode)
+        {
+            const episode = await this.getEpisode(id, { season: showFromDB.currentSeason, episode: showFromDB.currentEpisode});
+            base.img = episode.img;
+        }
+
+        return {
+            ...base,
+            nextStartTime: showFromDB?.nextStartTime,
+            currentEpisodeInfo: showFromDB?.currentSeason && {
+                season: showFromDB?.currentSeason,
+                episode: showFromDB?.currentEpisode
+            },
+            percentageWatched: showFromDB?.percentageWatched
+        }
     }
 }
