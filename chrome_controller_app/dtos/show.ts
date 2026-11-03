@@ -1,9 +1,12 @@
-export type ShowDTO = {
+type BaseDTO = {
     id: string;
     title: string;
     img: string;
     overview: string;
-    media_type: string;
+}
+
+export type ShowDTO = BaseDTO & {
+    media_type: 'movie' | 'tv';
     platform: string;
     nextStartTime?: number;
     currentEpisodeInfo?: {
@@ -21,6 +24,7 @@ export type CastDTO = {
 }[];
 
 export type MovieDTO = ShowDTO & {
+    media_type: 'movie';
     genres: string[];
     release_date: string;
     runtime: number;
@@ -38,7 +42,8 @@ export type MovieDTO = ShowDTO & {
     similars: ShowDTO[];
 };
 
-export type SeriesDTO = MovieDTO & {
+export type SeriesDTO = Omit<MovieDTO, 'media_type'> & {
+    media_type: 'tv';
     number_of_seasons: number;
     number_of_episodes: number;
     seasons: {
@@ -80,4 +85,10 @@ export type ShowReviewDTO = {
     content: string;
     date: string;
     rating: number;
-} 
+}
+
+export type PeopleDTO = BaseDTO & {
+    birth_date: string;
+    media_type: 'person';
+    shows: ShowDTO[];
+}

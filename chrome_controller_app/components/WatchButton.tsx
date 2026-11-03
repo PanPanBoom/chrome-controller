@@ -28,8 +28,10 @@ export const WatchButton = ({ showId, episodeInfo, nextStartTime = 0, shouldChec
     }[]>([]);
     const [expand, setExpand] = useState(false);
 
+    const visible = !(showId.includes('person') || (props.release_date && parseFRDate(props.release_date) > new Date()));
+
     useEffect(() => {
-        if(shouldCheck)
+        if(shouldCheck && visible)
         {
             setIsAvailable(null);
             setSources([]);
@@ -57,7 +59,7 @@ export const WatchButton = ({ showId, episodeInfo, nextStartTime = 0, shouldChec
         }
     }, [shouldCheck]);
 
-    if(props.release_date && parseFRDate(props.release_date) > new Date())
+    if(!visible)
         return null;
 
     return (

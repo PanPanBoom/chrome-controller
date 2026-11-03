@@ -3,15 +3,16 @@ import 'dotenv/config';
 import { getAllShows, getShowsByFilter, getShowById } from "../../db.js";
 import { baseListsFilters, specificListsFilters } from "./lists.js";
 import { ShowScrapper } from "../../source/ShowScrapper.js";
+import { runAt } from '../../utils.js';
+import { Movie } from "./Movie.js";
+import { Series } from "./Series.js";
+import { People } from "./People.js";
+import { Season } from "./Season.js";
+import { Episode } from "./Episode.js";
 
-const dateParser = (dateString) => {
-    if (!dateString) return null;
-    const date = new Date(dateString);
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const year = date.getFullYear();
-    return `${day}/${month}/${year}`;
-}
+const classes = { movie: Movie, tv: Series, person: People };
+
+const createFromTMDB = (tmdbId, rawTMDBData, tmdbApi) => classes[tmdbId.split('/')[0]].buildData(tmdbId, rawTMDBData, tmdbApi);
 
 export class TMDBApi extends Api
 {
@@ -35,6 +36,8 @@ export class TMDBApi extends Api
         this.imageBaseUrl = "https://image.tmdb.org/t/p/original";
         this.platform = 'tmdb';
         this.scrapper = new ShowScrapper(this);
+
+        runAt(0, 0, () => this.cache = {});
     }
 
     async fetchApi(endpoint)
@@ -166,10 +169,10 @@ export class TMDBApi extends Api
     {
         return this.fetchApi(`search/${filter === "all" ? "multi" : filter}?query=${title}&language=fr-FR`)
                 .then(res => res.json())
-                .then(data => Promise.all(data.results.filter(show => show.media_type !== "person").map(async (show) => await this.formatForCarousel(
+                .then(data => Promise.all(data.results.map(async (show) => await this.formatForCarousel(
                     `${show.media_type ?? filter}/${show.id}`,
                     show.title ?? show.name,
-                    this.imageBaseUrl + show.backdrop_path,
+                    this.imageBaseUrl + (show.backdrop_path ?? show.poster_path ?? show.profile_path),
                     show.overview,
                     show.media_type ?? filter
                 ))));
@@ -189,81 +192,9 @@ export class TMDBApi extends Api
 
     async getShowById(id)
     {
-        return this.fetchApi(`${id}?language=fr-FR&append_to_response=credits,watch/providers,videos`)
+        return this.fetchApi(`${id}?language=fr-FR&append_to_response=credits,watch/providers,videos,combined_credits`)
                 .then(res => res.json())
-                .then(async (show) => {
-                    const showInDB = getShowById(id);
-                    let showsInCollection = [];
-                    
-                    if(show.belongs_to_collection)
-                    {
-                        const collection = await this.getCollection(show.belongs_to_collection.id);
-                        showsInCollection = await Promise.all(collection.parts
-                            .filter(showInCollection => showInCollection.id !== show.id)
-                            .map(async (showInCollection) => await this.formatForCarousel(
-                                `${showInCollection.media_type}/${showInCollection.id}`,
-                                showInCollection.name ?? showInCollection.title,
-                                this.imageBaseUrl + showInCollection.backdrop_path,
-                                showInCollection.overview,
-                                showInCollection.media_type
-                            )));
-                    }
-
-                    const similarShows = (await this.getSimilarShows(id)).results;
-                    similarShows.sort((a, b) => b.popularity - a.popularity);
-
-                    const mediaType = id.split('/')[0];
-
-                    return {
-                        id,
-                        title: show.title ?? show.name,
-                        img: this.imageBaseUrl + show.poster_path,
-                        overview: show.overview,
-                        genres: show?.genres?.map(genre => genre.name),
-                        release_date: show.release_date ? dateParser(show.release_date) : dateParser(show.first_air_date),
-                        runtime: show.runtime,
-                        vote_average: Math.round(show.vote_average * 100) / 100,
-                        vote_count: show.vote_count,
-                        cast: show?.credits?.cast?.map(castMember => ({
-                            id: castMember.id,
-                            name: castMember.name,
-                            character: castMember.character,
-                            img: castMember.profile_path ? this.imageBaseUrl + castMember.profile_path : null
-                        })),
-                        director: show?.credits?.crew?.find(crewMember => crewMember.job === "Director")?.name || show.created_by?.map(creator => creator.name).join(', '),
-                        platforms: show["watch/providers"]?.results?.FR?.flatrate?.map(provider => ({
-                            id: provider.provider_id,
-                            name: provider.provider_name,
-                            img: this.imageBaseUrl + provider.logo_path,
-                        })) || [],
-                        number_of_seasons: show.number_of_seasons || null,
-                        number_of_episodes: show.number_of_episodes || null,
-                        seasons: show.seasons?.map(season => ({
-                            id: season.id,
-                            season_number: season.season_number,
-                            episode_count: season.episode_count,
-                            air_date: season.air_date,
-                            poster_path: season.poster_path ? this.imageBaseUrl + season.poster_path : null,
-                            vote_average: season.vote_average,
-                            overview: season.overview,
-                            name: season.name
-                        })) || undefined,
-                        trailer: show?.videos?.results?.find(video => video.type.toLowerCase() === "trailer" && video.site.toLowerCase() === "youtube" && video.iso_639_1 === "fr" && video.iso_3166_1 === "FR" && !video.name.toLowerCase().includes("vost"))?.key,
-                        nextStartTime: showInDB?.nextStartTime,
-                        currentEpisodeInfo: showInDB && {
-                            season: showInDB?.currentSeason,
-                            episode: showInDB?.currentEpisode
-                        },
-                        collection: showsInCollection,
-                        similars: await Promise.all(similarShows.map(async (similarShow) => await this.formatForCarousel(
-                            `${mediaType}/${similarShow.id}`,
-                            similarShow.title ?? similarShow.name,
-                            this.imageBaseUrl + similarShow.backdrop_path,
-                            similarShow.overview,
-                            mediaType
-                        )))
-                    }
-                });
+                .then(async (show) => await createFromTMDB(id, show, this));
     }
 
     async getShowMinimalById(id)
@@ -281,36 +212,16 @@ export class TMDBApi extends Api
                 ))
     }
 
+    async getPeopleById(id)
+    {
+
+    }
+
     async getSeasonById(showId, seasonNumber)
     {
         return this.fetchApi(`${showId}/season/${seasonNumber}?language=fr-FR&append_to_response=credits`)
                 .then(res => res.json())
-                .then(season => ({
-                    id: season.id,
-                    season_number: season.season_number,
-                    episode_count: season.episode_count,
-                    air_date: dateParser(season.air_date),
-                    poster_path: season.poster_path ? this.imageBaseUrl + season.poster_path : null,
-                    vote_average: season.vote_average,
-                    overview: season.overview,
-                    title: season.name,
-                    cast: season?.credits?.cast?.map(castMember => ({
-                        id: castMember.id,
-                        name: castMember.name,
-                        character: castMember.character,
-                        img: castMember.profile_path ? this.imageBaseUrl + castMember.profile_path : null
-                    })),
-                    episodes: season.episodes?.map(episode => ({
-                        id: episode.id,
-                        title: episode.name,
-                        overview: episode.overview,
-                        img: episode.still_path ? this.imageBaseUrl + episode.still_path : null,
-                        air_date: dateParser(episode.air_date),
-                        episode_number: episode.episode_number,
-                        runtime: episode.runtime,
-                        season_number: episode.season_number
-                    })) || []
-                }));
+                .then(season => Season.buildData(season, this));
     }
 
     async getShowReview(id)
@@ -334,16 +245,7 @@ export class TMDBApi extends Api
     {
         return this.fetchApi(`${id}/season/${episodeInfo?.season ?? 1}/episode/${episodeInfo?.episode ?? 1}`)
             .then(res => res.json())
-            .then(episode => ({
-                id: episode.id,
-                title: episode.name,
-                overview: episode.overview,
-                img: episode.still_path ? this.imageBaseUrl + episode.still_path : null,
-                air_date: dateParser(episode.air_date),
-                episode_number: episode.episode_number,
-                runtime: episode.runtime,
-                season_number: episode.season_number
-            }));
+            .then(episode => Episode.buildData(episode, this));
     }
 
     async getNextEpisodeInfo(showId, episodeInfo)

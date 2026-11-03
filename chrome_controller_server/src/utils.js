@@ -20,3 +20,25 @@ export const serverLog = (...logs) => {
     const time = new Date();
     console.log(`[${pad(time.getHours())}:${pad(time.getMinutes())}:${pad(time.getSeconds())}.${pad(time.getMilliseconds(), 3)}]`, ...logs);
 }
+
+export const runAt = (hour, minute, callback) => {
+    const now = new Date();
+    const next = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hour, minute, 0, 0);
+    
+    if (next <= now)
+        next.setDate(next.getDate() + 1);
+
+    setTimeout(async () => {
+        try { await callback(); } catch (e) { console.error(e); }
+        runAt(hour, minute, callback);
+    }, next - now);
+}
+
+export const dateParser = (dateString) => {
+    if (!dateString) return null;
+    const date = new Date(dateString);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+}

@@ -1,6 +1,6 @@
 import { ScrollView, View, Image } from "react-native";
 import { CustomTitle } from "./ui/CustomTitle";
-import { MovieDTO, SeriesDTO } from "@/dtos/show";
+import { MovieDTO, PeopleDTO, SeriesDTO } from "@/dtos/show";
 import { CustomText } from "./ui/CustomText";
 import { LinearGradient } from "expo-linear-gradient";
 import { Button } from "./ui/Button";
@@ -20,7 +20,10 @@ export const ShowOverview = ({ showData }: ShowOverviewProps) => {
     return (
         <>
             <CustomText className="text-justify">{showData.overview}</CustomText>
-            <ShowCasting cast={showData.cast}/>
+            {
+                showData?.cast &&
+                <ShowCasting cast={showData.cast}/>
+            }
             {
                 showData?.platforms?.length > 0 &&
                 <>
@@ -40,7 +43,7 @@ export const ShowOverview = ({ showData }: ShowOverviewProps) => {
                 </>
             }
             {
-                showData.collection.length > 0 &&
+                showData?.collection?.length > 0 &&
                 <>
                     <CustomTitle>Films de la saga</CustomTitle>
                     <ShowCarousel shows={showData.collection} />

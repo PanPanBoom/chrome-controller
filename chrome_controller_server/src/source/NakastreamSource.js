@@ -134,13 +134,16 @@ export class NakastreamSource extends Source
                     operatingSystems: ['windows']
                 }
             });
-    
+
+            if(resSource.statusCode !== 200)
+                throw new Error('Unavailable');
+
             const source = JSON.parse(resSource.body);
             
             return source;
         }
 
-        catch(e)
+        catch(err)
         {
             console.error("Error fetching nakastream source: ", err);
             return null;
