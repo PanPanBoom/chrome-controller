@@ -30,7 +30,7 @@ export class MovixSource extends Source
 
     async fetchVideoInfo(id, episodeInfo = null)
     {
-        const source = await this.fetchSource(id, episodeInfo);
+        const source = await this.getSource(id, episodeInfo);
 
         return {
             url: source ? source.url : ''
@@ -39,7 +39,7 @@ export class MovixSource extends Source
 
     async fetchAvailability(id, episodeInfo = null)
     {
-        const source = await this.fetchSource(id, episodeInfo);
+        const source = await this.getSource(id, episodeInfo);
 
         return source ?
             [{

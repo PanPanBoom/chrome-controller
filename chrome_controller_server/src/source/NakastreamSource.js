@@ -152,7 +152,7 @@ export class NakastreamSource extends Source
 
     async fetchVideoInfo(id, episodeInfo)
     {
-        const source = await this.fetchSource(id, episodeInfo);
+        const source = await this.getSource(id, episodeInfo);
         if(!source || !source.url)
             return { url : ""};
 
@@ -174,7 +174,7 @@ export class NakastreamSource extends Source
         {
             await this.login();
 
-            const source = await this.fetchSource(id, episodeInfo);
+            const source = await this.getSource(id, episodeInfo);
             this.log(source);
             
             return source ?

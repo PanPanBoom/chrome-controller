@@ -61,6 +61,17 @@ export class Source extends FetcherWithCache
         throw new Error("Must be implemented.");
     }
 
+    async getSource(id, episodeInfo = null)
+    {
+        this.log('Fetching source for ' + id);
+        return this.fetchWithCache(this.generateIdentifier(id, episodeInfo), 'source', () => this.fetchSource(id, episodeInfo));
+    }
+
+    async fetchSource(id, episodeInfo = null)
+    {
+        throw new Error("Must be implemented.");
+    }
+
     log(...logs)
     {
         serverLog(`${this.name}:`, ...logs);

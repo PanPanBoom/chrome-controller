@@ -140,7 +140,7 @@ export class NakanimeSource extends Source
         return nakaShow.episodesList.find(episode => episode.seasonId === seasonId && episode.number === (episodeInfo?.episode ?? 1)).id;
     }
 
-    async fetchSources(nakaId, episodeInfo = null)
+    async fetchSource(nakaId, episodeInfo = null)
     {
         const episodeId = await this.getEpisodeNakaId(nakaId, episodeInfo);
 
@@ -212,7 +212,7 @@ export class NakanimeSource extends Source
         if(nakaId < 0)
             return { url: ''}
 
-        const sources = await this.fetchSources(nakaId, episodeInfo);
+        const sources = await this.getSource(nakaId, episodeInfo);
 
         return { url: await this.extractUrlFromSources(sources, language) };
     }
@@ -223,7 +223,7 @@ export class NakanimeSource extends Source
         if(nakaId < 0)
             return null;
 
-        const sources = await this.fetchSources(nakaId, episodeInfo);
+        const sources = await this.getSource(nakaId, episodeInfo);
 
         let languages = [];
 
