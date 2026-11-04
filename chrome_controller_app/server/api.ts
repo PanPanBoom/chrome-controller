@@ -183,3 +183,10 @@ export const sendTvCode = async (ip: string, code: string) => await sendCommand(
     },
     body: JSON.stringify({ code })
 });
+
+export const getPeopleFilmography = async (ip: string, peopleId: string) => {
+    const params = new URLSearchParams();
+    params.append("peopleId", peopleId);
+    
+    return await sendCommand(ip, `remote/peopleFilmography?${params}`);
+};

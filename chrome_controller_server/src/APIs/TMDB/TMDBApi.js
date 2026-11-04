@@ -4,15 +4,10 @@ import { getAllShows, getShowsByFilter, getShowById } from "../../db.js";
 import { baseListsFilters, specificListsFilters } from "./lists.js";
 import { ShowScrapper } from "../../source/ShowScrapper.js";
 import { runAt } from '../../utils.js';
-import { Movie } from "./Movie.js";
-import { Series } from "./Series.js";
-import { People } from "./People.js";
-import { Season } from "./Season.js";
-import { Episode } from "./Episode.js";
-
-const classes = { movie: Movie, tv: Series, person: People };
-
-const createFromTMDB = (tmdbId, rawTMDBData, tmdbApi) => classes[tmdbId.split('/')[0]].buildData(tmdbId, rawTMDBData, tmdbApi);
+import { Season } from "./mappers/Season.js";
+import { Episode } from "./mappers/Episode.js";
+import { People } from "./mappers/People.js";
+import { createFromTMDB, formatForCarousel } from "./mappers/functions.js";
 
 export class TMDBApi extends Api
 {
@@ -55,13 +50,7 @@ export class TMDBApi extends Api
     {
         return this.fetchApi(`trending/${filter}/day?language=fr-FR`)
                 .then(res => res.json())
-                .then(data => Promise.all(data?.results?.map(async (show) => await this.formatForCarousel(
-                    `${show.media_type}/${show.id}`,
-                    show.title ?? show.name,
-                    this.imageBaseUrl + show.backdrop_path,
-                    show.overview,
-                    show.media_type
-                ))));
+                .then(data => Promise.all(data?.results?.map(async (show) => await formatForCarousel(show.media_type, show, this))));
     }
 
     async getLists(filter)
@@ -116,13 +105,7 @@ export class TMDBApi extends Api
 
         const rest = await Promise.all(Array.from({ length: Math.max(0, last - 1) }, (_, i) => get(i + 2)));
 
-        const items = await Promise.all([first, ...rest].flatMap((r) => r.items).map(async (show) => await this.formatForCarousel(
-            `${show.media_type}/${show.id}`,
-            show.title ?? show.name,
-            this.imageBaseUrl + show.backdrop_path,
-            show.overview,
-            show.media_type
-        )));
+        const items = await Promise.all([first, ...rest].flatMap((r) => r.items).map(async (show) => await formatForCarousel(show, this)));
 
         return { [first.name]: filter === 'all' ? items : items.filter(item => item.media_type === filter) };
     }
@@ -156,26 +139,14 @@ export class TMDBApi extends Api
         const res = await this.fetchApi(`discover/${filter}?${params}`);
         const data = await res.json();
 
-        return Promise.all(data?.results?.map(async (show) => await this.formatForCarousel(
-            `${filter}/${show.id}`,
-            show.title ?? show.name,
-            this.imageBaseUrl + show.backdrop_path,
-            show.overview,
-            filter
-        )));
+        return Promise.all(data?.results?.map(async (show) => await formatForCarousel(filter, show, this)));
     }
 
     async searchShowsByTitle(title, filter)
     {
         return this.fetchApi(`search/${filter === "all" ? "multi" : filter}?query=${title}&language=fr-FR`)
                 .then(res => res.json())
-                .then(data => Promise.all(data.results.map(async (show) => await this.formatForCarousel(
-                    `${show.media_type ?? filter}/${show.id}`,
-                    show.title ?? show.name,
-                    this.imageBaseUrl + (show.backdrop_path ?? show.poster_path ?? show.profile_path),
-                    show.overview,
-                    show.media_type ?? filter
-                ))));
+                .then(data => Promise.all(data.results.map(async (show) => await formatForCarousel(show.media_type ?? filter, show, this))));
     }
 
     async getCollection(id)
@@ -199,22 +170,11 @@ export class TMDBApi extends Api
 
     async getShowMinimalById(id)
     {
-        const [mediaType, realId] = id.split('/');
+        const mediaType = id.split('/')[0];
 
         return this.fetchApi(`${id}?language=fr-FR`)
                 .then(res => res.json())
-                .then(async (show) => await this.formatForCarousel(
-                    id,
-                    show.title ?? show.name,
-                    this.imageBaseUrl + show.backdrop_path,
-                    show.overview,
-                    mediaType
-                ))
-    }
-
-    async getPeopleById(id)
-    {
-
+                .then(async (show) => await formatForCarousel(mediaType, show, this));
     }
 
     async getSeasonById(showId, seasonNumber)
@@ -246,6 +206,13 @@ export class TMDBApi extends Api
         return this.fetchApi(`${id}/season/${episodeInfo?.season ?? 1}/episode/${episodeInfo?.episode ?? 1}`)
             .then(res => res.json())
             .then(episode => Episode.buildData(episode, this));
+    }
+
+    async getPeopleFilmography(id)
+    {
+        return this.fetchApi(`${id}/combined_credits?language=fr-FR`)
+            .then(res => res.json())
+            .then(data => People.buildFilmography(data.cast, this));
     }
 
     async getNextEpisodeInfo(showId, episodeInfo)

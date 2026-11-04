@@ -1,4 +1,4 @@
-import { getShowById } from "../../db.js";
+import { getShowById } from "../../../db.js";
 
 export class Show
 {
@@ -35,7 +35,7 @@ export class Show
             vote_average: Math.round(rawTMDBData.vote_average * 100) / 100,
             vote_count: rawTMDBData.vote_count,
             cast: rawTMDBData?.credits?.cast?.map(castMember => ({
-                id: castMember.id,
+                id: `person/${castMember.id}`,
                 name: castMember.name,
                 character: castMember.character,
                 img: castMember.profile_path ? tmdbApi.imageBaseUrl + castMember.profile_path : null

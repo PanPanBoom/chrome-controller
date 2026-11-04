@@ -22,7 +22,17 @@ export const ShowOverview = ({ showData }: ShowOverviewProps) => {
             <CustomText className="text-justify">{showData.overview}</CustomText>
             {
                 showData?.cast &&
-                <ShowCasting cast={showData.cast}/>
+                <>
+                    <CustomTitle>Distribution</CustomTitle>
+                    <ShowCasting cast={showData.cast}/>
+                </>
+            }
+            {
+                showData?.directors &&
+                <>
+                    <CustomTitle>Réalisation</CustomTitle>
+                    <ShowCasting cast={showData.directors}/>
+                </>
             }
             {
                 showData?.platforms?.length > 0 &&

@@ -1,4 +1,4 @@
-import { dateParser } from "../../utils.js";
+import { dateParser } from "../../../utils.js";
 
 export class Episode
 {

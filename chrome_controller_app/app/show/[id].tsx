@@ -22,6 +22,7 @@ import { IconTextLabel } from "@/components/ui/IconTextLabel";
 import { parseFRDate } from "@/etc/utils";
 import { ShowHeader } from "@/components/ShowHeader";
 import { PeopleBio } from "@/components/PeopleBio";
+import { PeopleFilmography } from "@/components/PeopleFilmography";
 
 export default function Show()
 {
@@ -48,9 +49,15 @@ export default function Show()
     {
         return (
             <ScrollView className="bg-background flex-1">
-                <ShowHeader img={showData.img} title={showData.title} />
+                <ShowHeader img={showData.img} title={showData.title} subtitle={showData.profession}>
+                    <IconTextLabel 
+                        icon={Calendar}
+                        text={showData.birth_date}
+                    />
+                </ShowHeader>
                 <Tabs tabs={{
                     "Biographie": <PeopleBio peopleData={showData} />,
+                    "Filmographie": <PeopleFilmography peopleId={showData.id} />
                 }} />
             </ScrollView>
         )
@@ -60,7 +67,7 @@ export default function Show()
 
     return (
         <ScrollView className="bg-background flex-1">
-            <ShowHeader img={showData.img} title={showData.title} subtitle={showData?.director ? `De ${showData.director}` : ''}>
+            <ShowHeader img={showData.img} title={showData.title} subtitle={showData?.directors?.length > 0 ? `De ${showData.directors.map(director => director.name).join(', ')}` : ''}>
                 <View className="flex-row gap-2 justify-center">
                     <RatingBox rating={showData.vote_average} ratersNb={showData.vote_count}/>
                     <IconTextLabel

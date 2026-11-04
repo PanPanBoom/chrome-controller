@@ -1,16 +1,21 @@
 import { Show } from "./Show.js";
-import { dateParser } from "../../utils.js";
+import { dateParser } from "../../../utils.js";
 
 export class Series extends Show
 {
     static async buildData(tmdbId, rawTMDBData, tmdbApi)
     {
         const data = await super.buildData(tmdbId, rawTMDBData, tmdbApi);
+        
         return {
             ...data,
             title: rawTMDBData.name,
             release_date: dateParser(rawTMDBData.first_air_date),
-            director: rawTMDBData.created_by?.map(creator => creator.name).join(', '),
+            directors: rawTMDBData.created_by?.map(creator => ({
+                id: `person/${creator.id}`,
+                name: creator.name,
+                img: tmdbApi.imageBaseUrl + creator.profile_path,
+            })),
             number_of_seasons: rawTMDBData.number_of_seasons,
             number_of_episodes: rawTMDBData.number_of_episodes,
             seasons: rawTMDBData.seasons?.map(season => ({
@@ -19,5 +24,16 @@ export class Series extends Show
                 name: season.name
             })) || undefined,
         };
+    }
+
+    static async formatForCarousel(rawTMDBData, tmdbApi)
+    {
+        return tmdbApi.formatForCarousel(
+            `tv/${rawTMDBData.id}`,
+            rawTMDBData.name,
+            tmdbApi.imageBaseUrl + rawTMDBData.backdrop_path,
+            rawTMDBData.overview,
+            'tv'
+        )
     }
 }

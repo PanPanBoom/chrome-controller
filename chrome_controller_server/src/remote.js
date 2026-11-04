@@ -147,5 +147,10 @@ export default function remoteRoutes(io) {
         }, 3000);
     });
 
+    router.get('/peopleFilmography', (req, res) => {
+        ApiManager.apis.tmdb.getPeopleFilmography(req.query.peopleId)
+        .then(data => res.json(data));
+    });
+
     return router;
 }

@@ -17,7 +17,7 @@ export type ShowDTO = BaseDTO & {
 };
 
 export type CastDTO = {
-    id: number;
+    id: string;
     name: string;
     character: string;
     img: string;
@@ -31,7 +31,7 @@ export type MovieDTO = ShowDTO & {
     vote_average: number;
     vote_count: number;
     cast: CastDTO;
-    director: string;
+    directors: CastDTO;
     platforms: {
         id: number;
         name: string;
@@ -90,5 +90,6 @@ export type ShowReviewDTO = {
 export type PeopleDTO = BaseDTO & {
     birth_date: string;
     media_type: 'person';
+    profession: string;
     shows: ShowDTO[];
 }
