@@ -86,7 +86,7 @@ export class AndroidTv extends Device {
         this.remote.sendKey(key, direction);
     }
 
-    async openUrl(url)
+    openUrl(url)
     {
         this.remote.sendAppLink(url);
     }

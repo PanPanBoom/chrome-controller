@@ -9,7 +9,7 @@ import { ScrollScreen } from "@/components/ui/ScrollScreen";
 import { AppContext } from "@/contexts/appContext";
 import { App } from "@/dtos/app";
 import { ShowDTO } from "@/dtos/show";
-import { getApps, getHistoryShows, getShowLists, getTopShows, searchShow } from "@/server/api";
+import { getApps, getShowLists, getTopShows, searchShow } from "@/server/api";
 import { Href, Label, router } from "expo-router";
 import { useContext, useEffect, useState } from "react";
 import { FlatList, ScrollView, TextInput, View } from "react-native";
@@ -38,10 +38,6 @@ export default function Apps()
 
                 setActiveFilter(initialPlatform?.filters?.[0]?.apiValue || "");
             });
-
-        // getHistoryShows(server.ip)
-        //     .then(res => res.json())
-        //     .then(data => setHistoryShows(data));
     }, []);
 
     const handlePlatformChange = (newPlatformIndex: number) => {
