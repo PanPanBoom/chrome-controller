@@ -111,6 +111,6 @@ export class ShowScrapper
     
             serverLog(`Starting show at ${startTime / 1000}s`);
     
-            return `chromecontroller://play?${params}`;
+            return `chromecontrollerdebug://play?${params}`;
         }
 }

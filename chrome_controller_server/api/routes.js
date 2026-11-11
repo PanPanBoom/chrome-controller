@@ -21,6 +21,12 @@ export default function apiRoutes(io)
 {
     const router = new Router({ mergeParams: true });
 
+    router.use((req, res, next) => {
+        serverLog(`API Call: [${req.method}] ${req.path}`);
+
+        next();
+    });
+
     router.use('/shows', showsRoutes(io));
     router.use('/devices', devicesRoutes(io));
     router.use('/player', playerRoutes(io));
@@ -37,6 +43,13 @@ export default function apiRoutes(io)
     router.get('/ping', (req, res) => {
         const imagePath = getProfilePicturePath();
         const imageBase64 = fs.readFileSync(imagePath).toString('base64');
+
+        serverLog({
+            name: os.userInfo().username,
+            platform: os.type(),
+            img: `data:image/jpeg;base64,${imageBase64}`,
+            tv: false
+        });
 
         res.json({
             name: os.userInfo().username,

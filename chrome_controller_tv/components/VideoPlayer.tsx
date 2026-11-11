@@ -8,6 +8,7 @@ import { Button } from "./Button"
 import { useKeepAwake } from "@sayem314/react-native-keep-awake";
 import { VideoPlayerControls } from "./VideoPlayerControls";
 import { Subtitles, SubtitlesDisplayer } from "./SubtitlesDisplayer";
+import { getSubtitles, sendVideoEnd, updateStartTime } from "../src/api";
 
 export type VideoInfo = {
   showId: string;
@@ -64,18 +65,8 @@ export const VideoPlayer = ({ videoInfo, onVideoEnd }: { videoInfo: VideoInfo, o
 
     const handleProgress = (progress: { currentTime: number }) => {
         setProgress(progress.currentTime);
-        fetch(`${videoInfo.serverIp}/updateStartTime`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                showId: videoInfo.showId,
-                nextStartTime: progress.currentTime * 1000,
-                episodeInfo: videoInfo.episodeInfo,
-                percentageWatched: progress.currentTime / videoDuration * 100
-            })
-        });
+        
+        updateStartTime(videoInfo.serverIp, videoInfo.showId, videoInfo.episodeInfo, progress.currentTime, videoDuration);
 
         for(const part of ['intro', 'recap', 'credits', 'preview'] as const)
         {
@@ -96,17 +87,7 @@ export const VideoPlayer = ({ videoInfo, onVideoEnd }: { videoInfo: VideoInfo, o
 
         setTimeout(() => {
             onVideoEnd();
-            fetch(`${videoInfo.serverIp}/showEnd`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    showId: videoInfo.showId,
-                    episodeInfo: videoInfo.episodeInfo,
-                    audioLanguage: selectedAudioTrack?.language
-                })
-            });
+            sendVideoEnd(videoInfo.serverIp, videoInfo.showId, videoInfo.episodeInfo, selectedAudioTrack?.language);
         }, 500);
     }
 
@@ -123,12 +104,7 @@ export const VideoPlayer = ({ videoInfo, onVideoEnd }: { videoInfo: VideoInfo, o
         if(videoDuration === 0)
             return;
 
-        const params = new URLSearchParams();
-        params.append('showId', videoInfo.showId.split('/')[1]);
-        params.append('episodeInfo', encodeURIComponent(JSON.stringify(videoInfo.episodeInfo)));
-        params.append('duration', videoDuration + '');
-
-        fetch(`${videoInfo.serverIp}/extension/subtitles?${params}`)
+        getSubtitles(videoInfo.serverIp, videoInfo.showId, videoInfo.episodeInfo, videoDuration)
             .then(res => res.json())
             .then(data => {
                 console.log("Subtitles: ", data);
@@ -146,6 +122,10 @@ export const VideoPlayer = ({ videoInfo, onVideoEnd }: { videoInfo: VideoInfo, o
         setSubtitles([]);
         setAudioTracks([]);
     }, [videoInfo]);
+
+    useEffect(() => {
+        console.log(audioTracks);
+    }, [audioTracks]);
     
     return (
         <View>

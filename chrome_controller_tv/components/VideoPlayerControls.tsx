@@ -56,7 +56,9 @@ export const VideoPlayerControls = (props: VideoPlayerControlsProps) => {
         onPress: (key) => handleSeek(key === "forward" ? 15 : -15),
         onHold: (key) => handleSeek(key === "forward" ? 10 : -10),
         onHoldStart: () => poke()
-    })
+    });
+
+    // console.log(props.audioTracks);
 
     const buttonGroupDescription = [
         {

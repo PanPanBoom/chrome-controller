@@ -2,6 +2,7 @@ import { Router } from "express";
 import { state } from "../../../../../../../../../src/state.js";
 import { ApiManager } from "../../../../../../../../../src/APIs/ApiManager.js";
 import { getSources, getSubtitles, launchCast, updateProgress } from "../../../../../../../../../src/apiFunctions.js";
+import { removeShowById } from "../../../../../../../../../src/db.js";
 
 export default function episodeRoutes(io)
 {
@@ -20,7 +21,7 @@ export default function episodeRoutes(io)
 
     router.get('/sources', getSources);
     
-    router.post('/progress', updateProgress);
+    router.put('/progress', updateProgress);
 
     router.get('/subtitles', getSubtitles);
 

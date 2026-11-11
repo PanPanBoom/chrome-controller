@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { getSources, getSubtitles, launchCast, updateProgress } from "../../../../../src/apiFunctions.js";
+import { removeShowById } from "../../../../../src/db.js";
 
 export default function movieRoutes(io)
 {

@@ -72,7 +72,7 @@ export class People
                     year,
                     await Promise.all(
                         [...shows]
-                            .filter(show => !show?.genre_ids?.some((g) => [10767, 10764, 10763].includes(g)))
+                            .filter(show => show?.genre_ids?.length > 0 && !show?.genre_ids?.some((g) => [10767, 10764, 10763].includes(g)))
                             .sort((a, b) => new Date(a.release_date ?? a.first_credit_air_date) - new Date(b.release_date ?? b.first_credit_air_date))
                             .map(show => showClasses[show.media_type].formatForCarousel(show, tmdbApi))
                     )

@@ -1,6 +1,8 @@
 import { ApiManager } from "./APIs/ApiManager.js";
 import { serverLog } from "./utils.js";
 import { state } from "./state.js";
+import { searchSubtitles } from "wyzie-lib";
+import { upsertNextStartTime } from "./db.js";
 
 export const getSubtitles = async (req, res) => {
     serverLog("Fetching subtitles...");

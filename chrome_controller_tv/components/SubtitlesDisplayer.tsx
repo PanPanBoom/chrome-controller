@@ -3,6 +3,7 @@ import { View } from "react-native";
 import { CustomText } from "./CustomText";
 import { cn } from "../etc/utils";
 import { ISO639_1 } from "react-native-video";
+import { readSubtitles } from "../src/api";
 
 export type Subtitles = {
     id: string;
@@ -93,12 +94,7 @@ export const SubtitlesDisplayer = (props: SubtitlesDisplayerProps) => {
             return;
         }
         
-        fetch(`${props.serverIp}/extension/proxy-subtitles?url=${encodeURIComponent(props?.subtitles?.url)}`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            })
+        readSubtitles(props.serverIp, props?.subtitles?.url)
             .then(res => res.json())
             .then(data => setParsedSubtitles(data));
     }, [props.subtitles]);
