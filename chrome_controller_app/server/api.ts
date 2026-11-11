@@ -2,7 +2,7 @@ const sendCommand = async (ip: string, command: string, init?: RequestInit) => a
 
 export const sendPing = async (ip: string) => {
     const controller = new AbortController();
-    setTimeout(() => controller.abort(), 5000);
+    setTimeout(() => controller.abort(), 30000);
 
     return await sendCommand(ip, "ping", { signal: controller.signal });
 }
