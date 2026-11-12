@@ -6,7 +6,7 @@ import { ActivityIndicator, Pressable, View } from "react-native";
 import { CustomText } from "./ui/CustomText";
 import { Check } from "lucide-react-native";
 import { colors } from "@/constants/colors";
-import { ModalContext } from "@/contexts/modalProvider";
+import { ModalContext } from "@/contexts/modalContext";
 
 type DeviceSelectionWidgetProps = {
     devices: DeviceDataDTO[];

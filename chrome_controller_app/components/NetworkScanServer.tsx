@@ -7,7 +7,7 @@ import { useContext, useEffect } from "react"
 import { cn } from "@/etc/utils"
 import { router } from "expo-router"
 import { Button } from "./ui/Button"
-import { ModalContext } from "@/contexts/modalProvider"
+import { ModalContext } from "@/contexts/modalContext"
 import { ServerDataWidget } from "./ServerDataWidget"
 
 type NetworkScanServer = PressableProps & {

@@ -1,26 +1,25 @@
 import { FlatList } from "react-native";
-import { ShowCarouselFilter } from "./ShowCarouselFilter";
-import { useEffect, useState } from "react";
+import { Filter } from "./Filter";
 
-export type Filter = {
+export type FilterDTO = {
     displayText: string;
     apiValue: string;
-}
+};
 
-type ShowCarouselFilterGroupProps = {
+type FilterGroupProps = {
     activeFilterValue: string;
     onSelect: (apiValue: string) => void;
-    filters: Filter[];
+    filters: FilterDTO[];
 }
 
-export const ShowCarouselFilterGroup = (props: ShowCarouselFilterGroupProps) => {
+export const FilterGroup = (props: FilterGroupProps) => {
     return (
         <FlatList 
             data={props.filters}
             renderItem={({ item }) => 
-                <ShowCarouselFilter active={item.apiValue == props.activeFilterValue} onPress={() => props.onSelect(item.apiValue)}>
+                <Filter active={item.apiValue == props.activeFilterValue} onPress={() => props.onSelect(item.apiValue)}>
                     {item.displayText}
-                </ShowCarouselFilter>}
+                </Filter>}
             keyExtractor={item => item.apiValue}
             horizontal
             contentContainerClassName="gap-2"

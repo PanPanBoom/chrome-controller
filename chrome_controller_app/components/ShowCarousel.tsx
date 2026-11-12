@@ -2,13 +2,13 @@ import { Dimensions, FlatList, Pressable, ScrollView, ScrollViewProps, View, Vie
 import { Show } from "./Show";
 import { useContext, useEffect, useState } from "react";
 import { cn } from "@/etc/utils";
-import { ShowDTO } from "@/dtos/show";
-import { Filter, ShowCarouselFilterGroup } from "./ShowCarouselFilterGroup";
+import { ShowCarouselDTO } from "@/dtos/show";
+import { FilterDTO, FilterGroup } from "./FilterGroup";
 import { App } from "@/dtos/app";
 
 type ShowCarouselProps = ViewProps & {
-    shows: ShowDTO[];
-    filters?: Filter[];
+    shows: ShowCarouselDTO[];
+    filters?: FilterDTO[];
     selectedFilter?: string;
     onFilterChange?: (filter: string) => void;
 }
@@ -43,7 +43,7 @@ export const ShowCarousel = ({className, ...props}: ShowCarouselProps) => {
         <View className={cn("gap-3", className)} {...props}>
             {
                 props.filters && props.onFilterChange &&
-                <ShowCarouselFilterGroup filters={props.filters || []} onSelect={props.onFilterChange} activeFilterValue={props.selectedFilter || ""}/>
+                <FilterGroup filters={props.filters || []} onSelect={props.onFilterChange} activeFilterValue={props.selectedFilter || ""}/>
             }
             <View className="flex-row">
                 {

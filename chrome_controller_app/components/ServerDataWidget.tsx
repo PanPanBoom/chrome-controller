@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/Button";
 import { useContext, useState } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AppContext } from "@/contexts/appContext";
-import { ModalContext } from "@/contexts/modalProvider";
+import { ModalContext } from "@/contexts/modalContext";
 
 type ServerDataWidgetProps = {
     server: ServerDataDTO;

@@ -23,7 +23,7 @@ export const ShowCasting = (props: ShowCastingProps) => {
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             {
                 props.cast.map(actor => (
-                    <Button key={actor.id} className="items-center gap-2 w-28 mx-2 p-0 bg-transparent" onPress={() => handlePress(actor.id)}>
+                    <Button key={actor.id + actor.character} className="items-center gap-2 w-28 mx-2 p-0 bg-transparent" onPress={() => handlePress(actor.id)}>
                         <View className="w-full aspect-square rounded-xl overflow-hidden">
                             <Image source={{uri: actor.img}} className="w-full aspect-square" />
                             <LinearGradient colors={['rgba(0, 0, 0, 0)', "rgba(0, 0, 0, 0.8)"]} style={{position: "absolute", bottom: 0, left: 0, width: '100%', height: '100%'}} />

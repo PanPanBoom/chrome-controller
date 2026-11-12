@@ -158,3 +158,7 @@ export const sendTvCode = async (ip: string, code: string) => await sendCommand(
 });
 
 export const getPeopleFilmography = async (ip: string, peopleId: string) => await sendCommand(ip, `shows/tmdb/${peopleId}/filmography`);
+
+export const getPeopleProductions = async (ip: string, peopleId: string) => await sendCommand(ip, `shows/tmdb/${peopleId}/productions`);
+
+export const getPlatformFilters = async (ip: string, platform: string) => await sendCommand(ip, `shows/${platform}/filters`);

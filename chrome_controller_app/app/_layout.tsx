@@ -2,7 +2,7 @@ import { Stack } from "expo-router";
 import "../global.css";
 import { AppProvider } from "@/contexts/appContext";
 import { useFonts } from 'expo-font';
-import { ModalProvider } from "@/contexts/modalProvider";
+import { ModalProvider } from "@/contexts/modalContext";
 import { cssInterop } from 'nativewind';
 import { BlurView } from "expo-blur";
 

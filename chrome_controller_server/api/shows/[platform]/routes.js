@@ -2,6 +2,7 @@ import { Router } from "express";
 import { serverLog } from '../../../src/utils.js';
 import { ApiManager } from "../../../src/APIs/ApiManager.js";
 import showRoutes from "./[showId]/routes.js";
+import { apps } from "../../../src/apps.js";
 
 export default function platformsRoutes(io)
 {
@@ -27,6 +28,8 @@ export default function platformsRoutes(io)
         ApiManager.searchShowsByTitle(req.params.platform.toLowerCase(), req.query.search, req.query.filter)
             .then(data => res.json(data));
     });
+
+    router.get('/filters', (req, res) => res.json(ApiManager.apis[req.params.platform].filters))
 
     return router;
 }

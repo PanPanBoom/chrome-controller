@@ -1,33 +1,31 @@
 import { Show } from "./Show.js";
-import { dateParser } from "../../../utils.js";
 
 export class Movie extends Show
 {
+    static mediaType = 'movie';
+
     static async buildData(tmdbId, rawTMDBData, tmdbApi)
     {
         const data = await super.buildData(tmdbId, rawTMDBData, tmdbApi);
         
         return {
             ...data,
-            title: rawTMDBData.title,
-            release_date: dateParser(rawTMDBData.release_date),
-            runtime: rawTMDBData.runtime,
-            directors: rawTMDBData?.credits?.crew?.filter(crewMember => crewMember.job === "Director")?.map(director => ({
-                id: `person/${director.id}`,
-                name: director.name,
-                img: tmdbApi.imageBaseUrl + director.profile_path,
-            }))
+            runtime: rawTMDBData.runtime
         };
     }
 
-    static async formatForCarousel(rawTMDBData, tmdbApi)
+    static getReleaseDate(rawTMDBData)
     {
-        return tmdbApi.formatForCarousel(
-            `movie/${rawTMDBData.id}`,
-            rawTMDBData.title,
-            tmdbApi.imageBaseUrl + rawTMDBData.backdrop_path,
-            rawTMDBData.overview,
-            'movie'
-        )
+        return rawTMDBData.release_date;
+    }
+
+    static getTitle(rawTMDBData)
+    {
+        return rawTMDBData.title;
+    }
+
+    static getDirectors(rawTMDBData)
+    {
+        return rawTMDBData?.credits?.crew?.filter(crewMember => crewMember.job === "Director");
     }
 }

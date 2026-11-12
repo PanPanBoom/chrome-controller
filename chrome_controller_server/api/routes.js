@@ -44,13 +44,6 @@ export default function apiRoutes(io)
         const imagePath = getProfilePicturePath();
         const imageBase64 = fs.readFileSync(imagePath).toString('base64');
 
-        serverLog({
-            name: os.userInfo().username,
-            platform: os.type(),
-            img: `data:image/jpeg;base64,${imageBase64}`,
-            tv: false
-        });
-
         res.json({
             name: os.userInfo().username,
             platform: os.type(),

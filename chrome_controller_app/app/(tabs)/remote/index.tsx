@@ -14,7 +14,7 @@ import { IconDescriptionButton } from "@/components/ui/IconDescriptionButton";
 import { FavoriteButton } from "@/components/FavoriteButton";
 import { RemoteContext, RemoteProvider } from "@/contexts/remoteContext";
 import { DeviceSelectionWidget } from "@/components/DeviceSelectionWidget";
-import { ModalContext } from "@/contexts/modalProvider";
+import { ModalContext } from "@/contexts/modalContext";
 import { PairingCodeWidget } from "@/components/PairingCodeWidget";
 import { useRemoteButton } from "@/hooks/useRemoteButton";
 import { useDeviceVolumeControl } from "@/hooks/useDeviceVolumeControl";

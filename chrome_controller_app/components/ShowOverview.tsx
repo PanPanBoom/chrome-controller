@@ -1,8 +1,7 @@
 import { ScrollView, View, Image } from "react-native";
 import { CustomTitle } from "./ui/CustomTitle";
-import { MovieDTO, PeopleDTO, SeriesDTO } from "@/dtos/show";
+import { MovieDTO, SeriesDTO } from "@/dtos/show";
 import { CustomText } from "./ui/CustomText";
-import { LinearGradient } from "expo-linear-gradient";
 import { Button } from "./ui/Button";
 import { sendShowCast } from "@/server/api";
 import { useContext } from "react";
@@ -28,7 +27,7 @@ export const ShowOverview = ({ showData }: ShowOverviewProps) => {
                 </>
             }
             {
-                showData?.directors &&
+                showData?.directors?.length > 0 &&
                 <>
                     <CustomTitle>Réalisation</CustomTitle>
                     <ShowCasting cast={showData.directors}/>

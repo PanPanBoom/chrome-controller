@@ -10,15 +10,15 @@ export class Season
             season_number: rawTMDBData.season_number,
             episode_count: rawTMDBData.episode_count,
             air_date: dateParser(rawTMDBData.air_date),
-            poster_path: rawTMDBData.poster_path ? tmdbApi.imageBaseUrl + rawTMDBData.poster_path : null,
+            poster_path: rawTMDBData.poster_path && (tmdbApi.imageBaseUrl + rawTMDBData.poster_path),
             vote_average: rawTMDBData.vote_average,
             overview: rawTMDBData.overview,
             title: rawTMDBData.name,
             cast: rawTMDBData?.credits?.cast?.map(castMember => ({
-                id: castMember.id,
+                id: `person/${castMember.id}`,
                 name: castMember.name,
                 character: castMember.character,
-                img: castMember.profile_path ? tmdbApi.imageBaseUrl + castMember.profile_path : null
+                img: castMember.profile_path && (tmdbApi.imageBaseUrl + castMember.profile_path)
             })),
             episodes: rawTMDBData.episodes?.map(episode => Episode.buildData(episode, tmdbApi)) || []
         }

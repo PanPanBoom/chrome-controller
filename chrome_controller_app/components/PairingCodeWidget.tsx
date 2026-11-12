@@ -5,7 +5,7 @@ import { TextInput, View } from "react-native";
 import { CustomTitle } from "./ui/CustomTitle";
 import { Button } from "./ui/Button";
 import { CustomText } from "./ui/CustomText";
-import { ModalContext } from "@/contexts/modalProvider";
+import { ModalContext } from "@/contexts/modalContext";
 
 export const PairingCodeWidget = () => {
     const { server } = useContext(AppContext);

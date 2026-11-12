@@ -20,12 +20,12 @@ export class TMDBApi extends Api
                 apiValue: "all"
             },
             {
-                displayText: "Séries",
-                apiValue: "tv"
-            },
-            {
                 displayText: "Films",
                 apiValue: "movie"
+            },
+            {
+                displayText: "Séries",
+                apiValue: "tv"
             }
         ];
         this.imageBaseUrl = "https://image.tmdb.org/t/p/original";
@@ -215,12 +215,19 @@ export class TMDBApi extends Api
             .then(data => People.buildFilmography(data.cast, this));
     }
 
+    async getPeopleProductions(id)
+    {
+        return this.fetchApi(`${id}/combined_credits?language=fr-FR`)
+            .then(res => res.json())
+            .then(data => People.buildProductions(data.crew, this));
+    }
+
     async getNextEpisodeInfo(showId, episodeInfo)
     {
         const endpoints = [
-            `${showId}/season/${episodeInfo.season}/episode/${episodeInfo.episode + 1}`,
-            `${showId}/season/${episodeInfo.season + 1}/episode/${1}`
-        ]
+            `${showId}/season/${Number(episodeInfo.season)}/episode/${Number(episodeInfo.episode) + 1}`,
+            `${showId}/season/${Number(episodeInfo.season) + 1}/episode/${1}`
+        ];
         
         for(const endpoint of endpoints)
         {
@@ -259,27 +266,5 @@ export class TMDBApi extends Api
         const intent = await this.scrapper.getShowIntent(id, episodeInfo, startTime, sourceName, audioLanguage);
 
         return intent + '&title=' + showInfos.title;
-    }
-
-    async formatForCarousel(id, title, img, overview, media_type)
-    {
-        const base = super.formatForCarousel(id, title, img, overview, media_type);
-        const showFromDB = getShowById(id);
-
-        if(showFromDB?.currentEpisode)
-        {
-            const episode = await this.getEpisode(id, { season: showFromDB.currentSeason, episode: showFromDB.currentEpisode});
-            base.img = episode.img;
-        }
-
-        return {
-            ...base,
-            nextStartTime: showFromDB?.nextStartTime,
-            currentEpisodeInfo: showFromDB?.currentSeason && {
-                season: showFromDB?.currentSeason,
-                episode: showFromDB?.currentEpisode
-            },
-            percentageWatched: showFromDB?.percentageWatched
-        }
     }
 }

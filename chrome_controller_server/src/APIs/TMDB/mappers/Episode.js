@@ -8,7 +8,7 @@ export class Episode
             id: rawTMDBData.id,
             title: rawTMDBData.name,
             overview: rawTMDBData.overview,
-            img: rawTMDBData.still_path ? tmdbApi.imageBaseUrl + rawTMDBData.still_path : null,
+            img: rawTMDBData.still_path && (tmdbApi.imageBaseUrl + rawTMDBData.still_path),
             air_date: dateParser(rawTMDBData.air_date),
             episode_number: rawTMDBData.episode_number,
             runtime: rawTMDBData.runtime,

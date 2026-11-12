@@ -8,7 +8,7 @@ import { CustomTitle } from "@/components/ui/CustomTitle";
 import { ScrollScreen } from "@/components/ui/ScrollScreen";
 import { AppContext } from "@/contexts/appContext";
 import { App } from "@/dtos/app";
-import { ShowDTO } from "@/dtos/show";
+import { ShowCarouselDTO } from "@/dtos/show";
 import { getApps, getShowLists, getTopShows, searchShow } from "@/server/api";
 import { Href, Label, router } from "expo-router";
 import { useContext, useEffect, useState } from "react";
@@ -18,10 +18,10 @@ export default function Apps()
 {
     const [apps, setApps] = useState<App[] | null>(null);
     const [currentPlatform, setCurrentPlatform] = useState<App | null>(null);
-    const [trendingShows, setTrendingShows] = useState<ShowDTO[]>([]);
+    const [trendingShows, setTrendingShows] = useState<ShowCarouselDTO[]>([]);
     // const [historyShows, setHistoryShows] = useState<ShowDTO[]>([]);
-    const [showLists, setShowLists] = useState<Record<string, ShowDTO[]>>({});
-    const [searchedShows, setSearchedShows] = useState<ShowDTO[]>([]);
+    const [showLists, setShowLists] = useState<Record<string, ShowCarouselDTO[]>>({});
+    const [searchedShows, setSearchedShows] = useState<ShowCarouselDTO[]>([]);
     const [input, setInput] = useState("");
     const [activeFilter, setActiveFilter] = useState("");
     const { server } = useContext(AppContext);

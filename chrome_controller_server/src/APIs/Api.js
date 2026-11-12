@@ -61,7 +61,22 @@ export class Api extends FetcherWithCache
             overview,
             media_type,
             platform: this.platform
-        }
+        };
+    }
+
+    formatForList(id, title, img, releaseYear, info, order, vote_count, media_type)
+    {
+        return {
+            id,
+            title,
+            img,
+            releaseYear,
+            info,
+            order,
+            vote_count,
+            media_type,
+            platform: this.platform
+        };
     }
 
     async getTopShows(filter)

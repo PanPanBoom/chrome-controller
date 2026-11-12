@@ -1,16 +1,13 @@
 import { CustomText } from "@/components/ui/CustomText";
-import { CustomTitle } from "@/components/ui/CustomTitle";
 import { Screen } from "@/components/ui/Screen"
 import { AppContext } from "@/contexts/appContext";
 import { MovieDTO, SeriesDTO, PeopleDTO } from "@/dtos/show"
-import { getShowById, sendAppLaunch, sendShowCast } from "@/server/api";
-import { router, useLocalSearchParams } from "expo-router";
+import { getPeopleFilmography, getPeopleProductions, getShowById, sendShowCast } from "@/server/api";
+import { useLocalSearchParams } from "expo-router";
 import { useContext, useEffect, useState } from "react";
-import { ActivityIndicator, FlatList, Image, ScrollView, View } from "react-native";
-import { LinearGradient } from 'expo-linear-gradient';
+import { ActivityIndicator, ScrollView, View } from "react-native";
 import { colors } from "@/constants/colors";
-import { Calendar, Cast, ChevronLeft, Clapperboard, Clock, Heart, Play, Tv } from "lucide-react-native";
-import { IconButton } from "@/components/ui/IconButton";
+import { Calendar, Clapperboard, Clock, Tv } from "lucide-react-native";
 import { Tabs } from "@/components/ui/Tabs";
 import { ShowOverview } from "@/components/ShowOverview";
 import { SeriesSeasons } from "@/components/SeriesSeasons";
@@ -22,7 +19,7 @@ import { IconTextLabel } from "@/components/ui/IconTextLabel";
 import { parseFRDate } from "@/etc/utils";
 import { ShowHeader } from "@/components/ShowHeader";
 import { PeopleBio } from "@/components/PeopleBio";
-import { PeopleFilmography } from "@/components/PeopleFilmography";
+import { ShowsList } from "@/components/ShowsList";
 
 export default function Show()
 {
@@ -57,7 +54,8 @@ export default function Show()
                 </ShowHeader>
                 <Tabs tabs={{
                     "Biographie": <PeopleBio peopleData={showData} />,
-                    "Filmographie": <PeopleFilmography peopleId={showData.id} />
+                    ...(showData.hasFilmography && {"Filmographie": <ShowsList showsFetchMethod={() => getPeopleFilmography(server.ip, showData.id) } />}),
+                    ...(showData.hasProductions && {"Productions": <ShowsList showsFetchMethod={() => getPeopleProductions(server.ip, showData.id) }/>})
                 }} />
             </ScrollView>
         )

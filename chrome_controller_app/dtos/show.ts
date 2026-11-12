@@ -2,12 +2,12 @@ type BaseDTO = {
     id: string;
     title: string;
     img: string;
-    overview: string;
+    platform: string;
+    media_type: 'movie' | 'tv' | 'person';
 }
 
-export type ShowDTO = BaseDTO & {
-    media_type: 'movie' | 'tv';
-    platform: string;
+export type ShowCarouselDTO = BaseDTO & {
+    overview: string;
     nextStartTime?: number;
     currentEpisodeInfo?: {
         season: number;
@@ -16,6 +16,13 @@ export type ShowDTO = BaseDTO & {
     percentageWatched?: number;
 };
 
+export type ShowListDTO = BaseDTO & {
+    releaseYear: number;
+    info: string;
+    order: number;
+    vote_count: number;
+}
+
 export type CastDTO = {
     id: string;
     name: string;
@@ -23,7 +30,7 @@ export type CastDTO = {
     img: string;
 }[];
 
-export type MovieDTO = ShowDTO & {
+export type MovieDTO = ShowCarouselDTO & {
     media_type: 'movie';
     genres: string[];
     release_date: string;
@@ -38,8 +45,8 @@ export type MovieDTO = ShowDTO & {
         img: string;
     }[];
     trailer: string;
-    collection: ShowDTO[];
-    similars: ShowDTO[];
+    collection: ShowCarouselDTO[];
+    similars: ShowCarouselDTO[];
 };
 
 export type SeriesDTO = Omit<MovieDTO, 'media_type'> & {
@@ -57,7 +64,7 @@ export type SeriesDTO = Omit<MovieDTO, 'media_type'> & {
     }[];
 };
 
-export type SeasonDTO = ShowDTO & {
+export type SeasonDTO = ShowCarouselDTO & {
     season_number: number;
     vote_average: number;
     air_date: string;
@@ -88,8 +95,11 @@ export type ShowReviewDTO = {
 }
 
 export type PeopleDTO = BaseDTO & {
+    biography: string;
     birth_date: string;
     media_type: 'person';
     profession: string;
-    shows: ShowDTO[];
+    shows: ShowCarouselDTO[];
+    hasFilmography: boolean;
+    hasProductions: boolean;
 }

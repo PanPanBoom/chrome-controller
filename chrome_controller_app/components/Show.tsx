@@ -3,7 +3,7 @@ import { CustomText } from "./ui/CustomText"
 import { Cast, Info, Loader } from "lucide-react-native"
 import { colors } from "@/constants/colors"
 import { cn } from "@/etc/utils"
-import { ShowDTO } from "@/dtos/show"
+import { ShowCarouselDTO } from "@/dtos/show"
 import { CustomTitle } from "./ui/CustomTitle"
 import { sendAppLaunch, sendShowCast } from "@/server/api"
 import { useContext, useState } from "react"
@@ -13,7 +13,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Href, router } from "expo-router"
 
 type ShowProps = ViewProps & {
-    data: ShowDTO;
+    data: ShowCarouselDTO;
     onPrev?: () => void;
     onNext?: () => void;
 }
@@ -43,7 +43,7 @@ export const Show = ({className, ...props}: ShowProps) => {
     return (
         <View className={cn("w-full border border-background-hover bg-background-hover rounded-xl aspect-video overflow-hidden", className)} {...props}>
             {
-                props.data.img.includes('svg') == false &&
+                props.data?.img?.includes('svg') == false &&
                 <Image source={{uri: props.data.img}} className="w-full aspect-video absolute" style={{opacity: showInfos ? 0.25 : 1}}/>
             }
             {
