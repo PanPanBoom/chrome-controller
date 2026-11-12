@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Pressable, View } from "react-native";
 import { CustomText } from "./CustomText";
 
-type TabsProps = {
+export type TabsProps = {
     tabs: Record<string, React.ReactNode>;
 }
 
@@ -10,7 +10,7 @@ export const Tabs = ({ tabs }: TabsProps) => {
     const [tabSelectedIndex, setTabSelectedIndex] = useState(0);
 
     return (
-        <View>
+        <View className="bg-background">
             <View className="flex-row">
                 {
                     Object.keys(tabs).map((tab, index) => (
@@ -20,7 +20,7 @@ export const Tabs = ({ tabs }: TabsProps) => {
                     ))
                 }
             </View>
-            <View className="px-8 py-4 flex-1">
+            <View className="px-8 py-4 flex-1 bg-background">
                 {Object.entries(tabs).map(([key, value], index) => (
                     <View key={key} style={{ display: index === tabSelectedIndex ? 'flex' : 'none' }} className="flex-1 gap-4">
                         {value}

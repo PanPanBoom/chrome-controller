@@ -9,7 +9,7 @@ import { CustomText } from "./ui/CustomText"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { cn } from "@/etc/utils"
 
-type ShowHeaderProps = {
+export type ShowHeaderProps = {
     img: string;
     title: string;
     subtitle?: string;
@@ -17,22 +17,16 @@ type ShowHeaderProps = {
 }
 
 export const ShowHeader = (props: ShowHeaderProps) => {
-    const insets = useSafeAreaInsets();
-    
     return (
-        <View className="items-center justify-center">
+        <View>
             {
                 props.img &&
-                <>
-                    <Image source={{uri: props.img}} className="w-full aspect-[2/3]"/>
-                    <LinearGradient colors={['rgba(0, 0, 0, 0)', colors.background]} style={{position: "absolute", bottom: 0, left: 0, width: '100%', height: '100%'}} />
-                </>
-            }
-            <View className={cn("justify-between p-4", props.img && 'absolute w-full h-full')} style={{paddingTop: insets.top}}>
-                <View className="flex-row w-full px-4 justify-between">
-                    <IconButton icon={ChevronLeft} onPress={() => router.back()} />
-                    <IconButton icon={Heart} />
+                <View style={{position: "absolute", top: 0, left: 0, width: '100%', height: '100%'}}>
+                    <LinearGradient colors={['rgba(0, 0, 0, 0)', colors.background]} style={{flex: 1}}/>
+                    <View className="bg-background flex-1"/>
                 </View>
+            }
+            <View className={cn("justify-between p-4")}>
                 <View className="flex gap-4 items-start p-4">
                     <View>
                         <CustomTitle className="text-3xl" numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.5}>{props.title}</CustomTitle>
