@@ -1,5 +1,6 @@
 import { getShowById } from "../../../db.js";
 import { dateParser } from "../../../utils.js";
+import { Credit } from "./Credit.js";
 
 export class Show
 {
@@ -101,15 +102,16 @@ export class Show
         };
     }
 
-    static formatForList(rawTMDBData, tmdbApi, info)
+    static async formatForList(rawTMDBData, tmdbApi, info)
     {
         return tmdbApi.formatForList(
             `${this.mediaType}/${rawTMDBData.id}`,
             this.getTitle(rawTMDBData),
             rawTMDBData.poster_path && (tmdbApi.imageBaseUrl + rawTMDBData.poster_path),
-            this.getReleaseDate(rawTMDBData)?.slice(0, 4),
+            dateParser(this.getReleaseDate(rawTMDBData)),
             info,
             rawTMDBData?.order,
+            Credit.getApparitions(await tmdbApi.getCredit(rawTMDBData.credit_id)),
             rawTMDBData.vote_count,
             this.mediaType
         );

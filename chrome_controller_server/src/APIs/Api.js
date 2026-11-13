@@ -64,16 +64,17 @@ export class Api extends FetcherWithCache
         };
     }
 
-    formatForList(id, title, img, releaseYear, info, order, vote_count, media_type)
+    formatForList(id, title, img, releaseDate, info, order, apparitions, vote_count, media_type)
     {
         return {
             id,
             title,
             img,
-            releaseYear,
+            releaseDate,
             info,
             order,
             vote_count,
+            apparitions,
             media_type,
             platform: this.platform
         };

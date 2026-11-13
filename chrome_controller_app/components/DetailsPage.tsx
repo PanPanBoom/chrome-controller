@@ -17,7 +17,7 @@ export const DetailsPage = ({tabs, children, ...props}: DetailsPageProps) => {
     return (
         <View className="bg-background flex-1 relative">
             <Image source={{uri: props.img}} className="w-full aspect-[2/3] absolute top-0 left-0 right-0"/>
-            <ScrollView className="flex-1" contentContainerStyle={{paddingTop: '100%'}} showsVerticalScrollIndicator={false} >
+            <ScrollView className="flex-1" contentContainerStyle={{paddingTop: props.img ? '100%' : insets.top + 40}} showsVerticalScrollIndicator={false} >
                 <ShowHeader {...props}>
                     {children}
                 </ShowHeader>

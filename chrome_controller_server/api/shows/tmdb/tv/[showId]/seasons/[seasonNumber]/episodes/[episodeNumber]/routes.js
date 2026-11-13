@@ -10,8 +10,8 @@ export default function episodeRoutes(io)
 
     const generateEpisodeInfo = (req, res, next) => {
         req.episodeInfo = {
-            season: req.params.seasonNumber,
-            episode: req.params.episodeNumber
+            season: Number(req.params.seasonNumber),
+            episode: Number(req.params.episodeNumber)
         };
 
         next();

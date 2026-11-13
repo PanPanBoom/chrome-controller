@@ -12,7 +12,7 @@ export class ShowScrapper
     {
         this.sources = [
             // new StreamoSource(),
-            new NakastreamSource(),
+            // new NakastreamSource(),
             new MovixSource(),
             new NakanimeSource(tmdbApi),
             new NoxpulseSource(),

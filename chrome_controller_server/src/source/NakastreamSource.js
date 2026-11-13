@@ -97,7 +97,7 @@ export class NakastreamSource extends Source
             });
 
             if(showRes.statusCode !== 200)
-                throw new Error('Unavailable');
+                throw new Error(showRes.body);
     
             const showData = JSON.parse(showRes.body);
             this.log(showData);

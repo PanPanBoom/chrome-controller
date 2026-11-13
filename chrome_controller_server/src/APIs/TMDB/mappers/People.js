@@ -39,9 +39,14 @@ export class People
             birth_date: dateParser(rawTMDBData.birthday),
             profession: translations[rawTMDBData?.known_for_department] || rawTMDBData?.known_for_department,
             shows: await Promise.all(mainShows?.map(async (show) => await showClasses[show.media_type].formatForCarousel(show, tmdbApi))),
-            hasFilmography: this.buildFilmography(rawTMDBData?.combined_credits?.cast, tmdbApi).length > 0,
-            hasProductions: this.buildProductions(rawTMDBData?.combined_credits?.crew, tmdbApi).length > 0
+            hasFilmography: rawTMDBData?.combined_credits?.cast?.filter(show => this.isShowInFilmography(show))?.length > 0,
+            hasProductions: rawTMDBData?.combined_credits?.crew?.length > 0
         }
+    }
+
+    static isShowInFilmography(rawShowData)
+    {
+        return rawShowData?.genre_ids?.length > 0 && !rawShowData?.genre_ids?.some((g) => excludedGenreIds.includes(g))
     }
     
     static async formatForCarousel(rawTMDBData, tmdbApi)
@@ -55,11 +60,34 @@ export class People
         )
     }
 
-    static buildFilmography(rawTMDBData, tmdbApi)
+    static async buildFilmography(rawTMDBData, tmdbApi)
     {
-        return rawTMDBData
-            .filter(show => show?.genre_ids?.length > 0 && !show?.genre_ids?.some((g) => excludedGenreIds.includes(g)))
-            .map(show => showClasses[show.media_type].formatForList(show, tmdbApi, show.character));
+        const uniqueShowsMap = new Map();
+
+        rawTMDBData
+            .filter(show => this.isShowInFilmography(show))
+            .forEach(show => {
+                if (uniqueShowsMap.has(show.id))
+                {
+                    const existing = uniqueShowsMap.get(show.id);
+
+                    if (show.character && existing.character)
+                    {
+                        const characters = existing.character.split(', ');
+                        if (!characters.includes(show.character))
+                            existing.character = `${existing.character}, ${show.character}`;
+                    } 
+                    
+                    else if (show.character && !existing.character) 
+                        existing.character = show.character;
+                } 
+                
+                else 
+                    uniqueShowsMap.set(show.id, { ...show });
+            });
+
+        return await Promise.all(Array.from(uniqueShowsMap.values())
+            .map(show => showClasses[show.media_type].formatForList(show, tmdbApi, show.character)));
 
         // let showsByYear = {'Divers': []};
         // rawTMDBData
@@ -89,12 +117,11 @@ export class People
         // );
     }
 
-    static buildProductions(rawTMDBData, tmdbApi)
+    static async buildProductions(rawTMDBData, tmdbApi)
     {
         const uniqueShowsMap = new Map();
 
         rawTMDBData
-            .filter(show => show?.genre_ids?.length > 0 && !show?.genre_ids?.some((g) => excludedGenreIds.includes(g)))
             .forEach(show => {
                 if (uniqueShowsMap.has(show.id))
                 {
@@ -115,7 +142,7 @@ export class People
                     uniqueShowsMap.set(show.id, { ...show });
             });
 
-        return Array.from(uniqueShowsMap.values())
-            .map(show => showClasses[show.media_type].formatForList(show, tmdbApi, show.job));
+        return await Promise.all(Array.from(uniqueShowsMap.values())
+            .map(show => showClasses[show.media_type].formatForList(show, tmdbApi, show.job)));
     }
 }

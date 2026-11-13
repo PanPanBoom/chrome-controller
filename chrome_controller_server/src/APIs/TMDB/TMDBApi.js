@@ -3,7 +3,7 @@ import 'dotenv/config';
 import { getAllShows, getShowsByFilter, getShowById } from "../../db.js";
 import { baseListsFilters, specificListsFilters } from "./lists.js";
 import { ShowScrapper } from "../../source/ShowScrapper.js";
-import { runAt } from '../../utils.js';
+import { runAt, serverLog } from '../../utils.js';
 import { Season } from "./mappers/Season.js";
 import { Episode } from "./mappers/Episode.js";
 import { People } from "./mappers/People.js";
@@ -179,7 +179,20 @@ export class TMDBApi extends Api
 
     async getSeasonById(showId, seasonNumber)
     {
-        return this.fetchApi(`${showId}/season/${seasonNumber}?language=fr-FR&append_to_response=credits`)
+        const params = new URLSearchParams();
+        params.append('append_to_response', 'credits');
+
+        let language = 'fr-FR';
+        if(seasonNumber === 0)
+        {
+            const showRes = await this.fetchApi(showId);
+            const show = await showRes.json();
+            language = `${show.original_language}-${show.origin_country}`;
+        }
+
+        params.append('language', language);
+
+        return this.fetchApi(`${showId}/season/${seasonNumber}?${params}`)
                 .then(res => res.json())
                 .then(season => Season.buildData(season, this));
     }
@@ -212,7 +225,7 @@ export class TMDBApi extends Api
     {
         return this.fetchApi(`${id}/combined_credits?language=fr-FR`)
             .then(res => res.json())
-            .then(data => People.buildFilmography(data.cast, this));
+            .then(async data => await People.buildFilmography(data.cast, this));
     }
 
     async getPeopleProductions(id)
@@ -225,8 +238,8 @@ export class TMDBApi extends Api
     async getNextEpisodeInfo(showId, episodeInfo)
     {
         const endpoints = [
-            `${showId}/season/${Number(episodeInfo.season)}/episode/${Number(episodeInfo.episode) + 1}`,
-            `${showId}/season/${Number(episodeInfo.season) + 1}/episode/${1}`
+            `${showId}/season/${episodeInfo.season}/episode/${episodeInfo.episode + 1}`,
+            `${showId}/season/${episodeInfo.season + 1}/episode/${1}`
         ];
         
         for(const endpoint of endpoints)
@@ -243,6 +256,12 @@ export class TMDBApi extends Api
         }
 
         return null;
+    }
+
+    async getCredit(creditId)
+    {
+        return this.fetchApi(`credit/${creditId}?language=fr-FR`)
+            .then(res => res.json());
     }
 
     async checkShowAvailability(id, episodeInfo)
