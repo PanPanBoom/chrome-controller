@@ -1,5 +1,6 @@
 import { Router } from "express";
-import { ApiManager } from "../../../../../src/APIs/ApiManager.js";
+import { ResourceManager } from "../../../../../src/resources/ResourceManager.js";
+import { serverLog } from "../../../../../src/utils.js";
 
 export default function personRoutes(io)
 {
@@ -8,15 +9,20 @@ export default function personRoutes(io)
         req.tmdbId = `person/${req.params.personId}`;
 
         next();
+    });
+
+    router.get('/', (req, res) => {
+        ResourceManager.resources.tmdb.getPersonById(req.tmdbId)
+            .then(person => res.json(person));
     })
 
     router.get('/filmography', (req, res) => {
-        ApiManager.apis.tmdb.getPeopleFilmography(req.tmdbId)
+        ResourceManager.resources.tmdb.getFilmography(req.tmdbId)
             .then(data => res.json(data));
     });
 
     router.get('/productions', (req, res) => {
-        ApiManager.apis.tmdb.getPeopleProductions(req.tmdbId)
+        ResourceManager.resources.tmdb.getProductions(req.tmdbId)
             .then(data => res.json(data))
     })
     

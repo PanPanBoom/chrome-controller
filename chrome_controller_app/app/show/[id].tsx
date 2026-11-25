@@ -17,8 +17,8 @@ import { WatchButton } from "@/components/WatchButton";
 import { IconTextLabel } from "@/components/ui/IconTextLabel";
 import { parseFRDate } from "@/etc/utils";
 import { PeopleBio } from "@/components/PeopleBio";
-import { ShowsList } from "@/components/ShowsList";
 import { DetailsPage } from "@/components/DetailsPage";
+import { PeopleShowsList } from "@/components/PeopleShowsList";
 
 export default function Show()
 {
@@ -47,8 +47,8 @@ export default function Show()
             <DetailsPage
                 tabs={{
                     "Biographie": <PeopleBio peopleData={showData} />,
-                    ...(showData.hasFilmography && {"Filmographie": <ShowsList showsFetchMethod={() => getPeopleFilmography(server.ip, showData.id) } />}),
-                    ...(showData.hasProductions && {"Productions": <ShowsList showsFetchMethod={() => getPeopleProductions(server.ip, showData.id) }/>})
+                    ...(showData.hasFilmography && {"Filmographie": <PeopleShowsList showsFetchMethod={() => getPeopleFilmography(server.ip, showData.id) } />}),
+                    ...(showData.hasProductions && {"Productions": <PeopleShowsList showsFetchMethod={() => getPeopleProductions(server.ip, showData.id) }/>})
                 }}
                 img={showData.img}
                 title={showData.title}

@@ -1,6 +1,6 @@
 import { Router } from "express";
 import episodesRoutes from "./episodes/routes.js";
-import { ApiManager } from "../../../../../../../src/APIs/ApiManager.js";
+import { ResourceManager } from "../../../../../../../src/resources/ResourceManager.js";
 
 export default function seasonRoutes(io)
 {
@@ -9,7 +9,7 @@ export default function seasonRoutes(io)
     router.use('/episodes', episodesRoutes(io));
 
     router.get('/', (req, res) => {
-        ApiManager.getSeasonById(req.tmdbId, req.params.seasonNumber)
+        ResourceManager.resources.tmdb.getSeasonByNumber(req.tmdbId, req.params.seasonNumber)
             .then(data => res.json(data));
     });
     

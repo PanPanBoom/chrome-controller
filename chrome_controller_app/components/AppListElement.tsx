@@ -17,7 +17,7 @@ export const AppListElement = (props: AppListElementProps) => {
         sendAppLaunch(server.ip, props.app.url);
         if(props.app.redirect)
             Linking.openURL(props.app.redirect);
-        router.push('/(tabs)/remote');
+        router.navigate('/(tabs)/remote');
     }
     
     return (

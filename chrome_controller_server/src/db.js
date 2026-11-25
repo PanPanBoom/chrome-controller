@@ -4,6 +4,10 @@ const db = new Database('local.db');
 
 export const getAllShows = () => db.prepare('SELECT * FROM shows ORDER BY lastUpdate DESC').all();
 
+export const getShowsByPage = (page, nbElements = 20) => db.prepare('SELECT * FROM shows LIMIT ? OFFSET ?').all(nbElements, (page - 1) * nbElements);
+
+export const getMaxPage = (nbElements = 20) => Math.max(Math.trunc(db.prepare('SELECT count(*) / ? FROM shows;').all(nbElements).values()[0]), 1);
+
 export const getShowsByFilter = (filter) => db.prepare("SELECT * FROM shows WHERE id LIKE ? ORDER BY lastUpdate DESC").all(filter + '%');
 
 export const saveShow = (showId, episodeInfo) => db.prepare('INSERT INTO shows (id, currentSeason, currentEpisode, lastUpdate) VALUES (?, ?, ?, ?)').run(showId, episodeInfo.season, episodeInfo.episode, Date.now());
@@ -18,9 +22,9 @@ export const getShowByTitle = (title) => db.prepare('SELECT * FROM shows WHERE t
 
 export const updateNextStartTime = (id, nextStartTime) => db.prepare('UPDATE shows SET nextStartTime = ?, lastUpdate = ? WHERE id = ?').run(nextStartTime, Date.now(), id);
 
-export const upsertNextStartTime = (showId, episodeInfo = null, nextStartTime, percentageWatched) => {
+export const upsertNextStartTime = (showId, episodeInfo = null, nextStartTime, percentageWatched, imgPath) => {
     const now = Date.now();
-    return db.prepare('INSERT INTO shows (id, currentSeason, currentEpisode, nextStartTime, percentageWatched, lastUpdate) VALUES (?, ?, ?, ?, ?, ?) ON CONFLICT (id) DO UPDATE SET currentSeason = ?, currentEpisode = ?, nextStartTime = ?, percentageWatched = ?, lastUpdate = ? WHERE id = ?').run(showId, episodeInfo?.season, episodeInfo?.episode, nextStartTime, percentageWatched, now, episodeInfo?.season, episodeInfo?.episode, nextStartTime, percentageWatched, now, showId);
+    return db.prepare('INSERT INTO shows (id, currentSeason, currentEpisode, nextStartTime, percentageWatched, imgPath, lastUpdate) VALUES (?, ?, ?, ?, ?, ?, ?) ON CONFLICT (id) DO UPDATE SET currentSeason = ?, currentEpisode = ?, nextStartTime = ?, percentageWatched = ?, imgPath = ?, lastUpdate = ? WHERE id = ?').run(showId, episodeInfo?.season, episodeInfo?.episode, nextStartTime, percentageWatched, imgPath, now, episodeInfo?.season, episodeInfo?.episode, nextStartTime, percentageWatched, imgPath, now, showId);
 } 
 
 // export const getLaunchInfo

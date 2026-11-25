@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { state } from "../../../../../../../../../src/state.js";
-import { ApiManager } from "../../../../../../../../../src/APIs/ApiManager.js";
+import { ResourceManager } from "../../../../../../../../../src/resources/ResourceManager.js";
 import { getSources, getSubtitles, launchCast, updateProgress } from "../../../../../../../../../src/apiFunctions.js";
 import { removeShowById } from "../../../../../../../../../src/db.js";
 
@@ -29,7 +29,7 @@ export default function episodeRoutes(io)
         state.serverIp = `http://${req.socket.localAddress?.replace(/^::ffff:/, '')}:${req.socket.localPort}`;
         const { audioLanguage } = req.body;
         
-        const nextEpisodeInfo = await ApiManager.apis.tmdb.getNextEpisodeInfo(req.tmdbId, req.episodeInfo);
+        const nextEpisodeInfo = await ResourceManager.resources.tmdb.getNextEpisodeInfo(req.tmdbId, req.episodeInfo);
         if(nextEpisodeInfo)
         {
             state.currentDevice.castShow('tmdb', req.tmdbId, nextEpisodeInfo, 0, null, audioLanguage);

@@ -16,7 +16,7 @@ export const ShowCasting = (props: ShowCastingProps) => {
 
     const handlePress = (actorId: string) => {
         const [mediaType, realId] = actorId.split('/');
-        router.push(`/show/${realId}?mediaType=${mediaType}`);
+        router.navigate(`/show/${realId}?mediaType=${mediaType}`);
     }
 
     return (

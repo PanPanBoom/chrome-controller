@@ -2,7 +2,7 @@ import { Device } from "./Device.js";
 import { AndroidRemote, RemoteDirection, RemoteKeyCode } from "androidtv-remote";
 import { io } from '../io.js';
 import fs from 'fs';
-import { ApiManager } from "../APIs/ApiManager.js";
+import { ResourceManager } from "../resources/ResourceManager.js";
 import { remoteConstants } from "../constants.js";
 import { serverLog } from '../utils.js'
 
@@ -95,7 +95,7 @@ export class AndroidTv extends Device {
     {
         const finalEpisodeInfo = id.includes('tv') && !episodeInfo ? { season: 1, episode: 1 } : episodeInfo;
 
-        const intent = await ApiManager.getShowIntent(platform, id, finalEpisodeInfo, startTime, source, audioLanguage);
+        const intent = await ResourceManager.getShowIntent(platform, id, finalEpisodeInfo, startTime, source, audioLanguage);
 
         await this.openUrl(intent);
     }

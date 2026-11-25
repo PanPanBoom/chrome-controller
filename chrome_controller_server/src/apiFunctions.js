@@ -1,8 +1,8 @@
-import { ApiManager } from "./APIs/ApiManager.js";
+import { ResourceManager } from "./resources/ResourceManager.js";
 import { serverLog } from "./utils.js";
 import { state } from "./state.js";
 import { searchSubtitles } from "wyzie-lib";
-import { upsertNextStartTime } from "./db.js";
+import { getShowById, upsertNextStartTime } from "./db.js";
 
 export const getSubtitles = async (req, res) => {
     serverLog("Fetching subtitles...");
@@ -68,7 +68,7 @@ export const getSources = async (req, res) => {
     // serverLog(id, episodeInfo);
     
     let first = true;
-    const sources = await ApiManager.apis.tmdb.findAvailableSources(req.tmdbId, req.episodeInfo, () => {
+    const sources = await ResourceManager.resources.tmdb.findAvailableSources(req.tmdbId, req.episodeInfo, () => {
         if(first)
         {
             first = false;
@@ -84,12 +84,22 @@ export const getSources = async (req, res) => {
     res.end();
 }
 
-export const updateProgress = (req, res) => {
+export const updateProgress = async (req, res) => {
     const { nextStartTime, percentageWatched } = req.body;
+
+    const row = getShowById(req.tmdbId);
+    const changed = !row || row.currentSeason !== req.episodeInfo.season || row.currentEpisode !== req.episodeInfo.episode;
+
+    let episodeStill = row?.imgPath;
+    if (req.episodeInfo && (changed || !episodeStill))
+    {
+        const data = await ResourceManager.resources.tmdb.api.getEpisode(req.tmdbId, req.episodeInfo);
+        episodeStill = data.still_path;
+    }
                 
     serverLog(req.body);
 
-    upsertNextStartTime(req.tmdbId, req.episodeInfo, nextStartTime, percentageWatched);
+    upsertNextStartTime(req.tmdbId, req.episodeInfo, nextStartTime, percentageWatched, episodeStill);
 
     res.send({ status: 'ok' });
 }

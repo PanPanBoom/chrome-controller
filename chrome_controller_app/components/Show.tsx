@@ -33,8 +33,7 @@ export const Show = ({className, ...props}: ShowProps) => {
         if(props.data.media_type)
         {
             const realId = props.data.id.split("/")[1];
-            console.log(`/show/${realId}?mediaType=${props.data.media_type}`);
-            router.push(`/show/${realId}?mediaType=${props.data.media_type}` as Href)
+            router.navigate(`/show/${realId}?mediaType=${props.data.media_type}` as Href)
         }
         else
             setShowInfos(prev => !prev)

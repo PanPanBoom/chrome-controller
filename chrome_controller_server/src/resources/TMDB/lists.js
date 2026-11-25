@@ -1,4 +1,4 @@
-import { getLastMonthRange, toYMD, addDays } from "../../utils.js";
+import { getLastMonthRange, toYMD, addDays, slugify, serverLog } from "../../utils.js";
 
 export const baseListsFilters = {
     "Pépites méconnues": {
@@ -97,3 +97,25 @@ export const specificListsFilters = {
         }
     }
 };
+
+export const getFiltersBySlug = (slug, mediaType) => {
+    serverLog(slug, mediaType, '\n');
+    for (const [title, filters] of Object.entries(baseListsFilters))
+    {
+        serverLog(slugify(title));
+        if (slugify(title) === slug)
+            return { title, filters, category: 'base' };
+    }
+
+    if (mediaType && specificListsFilters[mediaType])
+    {
+        for (const [title, filters] of Object.entries(specificListsFilters[mediaType]))
+        {
+            serverLog(slugify(title));
+            if (slugify(title) === slug)
+                return { title, filters, category: mediaType };
+        }
+    }
+
+    return null;
+}

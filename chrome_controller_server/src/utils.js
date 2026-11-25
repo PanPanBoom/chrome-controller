@@ -42,3 +42,10 @@ export const dateParser = (dateString) => {
     const year = date.getFullYear();
     return `${day}/${month}/${year}`;
 }
+
+export const slugify = (text) => text
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-") 
+    .replace(/^-+|-+$/g, "");

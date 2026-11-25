@@ -162,3 +162,5 @@ export const getPeopleFilmography = async (ip: string, peopleId: string) => awai
 export const getPeopleProductions = async (ip: string, peopleId: string) => await sendCommand(ip, `shows/tmdb/${peopleId}/productions`);
 
 export const getPlatformFilters = async (ip: string, platform: string) => await sendCommand(ip, `shows/${platform}/filters`);
+
+export const getListById = async (ip: string, platform:string, id: string, mediaType: string, page: number = 1) => await sendCommand(ip, `shows/${platform}/lists/${id}?page=${page}&mediaType=${mediaType}`);

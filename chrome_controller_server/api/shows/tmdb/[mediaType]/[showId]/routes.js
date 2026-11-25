@@ -1,5 +1,6 @@
 import { Router } from "express";
-import { ApiManager } from "../../../../../src/APIs/ApiManager.js";
+import { ResourceManager } from "../../../../../src/resources/ResourceManager.js";
+import { serverLog } from "../../../../../src/utils.js";
 
 export default function showRoutes(io)
 {
@@ -14,12 +15,13 @@ export default function showRoutes(io)
     router.use(generateTmdbId);
 
     router.get('/', (req, res) => {
-        ApiManager.getShowById(req.tmdbId)
+        serverLog(req.tmdbId, req.params.platform);
+        ResourceManager.resources.tmdb.getShowById(req.tmdbId)
             .then(data => res.json(data));
     });
 
     // router.post('/favorite', async (req, res) => {
-    //     let showApiData = await ApiManager.apis.netflix.getShowByTitle(currentShowTitle);
+    //     let showApiData = await ResourceManager.apis.netflix.getShowByTitle(currentShowTitle);
     //     showApiData.title = currentShowTitle;
         
     //     saveShow(showApiData);
@@ -37,7 +39,7 @@ export default function showRoutes(io)
     // });
 
     router.get('/reviews', (req, res) => {
-        ApiManager.apis.tmdb.getShowReview(req.tmdbId)
+        ResourceManager.resources.tmdb.getShowReview(req.tmdbId)
             .then(data => res.json(data));
     })
     

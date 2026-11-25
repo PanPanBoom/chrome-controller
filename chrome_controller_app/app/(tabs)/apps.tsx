@@ -3,24 +3,24 @@ import { SearchBar } from "@/components/SearchBar";
 import { ShowCarousel } from "@/components/ShowCarousel";
 import { Button } from "@/components/ui/Button";
 import { ContextMenu } from "@/components/ui/ContextMenu";
-import { CustomText } from "@/components/ui/CustomText";
 import { CustomTitle } from "@/components/ui/CustomTitle";
 import { ScrollScreen } from "@/components/ui/ScrollScreen";
+import { colors } from "@/constants/colors";
 import { AppContext } from "@/contexts/appContext";
 import { App } from "@/dtos/app";
 import { ShowCarouselDTO } from "@/dtos/show";
 import { getApps, getShowLists, getTopShows, searchShow } from "@/server/api";
-import { Href, Label, router } from "expo-router";
+import { Href, router } from "expo-router";
+import { ChevronRight } from "lucide-react-native";
 import { useContext, useEffect, useState } from "react";
-import { FlatList, ScrollView, TextInput, View } from "react-native";
+import { View } from "react-native";
 
 export default function Apps()
 {
     const [apps, setApps] = useState<App[] | null>(null);
     const [currentPlatform, setCurrentPlatform] = useState<App | null>(null);
     const [trendingShows, setTrendingShows] = useState<ShowCarouselDTO[]>([]);
-    // const [historyShows, setHistoryShows] = useState<ShowDTO[]>([]);
-    const [showLists, setShowLists] = useState<Record<string, ShowCarouselDTO[]>>({});
+    const [showLists, setShowLists] = useState<Record<string, {shows: ShowCarouselDTO[], id: string, mediaType: string}>>({});
     const [searchedShows, setSearchedShows] = useState<ShowCarouselDTO[]>([]);
     const [input, setInput] = useState("");
     const [activeFilter, setActiveFilter] = useState("");
@@ -73,6 +73,8 @@ export default function Apps()
             .then(dataFetched => setSearchedShows(dataFetched));
     }
 
+    console.log(Object.values(showLists).map(list => list.id));
+
     useEffect(() => {
         if(input.length === 0)
             setSearchedShows([]);
@@ -97,12 +99,15 @@ export default function Apps()
                 onFilterChange={setActiveFilter}
             />
             {
-                Object.entries(showLists).map(([ label, shows ]) => 
-                    shows.length > 0 &&
-                    <View key={label} className="gap-4 py-1">
-                        <CustomTitle>{label}</CustomTitle>
+                Object.entries(showLists).map(([ label, list ]) => 
+                    list.shows.length > 0 &&
+                    <View key={list.id} className="gap-4 py-1">
+                        <Button className="flex-row w-full justify-between bg-transparent p-0" onPress={() => router.navigate(`/list/${list.id}?mediaType=${list.mediaType}` as Href)}>
+                            <CustomTitle>{label}</CustomTitle>
+                            <ChevronRight color={colors.text}/>
+                        </Button>
                         <ShowCarousel 
-                            shows={shows}
+                            shows={list.shows}
                         />
                     </View>)
             }

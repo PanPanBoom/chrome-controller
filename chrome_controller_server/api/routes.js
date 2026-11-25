@@ -7,7 +7,7 @@ import { execSync } from "child_process";
 import fs from 'fs';
 import os from 'os';
 import { serverLog } from "../src/utils.js";
-import { ApiManager } from "../src/APIs/ApiManager.js";
+import { ResourceManager } from "../src/resources/ResourceManager.js";
 import remoteRoutes from "./remote/routes.js";
 
 const getProfilePicturePath = () => {
@@ -36,7 +36,7 @@ export default function apiRoutes(io)
         serverLog('Apps demandées');
         res.json(apps.map(app => ({
             ...app,
-            filters: ApiManager.getFilters(app.name.toLowerCase())
+            filters: ResourceManager.getFilters(app.name.toLowerCase())
         })));
     });
 

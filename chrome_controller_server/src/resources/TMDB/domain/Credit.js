@@ -1,0 +1,1 @@
+export const appearanceCount = (credit) => (credit.media?.seasons?.map(season => season.episode_count)?.reduce((accumulator, currentValue) => accumulator + currentValue, 0) + credit.media?.episodes?.length) ?? null;

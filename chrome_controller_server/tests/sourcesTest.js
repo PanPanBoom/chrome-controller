@@ -1,4 +1,4 @@
-import { TMDBApi } from "../src/APIs/TMDB/TMDBApi.js";
+import { TMDBApi } from "../src/resources/TMDB/TMDBApi.js";
 import { MappleTVSource } from "../src/source/MappleTVSource.js";
 import { MovixSource } from "../src/source/MovixSource.js";
 import { NakastreamSource } from "../src/source/NakastreamSource.js";

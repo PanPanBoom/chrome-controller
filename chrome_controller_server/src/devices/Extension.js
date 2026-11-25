@@ -2,7 +2,7 @@
 import { Device } from "./Device.js";
 import loudness from 'loudness';
 import { io } from '../io.js';
-import { ApiManager } from "../APIs/ApiManager.js";
+import { ResourceManager } from "../resources/ResourceManager.js";
 import { remoteConstants } from "../constants.js";
 import { serverLog } from '../utils.js'
 
@@ -35,7 +35,7 @@ export class Extension extends Device
 
     async castShow(platform, id, episodeInfo = null, source = null)
     {
-        const link = await ApiManager.getShowLink(platform, id, episodeInfo, source);
+        const link = await ResourceManager.getShowLink(platform, id, episodeInfo, source);
 
         await this.openUrl(link);
     }

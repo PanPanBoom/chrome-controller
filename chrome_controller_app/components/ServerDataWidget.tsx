@@ -23,7 +23,7 @@ export const ServerDataWidget = (props: ServerDataWidgetProps) => {
     const handleValidate = () => {
         setServer(props.server);
         hideModal();
-        router.push('/(tabs)/remote');
+        router.navigate('/(tabs)/remote');
     };
 
     return (
@@ -33,7 +33,7 @@ export const ServerDataWidget = (props: ServerDataWidgetProps) => {
                 <CustomText className="text-2xl">{props.server.serverData.name} {props.server.serverData.platform && `(${props.server.serverData.platform})`}</CustomText>
                 <CustomText style={{color: colors.secondary}}>{props.server.ip}</CustomText>
                 <View className="flex-row gap-2">
-                    <Button className={buttonStyle} onPress={router.back}>
+                    <Button className={buttonStyle} onPress={() => router.back()}>
                         <CustomText>Annuler</CustomText>
                     </Button>
                     <Button className={`${buttonStyle} bg-primary`} onPress={handleValidate}>
