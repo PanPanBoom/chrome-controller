@@ -60,19 +60,36 @@ export class BowdtvSource extends Source
 
     async fetchSource(id, episodeInfo)
     {
+        const showEndpoint = `https://api.bowdtv.com/api/v1/vod/${id}`;
         const params = new URLSearchParams();
         
-        params.append('flux', 'auto');
-        params.append('profile', this.profile);
-        params.append('want', 'VO');
-        // params.append('lang', 'fr');
         if(id.includes('tv'))
         {
             params.append('sa', episodeInfo?.season ?? 1);
             params.append('epi', episodeInfo?.episode ?? 1);
         }
 
-        const streamPromise = gotScraping.get(`https://api.bowdtv.com/api/v1/vod/${id}/stream?${params}`, {
+        const sourcesRes = await gotScraping.get(`${showEndpoint}/probe${params.keys.length > 0 ? '?' + params : ''}`, {
+            headers: {
+                Authorization: this.bearer
+            }
+        });
+
+        const sources = [...JSON.parse(sourcesRes.body).flux]
+            .filter(source => source.ok)
+            .sort((a, b) => 
+                (parseInt(b.quality, 10) || 0) - (parseInt(a.quality, 10) || 0) ||
+                Number(b.nativeHlsPortable) - Number(a.nativeHlsPortable) ||
+                (b.audioLanguages?.length || 0) - (a.audioLanguages?.length || 0));
+        
+        this.log(sources);
+
+        params.append('token', sources[0].token);
+        params.append('profile', this.profile);
+        params.append('lang', 'fr');
+
+
+        const streamPromise = gotScraping.get(`${showEndpoint}/stream?${params}`, {
             headers: {
                 Authorization: this.bearer
             }
@@ -97,7 +114,7 @@ export class BowdtvSource extends Source
 
             const videoRes = await streamPromise;
 
-            return JSON.parse(videoRes);
+            return JSON.parse(videoRes.body);
         }
 
         return data;
@@ -110,7 +127,7 @@ export class BowdtvSource extends Source
                 url: source?.url,
                 referer: this.baseUrl,
                 userAgent: this.userAgent,
-                type: source?.type
+                type: source?.type === 'hls' ? 'm3u8' : source.type
             }));
     }
 
@@ -125,7 +142,7 @@ export class BowdtvSource extends Source
         return source ?
             [{
                 name: this.name,
-                language: source.lang
+                language: source?.lang ?? 'Multi'
             }] :
             null;
     }

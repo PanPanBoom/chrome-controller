@@ -15,8 +15,8 @@ export class ShowScrapper
             // new StreamoSource(),
             // new NakastreamSource(),
             new MovixSource(),
-            new NakanimeSource(tmdbApi),
             new BowdtvSource(),
+            new NakanimeSource(tmdbApi),
             new NoxpulseSource(),
             // new MappleTVSource(),
         ];
