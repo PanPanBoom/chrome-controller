@@ -5,6 +5,7 @@ import { MovixSource } from "./MovixSource.js";
 import { NakanimeSource } from "./NakanimeSource.js";
 import { serverLog } from "../utils.js";
 import { state } from "../state.js";
+import { BowdtvSource } from "./BowdtvSource.js";
 
 export class ShowScrapper
 {
@@ -15,6 +16,7 @@ export class ShowScrapper
             // new NakastreamSource(),
             new MovixSource(),
             new NakanimeSource(tmdbApi),
+            new BowdtvSource(),
             new NoxpulseSource(),
             // new MappleTVSource(),
         ];

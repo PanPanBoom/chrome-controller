@@ -56,9 +56,8 @@ export class NakanimeSource extends Source
         
         const response = await fetch(`${this.baseUrl}${endpointUrl}`, fetchOptions);
 
-        if (!response.ok) {
+        if (!response.ok)
             throw new Error(`Erreur réseau: ${response.status}`);
-        }
 
         const arrayBuffer = await response.arrayBuffer();
 

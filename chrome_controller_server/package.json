@@ -12,15 +12,14 @@
     "dev": "node --watch --watch-path=./src --watch-path=./server.js --watch-path=./api server.js"
   },
   "dependencies": {
-    "@movie-web/providers": "^2.4.13",
     "@twurple/api": "^8.0.3",
     "@twurple/auth": "^8.0.3",
     "androidtv-remote": "github:astrokin/androidtv-remote",
-    "better-sqlite3": "^12.8.0",
+    "better-sqlite3": "^13.2.0",
     "bonjour": "^3.5.1",
-    "dotenv": "^17.3.1",
+    "dotenv": "^18.0.10",
     "express": "^5.2.1",
-    "googleapis": "^171.4.0",
+    "googleapis": "^190.0.0",
     "got-scraping": "^4.2.1",
     "loudness": "^0.4.2",
     "node-webvtt": "^2.0.0",
@@ -28,12 +27,15 @@
     "playwright": "^1.62.1",
     "playwright-extra": "^4.3.6",
     "playwright-extra-plugin-stealth": "^0.0.1",
-    "puppeteer": "22.15.0",
-    "puppeteer-core": "22.15.0",
-    "puppeteer-extra": "^3.3.6",
-    "puppeteer-extra-plugin-adblocker": "^2.13.6",
     "socket.io": "^4.8.3",
     "streaming-availability": "^4.4.0",
     "wyzie-lib": "^2.5.3"
+  },
+  "allowScripts": {
+    "puppeteer": false,
+    "@movie-web/providers": false,
+    "protobufjs@6.11.6": true,
+    "better-sqlite3@13.2.0": true,
+    "core-js": false
   }
 }

@@ -38,10 +38,8 @@ export class ScrappingBrowser {
     static async getCookieString() {
         const context = await this.getContext();
         
-        // Attention : .cookies() est une MÉTHODE asynchrone, pas une propriété !
         const cookies = await context.cookies(); 
         
-        // On formate les cookies pour pouvoir les envoyer directement dans un header
         return cookies.map(c => `${c.name}=${c.value}`).join('; ');
     }
 

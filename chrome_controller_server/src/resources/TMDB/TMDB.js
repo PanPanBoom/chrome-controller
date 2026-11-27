@@ -27,7 +27,7 @@ export class TMDB extends Resource
                 apiValue: "tv"
             }
         ];
-        this.scrapper = new ShowScrapper(this.api);
+        this.scrapper = new ShowScrapper(this);
     }
 
     searchShowsByTitle(title, filter)

@@ -1,18 +1,20 @@
-import { TMDBApi } from "../src/resources/TMDB/TMDBApi.js";
 import { MappleTVSource } from "../src/source/MappleTVSource.js";
 import { MovixSource } from "../src/source/MovixSource.js";
 import { NakastreamSource } from "../src/source/NakastreamSource.js";
 import { NoxpulseSource } from "../src/source/NoxpulseSource.js";
 import { NakanimeSource } from "../src/source/NakanimeSource.js";
 import { serverLog } from '../src/utils.js'
+import { BowdtvSource } from "../src/source/BowdtvSource.js";
+import { TMDB } from "../src/resources/TMDB/TMDB.js";
 
 const fightClubId = 'movie/550';
 
 const sources = [
-    new NakastreamSource(),
+    // new NakastreamSource(),
+    new BowdtvSource(),
     new MovixSource(),
     new NoxpulseSource(),
-    new MappleTVSource()
+    // new MappleTVSource()
 ];
 
 const testSource = async (source, showId) => {
@@ -36,5 +38,5 @@ for(const source of sources)
 
 const narutoId = 'tv/46260';
 
-const animeSource = new NakanimeSource(new TMDBApi());
+const animeSource = new NakanimeSource(new TMDB());
 testSource(animeSource, narutoId);

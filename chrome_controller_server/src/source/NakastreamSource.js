@@ -76,6 +76,8 @@ export class NakastreamSource extends Source
             }
         }
 
+        this.log("Already logged in");
+
         return true;
     }
 
