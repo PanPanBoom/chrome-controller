@@ -208,7 +208,6 @@ export class TMDB extends Resource
                 const votes = show.vote_count ?? 0;
                 const order = show.order ?? Credit.appearanceCount(await this.api.getCredit(show.credit_id));
                 const orderWeight = 2000;
-                serverLog(votes + ((show.order != null ? -1 : 1) * order * orderWeight));
 
                 return this.mapper.list(show, show[attribute], votes + ((show.order != null ? -1 : 1) * order * orderWeight));
             }));

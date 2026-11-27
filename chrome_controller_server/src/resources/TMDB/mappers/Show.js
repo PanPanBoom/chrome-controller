@@ -77,7 +77,6 @@ export class Show extends TMDBMapper
 
     list(show, info = null, relevance = 0)
     {
-        serverLog(info, relevance);
         return super.list(
             `${this.mediaType}/${show.id}`,
             this.getTitle(show),

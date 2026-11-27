@@ -81,8 +81,6 @@ export class BowdtvSource extends Source
                 (parseInt(b.quality, 10) || 0) - (parseInt(a.quality, 10) || 0) ||
                 Number(b.nativeHlsPortable) - Number(a.nativeHlsPortable) ||
                 (b.audioLanguages?.length || 0) - (a.audioLanguages?.length || 0));
-        
-        this.log(sources);
 
         params.append('token', sources[0].token);
         params.append('profile', this.profile);
