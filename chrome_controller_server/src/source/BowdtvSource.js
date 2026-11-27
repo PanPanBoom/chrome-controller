@@ -1,6 +1,7 @@
 import { gotScraping } from "got-scraping";
 import { Source } from "./Source.js";
 import { serverLog } from "../utils.js";
+import 'dotenv/config';
 
 export class BowdtvSource extends Source
 {
@@ -21,8 +22,8 @@ export class BowdtvSource extends Source
                         'Content-Type': 'application/json'
                     },
                     json: {
-                        username: 'PPBMH',
-                        password: 'Resample-Brim-Snitch5-Tastiness-Saline-Strung'
+                        username: process.env.BOWDTV_USERNAME,
+                        password: process.env.BOWDTV_PASSWORD
                     }
                 });
 
@@ -63,7 +64,8 @@ export class BowdtvSource extends Source
         
         params.append('flux', 'auto');
         params.append('profile', this.profile);
-        params.append('lang', 'fr');
+        params.append('want', 'VO');
+        // params.append('lang', 'fr');
         if(id.includes('tv'))
         {
             params.append('sa', episodeInfo?.season ?? 1);
