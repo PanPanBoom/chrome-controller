@@ -1,5 +1,5 @@
 import { ShowScrapper } from "../../source/ShowScrapper.js";
-import { slugify } from "../../utils.js";
+import { serverLog, slugify } from "../../utils.js";
 import { Resource } from "../Resource.js";
 import { TMDBApi } from "./TMDBApi.js";
 import { TMDBMapperManager } from "./TMDBMapperManager.js";
@@ -179,69 +179,51 @@ export class TMDB extends Resource
             .then(reviews => reviews?.results?.map(review => this.mapper.review(review)));
     }
 
+    getUniqueCredits(credits, attribute)
+    {
+        const uniqueShowsMap = new Map();
+
+        credits.forEach(show => {
+            if (uniqueShowsMap.has(show.id))
+            {
+                const existing = uniqueShowsMap.get(show.id);
+
+                if (show[attribute] && existing[attribute])
+                {
+                    const characters = existing[attribute].split(', ');
+                    if (!characters.includes(show[attribute]))
+                        existing[attribute] = `${existing[attribute]}, ${show[attribute]}`;
+                } 
+                
+                else if (show[attribute] && !existing[attribute]) 
+                    existing[attribute] = show[attribute];
+            } 
+            
+            else 
+                uniqueShowsMap.set(show.id, { ...show });
+        });
+
+        return Promise.all(Array.from(uniqueShowsMap.values())
+            .map(async show => {
+                const votes = show.vote_count ?? 0;
+                const order = show.order ?? Credit.appearanceCount(await this.api.getCredit(show.credit_id));
+                const orderWeight = 2000;
+                serverLog(votes + ((show.order != null ? -1 : 1) * order * orderWeight));
+
+                return this.mapper.list(show, show[attribute], votes + ((show.order != null ? -1 : 1) * order * orderWeight));
+            }));
+    }
+
     getFilmography(personId)
     {
         return this.api.getCombinedCredits(personId)
-            .then(credits => {
-                const uniqueShowsMap = new Map();
-
-                credits.cast
-                    .filter(show => this.mapper.mappers.person.isShowInFilmography(show))
-                    .forEach(show => {
-                        if (uniqueShowsMap.has(show.id))
-                        {
-                            const existing = uniqueShowsMap.get(show.id);
-
-                            if (show.character && existing.character)
-                            {
-                                const characters = existing.character.split(', ');
-                                if (!characters.includes(show.character))
-                                    existing.character = `${existing.character}, ${show.character}`;
-                            } 
-                            
-                            else if (show.character && !existing.character) 
-                                existing.character = show.character;
-                        } 
-                        
-                        else 
-                            uniqueShowsMap.set(show.id, { ...show });
-                    });
-
-                return Promise.all(Array.from(uniqueShowsMap.values())
-                    .map(async show => this.mapper.list(show, show.character, Credit.appearanceCount(await this.api.getCredit(show.credit_id)))));
-            });
+            .then(credits => this.getUniqueCredits(credits.cast.filter(show => this.mapper.mappers.person.isShowInFilmography(show)), 'character'));
     }
 
     getProductions(personId)
     {
         return this.api.getCombinedCredits(personId)
-            .then(credits => {
-                const uniqueShowsMap = new Map();
-
-                credits.crew
-                    .forEach(show => {
-                        if (uniqueShowsMap.has(show.id))
-                        {
-                            const existing = uniqueShowsMap.get(show.id);
-
-                            if (show.job && existing.job)
-                            {
-                                const jobs = existing.job.split(', ');
-                                if (!jobs.includes(show.job))
-                                    existing.job = `${existing.job}, ${show.job}`;
-                            } 
-                            
-                            else if (show.job && !existing.job) 
-                                existing.job = show.job;
-                        } 
-                        
-                        else 
-                            uniqueShowsMap.set(show.id, { ...show });
-                    });
-
-                return Promise.all(Array.from(uniqueShowsMap.values())
-                    .map(async show => this.mapper.list(show, show.job, Credit.appearanceCount(await this.api.getCredit(show.credit_id)))));
-            });
+            .then(credits => this.getUniqueCredits(credits.crew, 'job'));
     }
 
     async getNextEpisodeInfo(showId, episodeInfo)

@@ -19,9 +19,7 @@ export type ShowCarouselDTO = BaseDTO & {
 export type ShowListDTO = BaseDTO & {
     releaseDate: string;
     info: string;
-    order: number;
-    vote_count: number;
-    apparitions: number;
+    relevance: number;
 }
 
 export type CastDTO = {

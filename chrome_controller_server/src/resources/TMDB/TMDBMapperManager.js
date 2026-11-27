@@ -23,9 +23,9 @@ export class TMDBMapperManager extends TMDBMapper
         return this.mappers[show.media_type].carousel(show);
     }
 
-    list(show, info = null)
+    list(show, info = null, relevance = 0)
     {
-        return this.mappers[show.media_type].list(show, info);
+        return this.mappers[show.media_type].list(show, info, relevance);
     }
 
     details(show, collection, similars)

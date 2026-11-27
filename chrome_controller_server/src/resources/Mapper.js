@@ -17,7 +17,7 @@ export class Mapper
         };
     }
 
-    list(id, title, img, releaseDate, info, order, apparitions, vote_count, media_type)
+    list(id, title, img, releaseDate, info, relevance, media_type)
     {
         return {
             id,
@@ -25,9 +25,7 @@ export class Mapper
             img,
             releaseDate,
             info,
-            order,
-            vote_count,
-            apparitions,
+            relevance,
             media_type,
             platform: this.platform
         };

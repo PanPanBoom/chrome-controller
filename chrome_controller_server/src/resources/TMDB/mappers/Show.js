@@ -1,5 +1,5 @@
 import { getShowById } from "../../../db.js";
-import { dateParser } from "../../../utils.js";
+import { dateParser, serverLog } from "../../../utils.js";
 import * as Credit from "../domain/Credit.js";
 import { TMDBMapper } from "./TMDBMapper.js";
 
@@ -75,17 +75,16 @@ export class Show extends TMDBMapper
         };
     }
 
-    list(show, info = null, importance = 0)
+    list(show, info = null, relevance = 0)
     {
+        serverLog(info, relevance);
         return super.list(
             `${this.mediaType}/${show.id}`,
             this.getTitle(show),
             show.poster_path && (this.imageBaseUrl + show.poster_path),
             dateParser(this.getReleaseDate(show)),
             info,
-            show?.order,
-            importance,
-            show.vote_count,
+            relevance,
             this.mediaType
         );
     }

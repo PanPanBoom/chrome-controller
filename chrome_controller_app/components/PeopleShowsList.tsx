@@ -14,18 +14,7 @@ type PeopleShowsListProps = {
 }
 
 const SORT_MAP = {
-    'Pertinence': (a: ShowListDTO, b: ShowListDTO) => {
-        const votesA = a.vote_count ?? 0;
-        const votesB = b.vote_count ?? 0;
-        const orderA = a.order ?? a.apparitions;
-        const orderB = b.order ?? b.apparitions;
-        const orderWeight = 2000;
-        
-        const scoreA = votesA + ((a.order != null ? -1 : 1) * orderA * orderWeight);
-        const scoreB = votesB + ((b.order != null ? -1 : 1) * orderB * orderWeight);
-
-        return scoreB - scoreA;
-    },
+    'Pertinence': (a: ShowListDTO, b: ShowListDTO) => b.relevance - a.relevance,
     'Date': (a: ShowListDTO, b: ShowListDTO) => {
         if(!a.releaseDate)
             return 1;
@@ -66,6 +55,8 @@ export const PeopleShowsList = (props: PeopleShowsListProps) => {
                 setActiveFilter(cleanFilters[0].apiValue);
             })
     }, []);
+
+    console.log(filmography.map(show => show.relevance));
     
     return (
         <>
