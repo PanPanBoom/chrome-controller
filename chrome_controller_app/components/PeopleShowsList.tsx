@@ -55,8 +55,6 @@ export const PeopleShowsList = (props: PeopleShowsListProps) => {
                 setActiveFilter(cleanFilters[0].apiValue);
             })
     }, []);
-
-    console.log(filmography.map(show => show.relevance));
     
     return (
         <>

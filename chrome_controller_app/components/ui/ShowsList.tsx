@@ -28,7 +28,10 @@ export const ShowsList = (props: ShowsListProps) => {
                             }
                             <View className="px-6 flex-1 items-center gap-1">
                                 <CustomText numberOfLines={2} className="text-center text-lg">{show.title + (show.releaseDate ? ` (${show.releaseDate.slice(-4)})` : '')}</CustomText>
-                                <CustomText className="text-secondary text-sm text-center">{show.info}</CustomText>
+                                {
+                                    show.info &&
+                                    <CustomText className="text-secondary text-sm text-center">{show.info}</CustomText>
+                                }
                             </View>
                             <ChevronRight color={colors.text} />
                         </Button>

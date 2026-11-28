@@ -20,7 +20,7 @@ export const ShowOverview = ({ showData }: ShowOverviewProps) => {
         <>
             <CustomText className="text-justify">{showData.overview}</CustomText>
             {
-                showData?.cast &&
+                showData?.cast?.length > 0 &&
                 <>
                     <CustomTitle>Distribution</CustomTitle>
                     <ShowCasting cast={showData.cast}/>

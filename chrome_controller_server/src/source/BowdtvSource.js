@@ -51,6 +51,8 @@ export class BowdtvSource extends Source
                 this.log(e);
             }
         }
+
+        this.log(this.bearer);
     }
 
     fetchUrl(id, episodeInfo)
@@ -75,29 +77,57 @@ export class BowdtvSource extends Source
             }
         });
 
-        const sources = [...JSON.parse(sourcesRes.body).flux]
-            .filter(source => source.ok)
-            .sort((a, b) => 
-                (parseInt(b.quality, 10) || 0) - (parseInt(a.quality, 10) || 0) ||
-                Number(b.nativeHlsPortable) - Number(a.nativeHlsPortable) ||
-                (b.audioLanguages?.length || 0) - (a.audioLanguages?.length || 0));
+        const rawSources = JSON.parse(sourcesRes.body);
+        this.log(rawSources);
+        if(rawSources?.flux?.length === 0)
+            return null;
+
+        const getLangScore = (item) => {
+            const langs = item.audioLanguages || [];
+            if (langs.length > 1 && langs.includes('fr')) return 3;
+            if (item.lang === 'VF' || langs.includes('fr')) return 2;
+            if (item.lang === 'VO') return 1;
+            return 0;
+        };
+
+        const getQualityScore = (quality) => {
+            if (!quality) return 0;
+            if (quality === 'SD') return 360;
+            return parseInt(quality, 10) || 0;
+        };
+
+        const sources = [...rawSources.flux]
+                .filter(source => source.ok)
+                .sort((a, b) => 
+                    getLangScore(b) - getLangScore(a) ||
+                    getQualityScore(b.quality) - getQualityScore(a.quality) ||
+                    (b.audioLanguages?.length || 0) - (a.audioLanguages?.length || 0) ||
+                    Number(Boolean(b.webPortable)) - Number(Boolean(a.webPortable))
+                );
+
+        this.log(sources);
 
         params.append('token', sources[0].token);
         params.append('profile', this.profile);
         params.append('lang', 'fr');
 
+        return this.resolveAd(showEndpoint, params);
+    }
 
-        const streamPromise = gotScraping.get(`${showEndpoint}/stream?${params}`, {
+    async resolveAd(showEndpoint, params)
+    {
+        const res = await gotScraping.get(`${showEndpoint}/stream?${params}`, {
             headers: {
                 Authorization: this.bearer
             }
         });
 
-        const res = await streamPromise;
         const data = JSON.parse(res.body);
 
         if(Object.keys(data).includes("ad"))
         {
+            this.log('Resolving ad:', data.ad);
+
             await new Promise(res => setTimeout(res, data.ad.skippableAfterSec * 1000));
 
             await gotScraping.post("https://api.bowdtv.com/api/v1/playback/ad-complete", {
@@ -110,9 +140,7 @@ export class BowdtvSource extends Source
                 }
             });
 
-            const videoRes = await streamPromise;
-
-            return JSON.parse(videoRes.body);
+            return this.resolveAd(showEndpoint, params);
         }
 
         return data;
@@ -123,8 +151,8 @@ export class BowdtvSource extends Source
         return this.getSource(id, episodeInfo)
             .then(source => ({
                 url: source?.url,
-                referer: this.baseUrl,
-                userAgent: this.userAgent,
+                referer: source?.headers?.Referer ?? source?.headers?.referer ?? this.baseUrl,
+                userAgent: source?.headers?.['User-Agent'] ?? source?.headers?.['user-agent'] ?? this.userAgent,
                 type: source?.type === 'hls' ? 'm3u8' : source.type
             }));
     }

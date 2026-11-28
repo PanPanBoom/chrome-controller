@@ -88,7 +88,7 @@ export const updateProgress = async (req, res) => {
     const { nextStartTime, percentageWatched } = req.body;
 
     const row = getShowById(req.tmdbId);
-    const changed = !row || row.currentSeason !== req.episodeInfo.season || row.currentEpisode !== req.episodeInfo.episode;
+    const changed = !row || row.currentSeason !== req?.episodeInfo?.season || row.currentEpisode !== req?.episodeInfo?.episode;
 
     let episodeStill = row?.imgPath;
     if (req.episodeInfo && (changed || !episodeStill))

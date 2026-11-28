@@ -1,12 +1,14 @@
 import Database from 'better-sqlite3';
+import { serverLog } from './utils.js';
 
 const db = new Database('local.db');
+const maxElementsPerPage = 20
 
 export const getAllShows = () => db.prepare('SELECT * FROM shows ORDER BY lastUpdate DESC').all();
 
-export const getShowsByPage = (page, nbElements = 20) => db.prepare('SELECT * FROM shows LIMIT ? OFFSET ?').all(nbElements, (page - 1) * nbElements);
+export const getShowsByPage = (page, nbElements = maxElementsPerPage) => db.prepare('SELECT * FROM shows ORDER BY lastUpdate DESC LIMIT ? OFFSET ?').all(nbElements, (page - 1) * nbElements);
 
-export const getMaxPage = (nbElements = 20) => Math.max(Math.trunc(db.prepare('SELECT count(*) / ? FROM shows;').all(nbElements).values()[0]), 1);
+export const getMaxPage = (nbElements = maxElementsPerPage) => Math.ceil(db.prepare('SELECT count(*) / ? AS count FROM shows;').get(nbElements).count);
 
 export const getShowsByFilter = (filter) => db.prepare("SELECT * FROM shows WHERE id LIKE ? ORDER BY lastUpdate DESC").all(filter + '%');
 

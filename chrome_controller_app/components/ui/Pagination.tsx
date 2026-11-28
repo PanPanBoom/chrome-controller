@@ -41,6 +41,9 @@ type PaginationProps = ViewProps & {
 }
 
 export const Pagination = ({maxPage, currentPage, onPageChange, className, ...props}: PaginationProps) => {
+    if(maxPage === 1)
+        return null;
+    
     const groupSize = 5;
 
     const PageComponent = ({ page }: {page: number}) => 
@@ -52,7 +55,7 @@ export const Pagination = ({maxPage, currentPage, onPageChange, className, ...pr
 
     return (
         <View className={cn("flex-row items-center", className)} {...props}>
-            <Button className="bg-transparent" onPress={() => onPageChange(Math.max(currentPage - 1, 1))}>
+            <Button className="bg-transparent" onPress={() => onPageChange(Math.max(currentPage - 1, 1))} disabled={currentPage === 1}>
                 <ChevronLeft color={colors.text}/>
             </Button>
             {
@@ -63,7 +66,7 @@ export const Pagination = ({maxPage, currentPage, onPageChange, className, ...pr
                 </>
             }
             {
-                pages.map(page => <PageComponent page={page}/>)
+                pages.map(page => <PageComponent key={page} page={page}/>)
             }
             {
                 !pages.includes(maxPage) &&
@@ -72,7 +75,7 @@ export const Pagination = ({maxPage, currentPage, onPageChange, className, ...pr
                     <PageComponent page={maxPage} />
                 </>
             }
-            <Button className="bg-transparent" onPress={() => onPageChange(Math.min(currentPage + 1, maxPage))}>
+            <Button className="bg-transparent" onPress={() => onPageChange(Math.min(currentPage + 1, maxPage))} disabled={currentPage === maxPage}>
                 <ChevronRight color={colors.text}/>
             </Button>
         </View>
